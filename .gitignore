@@ -1,0 +1,5 @@
+# IDE folder
+.vscode/
+
+# dataset
+data/

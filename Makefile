@@ -4,6 +4,7 @@ TARGET ?= prog
 PATH_SOURCE ?= src/
 PATH_BUILD ?= build/
 PATH_OBJS ?= build/objs/
+PATH_TEST_EXE ?= build/tests/
 PATH_UNITY ?= unity/src/
 PATH_INCLUDE ?= include/
 PATH_TEST ?= test/
@@ -11,7 +12,7 @@ PATH_TEST ?= test/
 SOURCES := $(wildcard $(PATH_SOURCE)*.c)
 OBJECTS := $(SOURCES:$(PATH_SOURCE)%.c=$(PATH_OBJS)%.o)
 SOURCES_TEST := $(wildcard $(PATH_TEST)*.c)
-TESTS := $(SOURCES_TEST:$(PATH_TEST)%.c=$(PATH_BUILD)$(PATH_TEST)%)
+TESTS := $(SOURCES_TEST:$(PATH_TEST)%.c=$(PATH_TEST_EXE)%)
 
 # Compiler options
 CC := gcc
@@ -37,24 +38,28 @@ $(PATH_OBJS)%.o: $(PATH_SOURCE)%.c
 # Build Unity
 $(PATH_BUILD)unity/%.o: $(PATH_UNITY)%.c $(PATH_UNITY)%.h
 	@mkdir -p $(dir $@)
-	$(CC) $(CFLAGS) -I $(PATH_UNITY) -c $< -o $@
+	@$(CC) $(CFLAGS) -I $(PATH_UNITY) -c $< -o $@
 
 # Rule for building a C test file
 $(PATH_OBJS)%.o: $(PATH_TEST)%.c $(PATH_BUILD)unity/unity.o
 	@mkdir -p $(dir $@)
 	@$(CC) $(CFLAGS) -I $(PATH_UNITY) -c $< -o $@
 
-$(PATH_BUILD)$(PATH_TEST)test_%: $(PATH_OBJS)%.o $(PATH_OBJS)test_%.o $(PATH_BUILD)unity/unity.o
+$(PATH_TEST_EXE)test_%: $(PATH_OBJS)%.o $(PATH_OBJS)test_%.o $(PATH_BUILD)unity/unity.o
 	@mkdir -p $(dir $@)
 	@$(CC) $^ -o $@ $(LDFLAGS)
 
+# Rule for building the final executable
 $(TARGET): $(OBJECTS)
 	@echo -e "\n$(GREEN)Linking...$(DEFAULT)"
 	$(CC) $^ -o $@ $(LDFLAGS)
 
 tests: $(TESTS)
-	@echo -e "\n$(GREEN)Running all tests:$(DEFAULT)"
-	./$(PATH_BUILD)$(PATH_TEST)*
+	@echo -e "\n$(GREEN)Running tests...$(DEFAULT)"
+	@for test in $(TESTS); do \
+		echo -e "\n$(GREEN)Running $$test:$(DEFAULT)"; \
+		./$$test; \
+	done
 
 run:
 	@echo -e "\n$(GREEN)Running $(TARGET):$(DEFAULT)"
@@ -62,5 +67,5 @@ run:
 
 clean:
 	@echo -e "\n$(GREEN)Cleaning...$(DEFAULT)"
-	$(RM) -r $(PATH_BUILD) $(TARGET)
+	$(RM) -r $(PATH_BUILD) $(PATH_TEST_EXE) $(PATH_OBJS) $(TARGET)
 

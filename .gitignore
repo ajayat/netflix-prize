@@ -3,3 +3,6 @@
 
 # dataset
 data/
+
+# build folder
+build/

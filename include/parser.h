@@ -3,10 +3,16 @@
 #include <stdio.h>
 
 typedef struct Rating {
-    int user_id;
-    int rating;
+    int customer_id;
+    int score;
     int date;
 } Rating;
+
+typedef struct Movie {
+    Rating *ratings;
+    size_t length;
+    char *title;
+} Movie;
 
 /**
  * Return an array of movies titles.
@@ -29,6 +35,13 @@ char **parse_movies_titles(char *filename, int *length);
 Rating *parse_movie(const char *filename, int *length);
 
 /**
+ * Return a parsed structure of movies
+ * 
+ * @param data_path The name of the path containing all data
+ */
+Movie *parse(const char data_path);
+
+/**
  *  Write data structure to a file.
  * 
  * @param filename The name of the output file where the data will be written.
@@ -36,7 +49,7 @@ Rating *parse_movie(const char *filename, int *length);
  * @param size The size of the data.
  * @note The data is usually a struct or an array.
  */
-void write_to_file(const char *filename, void *data, size_t size);
+void write_to_file(const char *filename, Movie *data, size_t size);
 
 /**
  * Read data structure from a file.
@@ -46,4 +59,4 @@ void write_to_file(const char *filename, void *data, size_t size);
  * @return The data read from the file.
  * @note The data is usually a struct or an array.
  */
-void *read_from_file(const char *filename, size_t *size);
+Movie *read_from_file(const char *filename, size_t *size);

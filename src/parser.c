@@ -1,6 +1,6 @@
 #include "parser.h"
 
-int parse(char *input)
+char **parse_movies_titles(char *filename, int *length)
 {
     return 0;
 }

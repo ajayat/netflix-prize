@@ -2,6 +2,8 @@
 
 This project is using the [Unity](https://www.throwtheswitch.org/unity) framework for testing.
 
+This project is using the [Doxygen](https://www.doxygen.nl/download.html) tool for documentation generation.
+
 ## Get Started
 
 ```sh

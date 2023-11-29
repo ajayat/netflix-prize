@@ -8,6 +8,7 @@ PATH_TEST_EXE ?= build/tests/
 PATH_UNITY ?= unity/src/
 PATH_INCLUDE ?= include/
 PATH_TEST ?= test/
+PATH_DOC ?= doc/
 
 SOURCES := $(wildcard $(PATH_SOURCE)*.c)
 OBJECTS := $(SOURCES:$(PATH_SOURCE)%.c=$(PATH_OBJS)%.o)
@@ -61,6 +62,11 @@ tests: $(TESTS)
 		./$$test; \
 	done
 
+doc:
+	@mkdir -p $(PATH_DOC)
+	@echo -e "\n$(GREEN)Generating documentation...$(DEFAULT)"
+	@doxygen Doxyfile
+
 run:
 	@echo -e "\n$(GREEN)Running $(TARGET):$(DEFAULT)"
 	@./$(TARGET)
@@ -68,4 +74,3 @@ run:
 clean:
 	@echo -e "\n$(GREEN)Cleaning...$(DEFAULT)"
 	$(RM) -r $(PATH_BUILD) $(PATH_TEST_EXE) $(PATH_OBJS) $(TARGET)
-

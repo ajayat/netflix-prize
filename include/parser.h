@@ -1,6 +1,9 @@
 #pragma once
 
 #include <stdio.h>
+#include <stdlib.h>
+
+#define LENGTH_MAX_TITLE 100
 
 typedef struct Rating {
     int customer_id;
@@ -18,11 +21,11 @@ typedef struct Movie {
  * Return an array of movies titles.
  * 
  * @param filename The name of the file containing the titles.
- * @param length The number of movies.
+ * @param nb_movies The number of movies.
  * @return An array of titles.
  * @note The array must be freed by the caller.
  */
-char **parse_movies_titles(char *filename, int *length);
+char **parse_movies_titles(char *filename, int *nb_movies);
 
 /**
  * Return an array of ratings.

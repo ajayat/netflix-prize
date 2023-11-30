@@ -1,16 +1,14 @@
 #pragma once
 
-#define LENGTH_MAX_TITLE 100
-
 typedef struct Rating {
-    int customer_id;
-    int score;
-    int date;
+    uint32_t customer_id;
+    uint8_t score;
+    uint16_t date;
 } Rating;
 
 typedef struct Movie {
     Rating *ratings;
-    size_t length;
+    unsigned short nb_ratings;
     char *title;
 } Movie;
 
@@ -22,17 +20,17 @@ typedef struct Movie {
  * @return An array of titles.
  * @note The array must be freed by the caller.
  */
-char **parse_movies_titles(char *filename, int *nb_movies);
+char **parse_movies_titles(char *filename, unsigned short *nb_movies);
 
 /**
  * Return an array of ratings.
  * 
  * @param filename The name of the file containing the ratings.
- * @param length The number of ratings.
+ * @param nb_ratings The number of ratings.
  * @return An array of ratings.
  * @note The array must be freed by the caller.
  */
-Rating *parse_movie(const char *filename, int *length);
+Rating *parse_movie(const char *filename, unsigned int *nb_ratings);
 
 /**
  * Return a parsed structure of movies

@@ -1,8 +1,5 @@
 #pragma once
 
-#include <stdio.h>
-#include <stdlib.h>
-
 #define LENGTH_MAX_TITLE 100
 
 typedef struct Rating {

@@ -23,7 +23,7 @@ int main(void)
     // print some info about the movies
     for (unsigned int i = 0; i < 17770; i++)
         printf("%u: %s\n", movies[i].id, movies[i].title);
-    
+
     // free memory
     for (unsigned int i = 0; i < 17770; i++) {
         free(movies[i].ratings);

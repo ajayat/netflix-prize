@@ -42,7 +42,8 @@ unsigned int parse_movie(Rating *ratings, FILE *mv_file)
         if (r != 5)
             fscanf(mv_file, "%*[^\n]\n");  // Skip the line
 
-        ratings[nb_ratings].customer_id = (uint32_t)customer_id;
+        ratings[nb_ratings].customer_id_msb = (uint16_t)(customer_id >> 8);
+        ratings[nb_ratings].customer_id_lsb = (uint8_t)(customer_id & 8);
         ratings[nb_ratings].score = (uint8_t)score;
         ratings[nb_ratings].date = (uint16_t)days_from_epoch(y, m, d);
         nb_ratings++;

@@ -3,7 +3,8 @@
 #include <stdint.h>
 
 typedef struct Rating {
-    uint32_t customer_id;
+    uint16_t customer_id_msb;
+    uint8_t customer_id_lsb;
     uint8_t score;
     uint16_t date;
 } Rating;

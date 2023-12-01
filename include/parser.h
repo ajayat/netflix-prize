@@ -2,19 +2,29 @@
 
 #include <stdint.h>
 
+/**
+ * @brief Contains all information about a rating.
+ */
 typedef struct Rating {
-    uint16_t customer_id_msb;
-    uint8_t customer_id_lsb;
-    uint8_t score;
-    uint16_t date;
+    /*@{*/
+    uint16_t customer_id_msb; /**< The 16 most significant bits of the customer identifier. */
+    uint8_t customer_id_lsb; /**< The 8 less significant bits of the customer identifier. */
+    uint8_t score; /**< Rating given by the customer (integer from 1 to 5). */
+    uint16_t date; /**< Date of the rating (stocked as number of days since Epoch). */
+    /*@}*/
 } Rating;
 
+/**
+ * @brief Contains all information about a movie.
+ */
 typedef struct Movie {
-    char *title;
-    Rating *ratings;
-    uint32_t nb_ratings;
-    uint16_t id;
-    uint16_t date;
+    /*@{*/
+    char *title; /**< Title of the movie. */
+    Rating *ratings; /**< Table of all ratings for this movie. */
+    uint32_t nb_ratings; /**< Number of ratings for thie movie. */
+    uint16_t id; /**< Identifier of the movie. */
+    uint16_t date; /**< Date of the movie publication. */
+    /*@}*/
 } Movie;
 
 /**

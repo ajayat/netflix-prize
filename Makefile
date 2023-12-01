@@ -45,7 +45,7 @@ tests: $(TESTS)
 		./$$test; \
 	done
 
-doc:
+doc::
 	@mkdir -p $(PATH_DOC)
 	@echo -e "$(GREEN)Generating documentation...$(DEFAULT)"
 	@doxygen Doxyfile

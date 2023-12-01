@@ -5,7 +5,7 @@ PATH_SOURCE ?= src/
 PATH_BUILD ?= build/
 PATH_OBJS ?= build/objs/
 PATH_TEST_EXE ?= build/tests/
-PATH_UNITY ?= unity/src/
+PATH_UNITY ?= modules/unity/src/
 PATH_INCLUDE ?= include/
 PATH_TEST ?= test/
 PATH_DOC ?= doc/
@@ -90,4 +90,4 @@ unzip:
 
 clean:
 	@echo -e "$(GREEN)Cleaning...$(DEFAULT)"
-	$(RM) -r $(PATH_BUILD) $(PATH_TEST_EXE) $(PATH_OBJS) $(TARGET) $(DATA_BIN)
+	$(RM) -r $(PATH_BUILD) $(PATH_TEST_EXE) $(PATH_OBJS) $(PATH_DOC) $(DATA_BIN) $(TARGET) 

@@ -1,5 +1,9 @@
 # Projet Programmation - Reflexion
 
+## Configuration du projet
+
+TODO
+
 ## Composition du dataset Netflix Prize
 
 - un dossier *training_set* contenant 17770 fichiers sous la forme mv_{id_film}.txt qui contiennt des informations sur les clients ayant noté pour le film {id_film}:

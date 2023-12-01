@@ -1,5 +1,7 @@
 #pragma once
 
+#include <stdint.h>
+
 typedef struct Rating {
     uint32_t customer_id;
     uint8_t score;
@@ -7,54 +9,38 @@ typedef struct Rating {
 } Rating;
 
 typedef struct Movie {
-    Rating *ratings;
-    unsigned short nb_ratings;
     char *title;
+    Rating *ratings;
+    uint32_t nb_ratings;
+    uint16_t id;
+    uint16_t date;
 } Movie;
 
 /**
- * Return an array of movies titles.
- * 
- * @param filename The name of the file containing the titles.
- * @param nb_movies The number of movies.
- * @return An array of titles.
- * @note The array must be freed by the caller.
+ * @brief Parse a file containing the titles of movies.
+ * @param mv_titles The array of titles.
+ * @param titles_file The file containing the titles.
+ * @return The number of movies read.
  */
-char **parse_movies_titles(char *filename, unsigned short *nb_movies);
+unsigned int parse_movie_titles(Movie *movies, FILE *titles_file);
 
 /**
- * Return an array of ratings.
- * 
- * @param filename The name of the file containing the ratings.
- * @param nb_ratings The number of ratings.
- * @return An array of ratings.
- * @note The array must be freed by the caller.
+ * @brief Parse a file containing ratings of a movie.
+ * @param ratings The array of ratings.
+ * @param mv_file The movie file containing the ratings.
+ * @return The number of ratings read.
  */
-Rating *parse_movie(const char *filename, unsigned int *nb_ratings);
+unsigned int parse_movie(Rating *ratings, FILE *mv_file);
 
 /**
- * Return a parsed structure of movies
- * 
- * @param data_path The name of the path containing all data
+ * @brief Write data structure to a binary file.
+ * @param bin_file The file where the data will be written.
  */
-Movie *parse(const char data_path);
+void write_to_file(FILE *bin_file);
 
 /**
- *  Write data structure to a file.
- * 
- * @param filename The name of the output file where the data will be written.
- * @param data The data to write.
- * @param size The size of the data.
- * @note The data is usually a struct or an array.
- */
-void write_to_file(const char *filename, Movie *data, size_t size);
-
-/**
- * Read data structure from a file.
- * 
- * @param filename The name of the input file where the data will be read.
- * @param size The size of the data.
+ * @brief Read data structure from a file.
+ * @param bin_file The file where the data will be read.
  * @return The data read from the file.
- * @note The data is usually a struct or an array.
  */
-Movie *read_from_file(const char *filename, size_t *size);
+Movie *read_from_file(FILE* bin_file);

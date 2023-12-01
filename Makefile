@@ -17,7 +17,7 @@ TESTS := $(SOURCES_TEST:$(PATH_TEST)%.c=$(PATH_TEST_EXE)%)
 
 # Compiler options
 CC := gcc
-CFLAGS := -std=c17 -Wall -Wextra -g -I $(PATH_INCLUDE)
+CFLAGS := -std=c2x -Wall -Wextra -g -I $(PATH_INCLUDE)
 
 # Linker options
 LDFLAGS := -lm

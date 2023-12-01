@@ -1,12 +1,13 @@
 # IDE folder
-!./vscode/c_cpp_properties.json
-.vscode/
+.vscode/*
+!.vscode/c_cpp_properties.json
 
 # dataset
-!data/data.bin.xz
-data/
+data/*
+!data/data.bin.zst
+
 *.bin
 
 # build folder
 build/
-prog
+main

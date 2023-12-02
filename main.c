@@ -2,33 +2,34 @@
 #include <stdlib.h>
 
 #include "parser.h"
+#include "utils.h"
+
 
 int main(void)
 {
-    FILE *bin_file = fopen("data/data.bin", "wb");
-    if (bin_file == NULL) {
+    FILE *file = fopen("data/data.bin", "wb");
+    if (file == NULL) {
         fprintf(stderr, "Error: could not open file %s\n", "data.bin");
         return 1;
     }
-    write_to_file(bin_file);
-    fclose(bin_file);
+    Data* data = write_to_file(file);
+    fclose(file);
 
-    // bin_file = fopen("data/data.bin", "rb");
-    // if (bin_file == NULL) {
+    // FILE *file = fopen("data/data.bin", "rb");
+    // if (file == NULL) {
     //     fprintf(stderr, "Error: could not open file %s\n", "data.bin");
     //     return 1;
     // }
-    // Movie* movies = read_from_file(bin_file);
-    // fclose(bin_file);
+    // Data *data = read_from_file(file);
+    // fclose(file);
+
     // // print some info about the movies
-    // for (unsigned int i = 0; i < 17770; i++)
-    //     printf("%u: %s\n", movies[i].id, movies[i].title);
-    
-    // // free memory
     // for (unsigned int i = 0; i < 17770; i++) {
-    //     free(movies[i].ratings);
-    //     free(movies[i].title);
+    //     Movie *movie = data->movies[i];
+    //     printf("%u: %s\n", movie->id, movie->title);
+    //     printf("    - %u ratings\n", movie->nb_ratings);
     // }
-    // free(movies);
+
+    free_data(data);  // Free memory
     return 0;
 }

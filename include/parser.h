@@ -28,31 +28,50 @@ typedef struct Movie {
     /*@}*/
 } Movie;
 
+typedef struct Data {
+    Movie **movies;
+    unsigned int nb_movies;
+} Data;
+
+/**
+ * @brief Get the customer id of a rating.
+ * @param rating The rating.
+ * @return The customer id.
+ */
+unsigned int get_customer_id(Rating rating);
+
+/**
+ * @brief Free the memory allocated for the movies.
+ * @param data The data to free.
+ */
+void free_data(Data *data);
+
 /**
  * @brief Parse a file containing the titles of movies.
- * @param mv_titles The array of titles.
+ * @param movies The movies array.
  * @param titles_file The file containing the titles.
- * @return The number of movies read.
+ * @return 0 if the parsing was successful, 1 otherwise.
  */
-unsigned int parse_movie_titles(Movie *movies, FILE *titles_file);
+int parse_titles(Data *data, FILE *titles_file);
 
 /**
  * @brief Parse a file containing ratings of a movie.
- * @param ratings The array of ratings.
+ * @param movie The movie to which the ratings will be added.
  * @param mv_file The movie file containing the ratings.
- * @return The number of ratings read.
+ * @return 0 if the parsing was successful, 1 otherwise.
  */
-unsigned int parse_movie(Rating *ratings, FILE *mv_file);
+int parse_ratings(Movie *movie, FILE *mv_file);
 
 /**
  * @brief Write data structure to a binary file.
- * @param bin_file The file where the data will be written.
+ * @param file The file where the data will be written.
+ * @return The data structure.
  */
-void write_to_file(FILE *bin_file);
+Data *write_to_file(FILE *file);
 
 /**
  * @brief Read data structure from a file.
- * @param bin_file The file where the data will be read.
- * @return The data read from the file.
+ * @param file The file where the data will be read.
+ * @return The data structure.
  */
-Movie *read_from_file(FILE* bin_file);
+Data *read_from_file(FILE* file);

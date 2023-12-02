@@ -10,13 +10,6 @@
 unsigned int get_size(FILE *file);
 
 /**
- * @brief Get the title of a movie.
- * @param movie_id The id of the movie.
- * @return The title of the movie.
- */
-const char *get_title(int movie_id);
-
-/**
  * @brief Get the number of days between a gven date and Epoch.
  * @note Epoch is the 1st of January 1970.
  */

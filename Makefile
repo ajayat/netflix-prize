@@ -62,7 +62,8 @@ unzip:
 
 clean:
 	@echo -e "$(GREEN)Cleaning...$(DEFAULT)"
-	$(RM) -r $(PATH_BUILD) $(PATH_EXE) $(PATH_OBJS) $(PATH_DEPS) $(PATH_DOC) 
+	$(RM) -r $(PATH_BUILD) $(PATH_EXE) $(PATH_OBJS) $(PATH_DEPS)
+	$(RM) -r $(PATH_DOC)html $(PATH_DOC)latex 
 	$(RM) $(DATA_FILE) $(TARGET)
 
 # Rule for compiling a C source file

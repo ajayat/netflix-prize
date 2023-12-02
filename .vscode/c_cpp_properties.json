@@ -3,7 +3,7 @@
         {
             "name": "Linux",
             "includePath": [
-                "${workspaceFolder}/modules/unity/src/",
+                "${workspaceFolder}/unity/src/",
                 "${workspaceFolder}/include/",
                 "${workspaceFolder}/include/**/"
             ],

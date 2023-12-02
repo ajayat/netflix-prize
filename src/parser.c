@@ -31,24 +31,28 @@ unsigned int parse_movie_titles(Movie *movies, FILE *titles_file)
 
 unsigned int parse_movie(Rating *ratings, FILE *mv_file)
 {
-    unsigned short score;
-    unsigned int customer_id;
+    unsigned int size = get_size(mv_file);
+    char buffer[size+1];
+    fread(buffer, sizeof(char), size, mv_file);
+    char *begin = buffer;
+    char *end = NULL;
+    unsigned int r = 0;  // Number of ratings
+    unsigned int id;  // Customer id
     unsigned int y, m, d;
-    unsigned int nb_ratings = 0;
-
-    int r;
-    while ((r = fscanf(mv_file, "%u%*c%1hu[1-5]%*c%4u%*c%2u%*c%2u%*[^\n]\n",
-                       &customer_id, &score, &y, &m, &d)) != EOF) {
-        if (r != 5)
-            fscanf(mv_file, "%*[^\n]\n");  // Skip the line
-
-        ratings[nb_ratings].customer_id_msb = (uint16_t)(customer_id >> 8);
-        ratings[nb_ratings].customer_id_lsb = (uint8_t)(customer_id & 8);
-        ratings[nb_ratings].score = (uint8_t)score;
-        ratings[nb_ratings].date = (uint16_t)days_from_epoch(y, m, d);
-        nb_ratings++;
+    
+    while ((id = strtoul(begin, &end, 10)) != 0) 
+    {
+        ratings[r].customer_id_msb = (uint16_t)(id >> 8);
+        ratings[r].customer_id_lsb = (uint8_t)(id & 8);
+        ratings[r].score = (uint8_t)atoi(end + 1);
+        y = strtoul(end + 3, &end, 10);
+        m = strtoul(end + 1, &end, 10);
+        d = strtoul(end + 1, &end, 10);
+        ratings[r].date = (uint16_t)days_from_epoch(y, m, d);
+        begin = end + 1;
+        r++;
     }
-    return nb_ratings;
+    return r;
 }
 
 void write_to_file(FILE *bin_file)

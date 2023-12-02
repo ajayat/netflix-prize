@@ -3,6 +3,13 @@
 #include <stdint.h>
 
 /**
+ * @brief Get the size in byte of a file.
+ * @param file The file to get the size from.
+ * @return The size of the file.
+ */
+unsigned int get_size(FILE *file);
+
+/**
  * @brief Get the title of a movie.
  * @param movie_id The id of the movie.
  * @return The title of the movie.

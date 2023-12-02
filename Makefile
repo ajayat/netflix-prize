@@ -34,7 +34,7 @@ DEFAULT = $(strip \033[0m)
 # Commands
 all: $(TARGET)
 
-run: $(TARGET) unzip
+run: $(TARGET)
 	@echo -e "$(GREEN)Running $(TARGET):$(DEFAULT)"
 	@./$(TARGET)
 

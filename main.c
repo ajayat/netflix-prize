@@ -28,6 +28,12 @@ int main(void)
     //     Movie *movie = data->movies[i];
     //     printf("%u: %s\n", movie->id, movie->title);
     //     printf("    - %u ratings\n", movie->nb_ratings);
+    //     printf("    - date : %u\n", movie->date/365 + 1900);
+    //     Rating rating1 = movie->ratings[0];
+    //     printf("    - Rating 1:\n");
+    //     printf("         - customer id: %lu\n", get_customer_id(rating1));
+    //     printf("         - note: %u\n", rating1.score);
+    //     printf("         - date: %u\n", rating1.date/365 + 1900);
     // }
 
     free_data(data);  // Free memory

@@ -1,6 +1,5 @@
 # Sources options
 TARGET ?= main
-DATA_FILE ?= data/data.bin
 
 # Directories
 PATH_SRC ?= src/
@@ -50,21 +49,11 @@ doc::
 	@echo -e "$(GREEN)Generating documentation...$(DEFAULT)"
 	@doxygen Doxyfile
 
-zip:
-	@echo -e "$(GREEN)Compressing $(DATA_FILE)...$(DEFAULT)";
-	zstd -kf -T0 -5 $(DATA_FILE);
-
-unzip:
-	@if [ -f $(DATA_FILE).zst ] && [ ! -f $(DATA_FILE) ]; then \
-		echo -e "$(GREEN)Decompressing $(DATA_FILE).xz...$(DEFAULT)"; \
-		unzstd -kf -T0 $(DATA_FILE).zst; \
-	fi
-
 clean:
 	@echo -e "$(GREEN)Cleaning...$(DEFAULT)"
 	$(RM) -r $(PATH_BUILD) $(PATH_EXE) $(PATH_OBJS) $(PATH_DEPS)
-	$(RM) -r $(PATH_DOC)html $(PATH_DOC)latex 
-	$(RM) $(DATA_FILE) $(TARGET)
+	$(RM) -r $(PATH_DOC)html $(PATH_DOC)latex
+	$(RM) $(TARGET)
 
 # Rule for compiling a C source file
 $(PATH_OBJS)%.o: $(PATH_SRC)%.c

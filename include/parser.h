@@ -38,7 +38,7 @@ typedef struct Data {
  * @param rating The rating.
  * @return The customer id.
  */
-unsigned int get_customer_id(Rating rating);
+unsigned long get_customer_id(Rating rating);
 
 /**
  * @brief Free the memory allocated for the movies.

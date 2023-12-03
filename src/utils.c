@@ -2,7 +2,7 @@
 
 #include "utils.h"
 
-#define EPOCH 719468 // 1st January 1970
+#define EPOCH 693901 // 1st January 1900
 
 unsigned int get_size(FILE *file)
 {
@@ -21,5 +21,7 @@ unsigned int days_from_epoch(unsigned int year, unsigned int month, unsigned int
     unsigned int month_days = (m*306 + 5)/10;
     // Number of days between 1st March 1 and 1st March <year y> excluding leap years
     unsigned int year_days = 365*y + y/4 - y/100 + y/400;
-    return (year_days + month_days + day - 1) - EPOCH;
+    unsigned int total = year_days + month_days + day - 1;
+    // Default to 0 if the date if invalid
+    return (total > EPOCH) ? total - EPOCH : 0;
 }

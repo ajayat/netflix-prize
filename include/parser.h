@@ -21,16 +21,21 @@ typedef struct Rating {
 typedef struct Movie {
     /*@{*/
     char *title; /**< Title of the movie. */
-    Rating *ratings; /**< Table of all ratings for this movie. */
-    uint32_t nb_ratings; /**< Number of ratings for thie movie. */
+    Rating *ratings; /**< Array of all ratings for this movie. */
+    uint32_t nb_ratings; /**< Number of ratings for thie movie. (length of Movie::ratings) */
     uint16_t id; /**< Identifier of the movie. */
     uint16_t date; /**< Date of the movie publication. */
     /*@}*/
 } Movie;
 
+/**
+ * @brief Contains all information contained in the training_set.
+ */
 typedef struct Data {
-    Movie **movies;
-    unsigned int nb_movies;
+    /*@{*/
+    Movie **movies; /**< Array containing movies information sorted by movies identifiers. */
+    unsigned int nb_movies; /**< Number of movies. (length of Data::movies)*/
+    /*@}*/
 } Data;
 
 /**

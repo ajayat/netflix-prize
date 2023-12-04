@@ -5,10 +5,10 @@ workflow:
     - if: $CI_COMMIT_BRANCH
 
 pages:
-  stage: deploy
   script:
-  - apk update && apk add doxygen graphviz
-  - git submodule init && git submodule update
+  - apk update && apk add doxygen graphviz git
+  - git config --global --add safe.directory $CI_PROJECT_DIR
+  - git submodule update --init doxygen-awesome-css
   - doxygen Doxyfile
   - mv doc/html/ public/
   artifacts:

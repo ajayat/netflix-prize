@@ -1,13 +1,11 @@
-About Dataset
-================================================================================
+# About Dataset
 
 This dataset was constructed to support participants in the Netflix Prize.  See http://www.netflixprize.com for details about the prize.
 
-The movie rating files contain over 100 million ratings from 480 thousand randomly-chosen, anonymous Netflix customers over 17 thousand movie titles.  The data were collected between October, 1998 and December, 2005 and reflect the distribution of all ratings received during this period.  The ratings are on a scale from 1 to 5 (integral) stars. To protect customer privacy, each customer id has been replaced with a randomly-assigned id.  The date of each rating and the title and year of release for each movie id are also provided.
+The movie rating files contain **over 100 million ratings** from **480 thousand** randomly-chosen, anonymous Netflix customers **over 17 thousand movie titles**.  The data were collected **between October, 1998 and December, 2005** and reflect the distribution of all ratings received during this period.  The ratings are on a scale **from 1 to 5 (integral)** stars. To protect customer privacy, each customer id has been replaced with a randomly-assigned id.  The date of each rating and the title and year of release for each movie id are also provided.
 
 
-USAGE LICENSE
-================================================================================
+## Usage License
 
 Netflix can not guarantee the correctness of the data, its suitability for any particular purpose, or the validity of results based on the use of the data set. The data set may be used for any research purposes under the following conditions:
 
@@ -27,34 +25,30 @@ Netflix can not guarantee the correctness of the data, its suitability for any p
 If you have any further questions or comments, please contact the Prize administrator <prizemaster@netflix.com>
 
 
-TRAINING DATASET FILE DESCRIPTION
-================================================================================
+## Training dataset file description
 
-The file "training_set.tar" is a tar of a directory containing 17770 files, one per movie.  The first line of each file contains the movie id followed by a colon.  Each subsequent line in the file corresponds to a rating from a customer and its date in the following format:
+The file 📁 **training_set.tar** is a tar of a directory containing **17770 files**, one per movie.  The first line of each file contains the movie id followed by a colon.  Each subsequent line in the file corresponds to a rating from a customer and its date in the following format:
 
-CustomerID,Rating,Date
+`CustomerID,Rating,Date`
 
-- **MovieIDs** range from 1 to 17770 sequentially.
-- **CustomerIDs** range from 1 to 2649429, with gaps. There are 480189 users.
-- **Ratings** are on a five star (integral) scale from 1 to 5.
-- **Dates** have the format `YYYY-MM-DD`.
+- `MovieIDs` range **from 1 to 17770** sequentially.
+- `CustomerIDs` range **from 1 to 2649429**, with <u>gaps</u>. There are **480189 users**.
+- `Ratings` are on a five star (integral) scale **from 1 to 5**.
+- `Dates` have the format `YYYY-MM-DD`.
 
-MOVIES FILE DESCRIPTION
-================================================================================
+## Movies file description
 
-Movie information in "movie_titles.txt" is in the following format:
+Movie information in 📄 **movie_titles.txt** is in the following format:
 
-MovieID,YearOfRelease,Title
+`MovieID,YearOfRelease,Title`
 
-- **MovieID** do not correspond to actual Netflix movie ids or IMDB movie ids.
-- **YearOfRelease** can range from 1890 to 2005 and may correspond to the release of corresponding DVD, not necessarily its theaterical release.
-- **Title** is the Netflix movie title and may not correspond to titles used on other sites.  Titles are in English.
+- `MovieID` do not correspond to actual Netflix movie ids or IMDB movie ids.
+- `YearOfRelease` can range **from 1890 to 2005** and may correspond to the release of corresponding DVD, not necessarily its theaterical release.
+- `Title` is the Netflix movie title and may not correspond to titles used on other sites.  Titles are in English.
 
+## Qualifying and prediction dataset file description
 
-QUALIFYING AND PREDICTION DATASET FILE DESCRIPTION
-================================================================================
-
-The qualifying dataset for the Netflix Prize is contained in the text file "qualifying.txt".  It consists of lines indicating a movie id, followed by a colon, and then customer ids and rating dates, one per line for that movie id. The movie and customer ids are contained in the training set.  Of course the ratings are withheld. There are no empty lines in the file.
+The qualifying dataset for the Netflix Prize is contained in the text file 📄 **qualifying.txt**.  It consists of lines indicating a movie id, followed by a colon, and then customer ids and rating dates, one per line for that movie id. The movie and customer ids are contained in the training set.  Of course the ratings are withheld. There are **no empty lines** in the file.
 
 ```
 MovieID1:
@@ -96,10 +90,9 @@ which predicts that customer `3245` would have rated movie `111` `3.0` stars on 
 
 You must make predictions for all customers for all movies in the qualifying dataset.
 
-THE PROBE DATASET FILE DESCRIPTION
-================================================================================
+## The probe datset file description
 
-To allow you to test your system before you submit a prediction set based on the qualifying dataset, we have provided a probe dataset in the file "probe.txt". This text file contains lines indicating a movie id, followed by a colon, and then customer ids, one per line for that movie id.
+To allow you to test your system before you submit a prediction set based on the qualifying dataset, we have provided a probe dataset in the file 📄 **probe.txt**. This text file contains lines indicating a movie id, followed by a colon, and then customer ids, one per line for that movie id.
 
 ```
 MovieID1:
@@ -119,11 +112,14 @@ If you wish, you may calculate the RMSE of your predictions against those rating
 Good luck!
 
 
-MD5 SIGNATURES AND FILE SIZES
-================================================================================
+## MD5 signatures and file sizes
 
 d2b86d3d9ba8b491d62a85c9cf6aea39        577547 movie_titles.txt
+
 ed843ae92adbc70db64edbf825024514      10782692 probe.txt
+
 88be8340ad7b3c31dfd7b6f87e7b9022      52452386 qualifying.txt
-0e13d39f97b93e2534104afc3408c68c           567 rmse.pl
+
+0e13d39f97b93e2534104afc3408c68c           567 <span>rmse.pl</span>
+
 0098ee8997ffda361a59bc0dd1bdad8b    2081556480 training_set.tar

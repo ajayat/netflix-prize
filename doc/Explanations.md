@@ -25,14 +25,15 @@ Par exemple, on ne va pas stocker la note moyenne pour chaque film car elle peut
 
 L'idée est de stocker un tableau de films dont l'id est donné par son index, chaque film étant représenté par une structure contenant:
 
-- le nombre d'évaluations
-- le titre du film
-- un tableau de clients ayant noté pour ce film.
+- The movie title
+- The number of ratings
+- An array of customers who rated this movie
 
 De même, chaque client sera représenté par une structure contenant:
 
-- l'id du client
-- la note donnée
+- The customer identifier
+- The given rating
+- The rating date, stocked in the form of an integral representing number of 
 - la date de notation, stockée sous la forme d'un entier représentant le nombre de jours depuis la date Epoch (1er Janvier 1970).
 
 Ces données seront écrits dans un fichier binaire avec *fwrite* en C pour optimiser la récupération des données, car l'encodage et le décodage unicode est très couteux en temps.

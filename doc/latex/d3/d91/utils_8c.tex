@@ -1,0 +1,59 @@
+\hypertarget{utils_8c}{}\doxysection{src/utils.c File Reference}
+\label{utils_8c}\index{src/utils.c@{src/utils.c}}
+{\ttfamily \#include $<$stdio.\+h$>$}\newline
+{\ttfamily \#include \char`\"{}utils.\+h\char`\"{}}\newline
+\doxysubsection*{Macros}
+\begin{DoxyCompactItemize}
+\item 
+\#define \mbox{\hyperlink{utils_8c_a0ac447c7f69530e0caadc891c59d7244}{EPOCH}}~693901
+\end{DoxyCompactItemize}
+\doxysubsection*{Functions}
+\begin{DoxyCompactItemize}
+\item 
+unsigned int \mbox{\hyperlink{utils_8c_a539c06865a2878f3d7a0d13b92cd9481}{get\+\_\+size}} (FILE $\ast$file)
+\begin{DoxyCompactList}\small\item\em Get the size in byte of a file. \end{DoxyCompactList}\item 
+unsigned int \mbox{\hyperlink{utils_8c_a6824189a20ff32dcd4c282e8560fc70e}{days\+\_\+from\+\_\+epoch}} (unsigned int year, unsigned int month, unsigned int day)
+\begin{DoxyCompactList}\small\item\em Get the number of days between a gven date and Epoch. \end{DoxyCompactList}\end{DoxyCompactItemize}
+
+
+\doxysubsection{Macro Definition Documentation}
+\mbox{\Hypertarget{utils_8c_a0ac447c7f69530e0caadc891c59d7244}\label{utils_8c_a0ac447c7f69530e0caadc891c59d7244}} 
+\index{utils.c@{utils.c}!EPOCH@{EPOCH}}
+\index{EPOCH@{EPOCH}!utils.c@{utils.c}}
+\doxysubsubsection{\texorpdfstring{EPOCH}{EPOCH}}
+{\footnotesize\ttfamily \#define EPOCH~693901}
+
+
+
+\doxysubsection{Function Documentation}
+\mbox{\Hypertarget{utils_8c_a6824189a20ff32dcd4c282e8560fc70e}\label{utils_8c_a6824189a20ff32dcd4c282e8560fc70e}} 
+\index{utils.c@{utils.c}!days\_from\_epoch@{days\_from\_epoch}}
+\index{days\_from\_epoch@{days\_from\_epoch}!utils.c@{utils.c}}
+\doxysubsubsection{\texorpdfstring{days\_from\_epoch()}{days\_from\_epoch()}}
+{\footnotesize\ttfamily unsigned int days\+\_\+from\+\_\+epoch (\begin{DoxyParamCaption}\item[{unsigned int}]{year,  }\item[{unsigned int}]{month,  }\item[{unsigned int}]{day }\end{DoxyParamCaption})}
+
+
+
+Get the number of days between a gven date and Epoch. 
+
+\begin{DoxyNote}{Note}
+Epoch is the 1st of January 1970. 
+\end{DoxyNote}
+\mbox{\Hypertarget{utils_8c_a539c06865a2878f3d7a0d13b92cd9481}\label{utils_8c_a539c06865a2878f3d7a0d13b92cd9481}} 
+\index{utils.c@{utils.c}!get\_size@{get\_size}}
+\index{get\_size@{get\_size}!utils.c@{utils.c}}
+\doxysubsubsection{\texorpdfstring{get\_size()}{get\_size()}}
+{\footnotesize\ttfamily unsigned int get\+\_\+size (\begin{DoxyParamCaption}\item[{FILE $\ast$}]{file }\end{DoxyParamCaption})}
+
+
+
+Get the size in byte of a file. 
+
+
+\begin{DoxyParams}{Parameters}
+{\em file} & The file to get the size from. \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+The size of the file. 
+\end{DoxyReturn}

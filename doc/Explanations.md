@@ -1,31 +1,24 @@
-# Projet Programmation - Reflexion
+# Explanations
 
-## Configuration du projet
+## Composition of the dataset Netflix Prize
 
-TODO
+Read <span style="color:#1779c4;">**About Dataset**</span>.
 
-## Composition du dataset Netflix Prize
+#### Details
 
-- un dossier *training_set* contenant 17770 fichiers sous la forme mv_{id_film}.txt qui contiennt des informations sur les clients ayant noté pour le film {id_film}:
-    - L'id du client
-    - La note donnée (de 1 à 5)
-    - La date de notation
+- Each pairs of movies and customer contained in 📄 **probe.txt** <u>also present</u> in the 📁 **training_set**. This allow us to use it to evaluate the accuracy of our recommendation algorithm because we know real ratings.
 
-- un fichier *movies_titles.txt* contenant les identifiants de 1 à 17770 des films et leur titres.
+- Conversely, pairs contained in 📄 **qualifying.txt** are <u>not present</u> in the 📁 **training_set**. This file was used as part of the competition, but it does not interest us since we do not know real ratings of customers.
 
-- un fichier *probe.txt* contenant pour un film donné un sous ensemble de clients, **présents** dans le *training_set*, ayant noté pour ce film.
-    - Ce fichier va nous servir pour évaluer la précision de notre algorithme de recommandation, car on connait les notes réelles de chaque client.
+- A ⚙️ **rmse.pl** program providing an implementation in Perl of the RMSE (Root Mean Square Error) algorithm which will allow us to evaluate the accuracy of our recommendantion algorithm.
 
-- un fichier *qualifying.txt* contenant pour un film donné un sous ensemble de clients, **qui ne sont pas présents** dans le *training_set*, ayant noté pour ce film, et leur date de notation.
-    - Ce fichier est utilisé dans le cadre de la compétition pour classer les candidats, mais ne vas donc pas nous être utile, car on ne connait pas les notes réelles de chaque client.
+#### References
 
-- un programme *rmse.pl* fournissant une implémentation en Perl de l'algorithme RMSE (Root Mean Square Error) qui va nous permettre d'évaluer la précision de notre algorithme de recommandation.
+- [The Netflix Prize Bennett](https://www.cs.uic.edu/~liub/KDD-cup-2007/proceedings/The-Netflix-Prize-Bennett.pdf)
 
-Références: [The Netflix Prize Bennett](https://www.cs.uic.edu/~liub/KDD-cup-2007/proceedings/The-Netflix-Prize-Bennett.pdf)
+## The parser
 
-## Le parser
-
-Le parser va lire les données du *training_set* et les stocker sous forme de structure en C.
+The parser will read the data of the 📁 **training_set** and stock them in the form of a structure in C.
 
 La structure doit contenir toutes les informations fournies, sans en rajouter des superflues pour optimiser la mémoire et ainsi le temps de lecture.
 Par exemple, on ne va pas stocker la note moyenne pour chaque film car elle peut etre facilement recalculée et son calcul ne va pas nous être essentiel pour notre algorithme de recommandation.
@@ -54,7 +47,7 @@ Il sera donc interessant de calculer la fréquence de notation de chaque client 
 
 ## L'algorithme de recommandation
 
-### Objectif
+#### Objectif
 
 Le but de l'algorithme de recommandation est de prédire la note qu'un client donnerait à un film, avec un certaine précision.
 
@@ -63,7 +56,7 @@ Notre algorithme devra donc **obtenir un RMSE le plus petit possible.**
 
 Cette note doit donc être necessairement à virgule flottante, pour qu'elle soit la plus précise possible du point de vu probabiliste.
 
-### Conception
+#### Conception
 
 Pour concevoir un algorithme de recommandation, nous avons deux principales approches:
 
@@ -84,4 +77,6 @@ Quelques fonctions de corrélation possibles:
 - Loi de Spearman
 - Corrélation d'ensemble
 
-Références: [Recommender system (Wikipedia)](https://en.wikipedia.org/wiki/Recommender_system)
+#### References
+
+- [Recommender system (Wikipedia)](https://en.wikipedia.org/wiki/Recommender_system)

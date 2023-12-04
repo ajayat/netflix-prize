@@ -1,0 +1,165 @@
+\hypertarget{parser_8c}{}\doxysection{src/parser.c File Reference}
+\label{parser_8c}\index{src/parser.c@{src/parser.c}}
+{\ttfamily \#include $<$stdio.\+h$>$}\newline
+{\ttfamily \#include $<$stdint.\+h$>$}\newline
+{\ttfamily \#include $<$stdlib.\+h$>$}\newline
+{\ttfamily \#include $<$string.\+h$>$}\newline
+{\ttfamily \#include \char`\"{}parser.\+h\char`\"{}}\newline
+{\ttfamily \#include \char`\"{}utils.\+h\char`\"{}}\newline
+\doxysubsection*{Macros}
+\begin{DoxyCompactItemize}
+\item 
+\#define \mbox{\hyperlink{parser_8c_a9e96d4b80e7f92d67375b8ceb3620402}{LENGTH\+\_\+\+MAX\+\_\+\+TITLE}}~120
+\item 
+\#define \mbox{\hyperlink{parser_8c_a6845521a3fd3c3560dee1f9cb26cb02f}{MAX\+\_\+\+NUMBER\+\_\+\+MOVIES}}~17771
+\item 
+\#define \mbox{\hyperlink{parser_8c_a2a22fc7faf9f7da2a45638376edf9c01}{MAX\+\_\+\+NUMBER\+\_\+\+RATINGS}}~250000
+\end{DoxyCompactItemize}
+\doxysubsection*{Functions}
+\begin{DoxyCompactItemize}
+\item 
+unsigned long \mbox{\hyperlink{parser_8c_a137a7da617c39e42df69a4aa097b7d4e}{get\+\_\+customer\+\_\+id}} (\mbox{\hyperlink{structRating}{Rating}} rating)
+\begin{DoxyCompactList}\small\item\em Get the customer id of a rating. \end{DoxyCompactList}\item 
+void \mbox{\hyperlink{parser_8c_ae1b28d6b08ed70aa4e8ce354a9d7ffdc}{free\+\_\+data}} (\mbox{\hyperlink{structData}{Data}} $\ast$data)
+\begin{DoxyCompactList}\small\item\em Free the memory allocated for the movies. \end{DoxyCompactList}\item 
+int \mbox{\hyperlink{parser_8c_a85277fbfed87113a831a0b4344c4946d}{parse\+\_\+titles}} (\mbox{\hyperlink{structData}{Data}} $\ast$data, FILE $\ast$titles\+\_\+file)
+\begin{DoxyCompactList}\small\item\em Parse a file containing the titles of movies. \end{DoxyCompactList}\item 
+int \mbox{\hyperlink{parser_8c_a3458aa80d362e443a2c20337929e75d9}{parse\+\_\+ratings}} (\mbox{\hyperlink{structMovie}{Movie}} $\ast$movie, FILE $\ast$mv\+\_\+file)
+\begin{DoxyCompactList}\small\item\em Parse a file containing ratings of a movie. \end{DoxyCompactList}\item 
+\mbox{\hyperlink{structData}{Data}} $\ast$ \mbox{\hyperlink{parser_8c_ab9f81d994d62dc1d7616c88f617e4fed}{write\+\_\+to\+\_\+file}} (FILE $\ast$file)
+\begin{DoxyCompactList}\small\item\em Write data structure to a binary file. \end{DoxyCompactList}\item 
+\mbox{\hyperlink{structData}{Data}} $\ast$ \mbox{\hyperlink{parser_8c_af620d56341af284e7268946808ead0f3}{read\+\_\+from\+\_\+file}} (FILE $\ast$file)
+\begin{DoxyCompactList}\small\item\em Read data structure from a file. \end{DoxyCompactList}\end{DoxyCompactItemize}
+
+
+\doxysubsection{Macro Definition Documentation}
+\mbox{\Hypertarget{parser_8c_a9e96d4b80e7f92d67375b8ceb3620402}\label{parser_8c_a9e96d4b80e7f92d67375b8ceb3620402}} 
+\index{parser.c@{parser.c}!LENGTH\_MAX\_TITLE@{LENGTH\_MAX\_TITLE}}
+\index{LENGTH\_MAX\_TITLE@{LENGTH\_MAX\_TITLE}!parser.c@{parser.c}}
+\doxysubsubsection{\texorpdfstring{LENGTH\_MAX\_TITLE}{LENGTH\_MAX\_TITLE}}
+{\footnotesize\ttfamily \#define LENGTH\+\_\+\+MAX\+\_\+\+TITLE~120}
+
+\mbox{\Hypertarget{parser_8c_a6845521a3fd3c3560dee1f9cb26cb02f}\label{parser_8c_a6845521a3fd3c3560dee1f9cb26cb02f}} 
+\index{parser.c@{parser.c}!MAX\_NUMBER\_MOVIES@{MAX\_NUMBER\_MOVIES}}
+\index{MAX\_NUMBER\_MOVIES@{MAX\_NUMBER\_MOVIES}!parser.c@{parser.c}}
+\doxysubsubsection{\texorpdfstring{MAX\_NUMBER\_MOVIES}{MAX\_NUMBER\_MOVIES}}
+{\footnotesize\ttfamily \#define MAX\+\_\+\+NUMBER\+\_\+\+MOVIES~17771}
+
+\mbox{\Hypertarget{parser_8c_a2a22fc7faf9f7da2a45638376edf9c01}\label{parser_8c_a2a22fc7faf9f7da2a45638376edf9c01}} 
+\index{parser.c@{parser.c}!MAX\_NUMBER\_RATINGS@{MAX\_NUMBER\_RATINGS}}
+\index{MAX\_NUMBER\_RATINGS@{MAX\_NUMBER\_RATINGS}!parser.c@{parser.c}}
+\doxysubsubsection{\texorpdfstring{MAX\_NUMBER\_RATINGS}{MAX\_NUMBER\_RATINGS}}
+{\footnotesize\ttfamily \#define MAX\+\_\+\+NUMBER\+\_\+\+RATINGS~250000}
+
+
+
+\doxysubsection{Function Documentation}
+\mbox{\Hypertarget{parser_8c_ae1b28d6b08ed70aa4e8ce354a9d7ffdc}\label{parser_8c_ae1b28d6b08ed70aa4e8ce354a9d7ffdc}} 
+\index{parser.c@{parser.c}!free\_data@{free\_data}}
+\index{free\_data@{free\_data}!parser.c@{parser.c}}
+\doxysubsubsection{\texorpdfstring{free\_data()}{free\_data()}}
+{\footnotesize\ttfamily void free\+\_\+data (\begin{DoxyParamCaption}\item[{\mbox{\hyperlink{structData}{Data}} $\ast$}]{data }\end{DoxyParamCaption})}
+
+
+
+Free the memory allocated for the movies. 
+
+
+\begin{DoxyParams}{Parameters}
+{\em data} & The data to free. \\
+\hline
+\end{DoxyParams}
+\mbox{\Hypertarget{parser_8c_a137a7da617c39e42df69a4aa097b7d4e}\label{parser_8c_a137a7da617c39e42df69a4aa097b7d4e}} 
+\index{parser.c@{parser.c}!get\_customer\_id@{get\_customer\_id}}
+\index{get\_customer\_id@{get\_customer\_id}!parser.c@{parser.c}}
+\doxysubsubsection{\texorpdfstring{get\_customer\_id()}{get\_customer\_id()}}
+{\footnotesize\ttfamily unsigned long get\+\_\+customer\+\_\+id (\begin{DoxyParamCaption}\item[{\mbox{\hyperlink{structRating}{Rating}}}]{rating }\end{DoxyParamCaption})}
+
+
+
+Get the customer id of a rating. 
+
+
+\begin{DoxyParams}{Parameters}
+{\em rating} & The rating. \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+The customer id. 
+\end{DoxyReturn}
+\mbox{\Hypertarget{parser_8c_a3458aa80d362e443a2c20337929e75d9}\label{parser_8c_a3458aa80d362e443a2c20337929e75d9}} 
+\index{parser.c@{parser.c}!parse\_ratings@{parse\_ratings}}
+\index{parse\_ratings@{parse\_ratings}!parser.c@{parser.c}}
+\doxysubsubsection{\texorpdfstring{parse\_ratings()}{parse\_ratings()}}
+{\footnotesize\ttfamily int parse\+\_\+ratings (\begin{DoxyParamCaption}\item[{\mbox{\hyperlink{structMovie}{Movie}} $\ast$}]{movie,  }\item[{FILE $\ast$}]{mv\+\_\+file }\end{DoxyParamCaption})}
+
+
+
+Parse a file containing ratings of a movie. 
+
+
+\begin{DoxyParams}{Parameters}
+{\em movie} & The movie to which the ratings will be added. \\
+\hline
+{\em mv\+\_\+file} & The movie file containing the ratings. \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+0 if the parsing was successful, 1 otherwise. 
+\end{DoxyReturn}
+\mbox{\Hypertarget{parser_8c_a85277fbfed87113a831a0b4344c4946d}\label{parser_8c_a85277fbfed87113a831a0b4344c4946d}} 
+\index{parser.c@{parser.c}!parse\_titles@{parse\_titles}}
+\index{parse\_titles@{parse\_titles}!parser.c@{parser.c}}
+\doxysubsubsection{\texorpdfstring{parse\_titles()}{parse\_titles()}}
+{\footnotesize\ttfamily int parse\+\_\+titles (\begin{DoxyParamCaption}\item[{\mbox{\hyperlink{structData}{Data}} $\ast$}]{data,  }\item[{FILE $\ast$}]{titles\+\_\+file }\end{DoxyParamCaption})}
+
+
+
+Parse a file containing the titles of movies. 
+
+
+\begin{DoxyParams}{Parameters}
+{\em movies} & The movies array. \\
+\hline
+{\em titles\+\_\+file} & The file containing the titles. \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+0 if the parsing was successful, 1 otherwise. 
+\end{DoxyReturn}
+\mbox{\Hypertarget{parser_8c_af620d56341af284e7268946808ead0f3}\label{parser_8c_af620d56341af284e7268946808ead0f3}} 
+\index{parser.c@{parser.c}!read\_from\_file@{read\_from\_file}}
+\index{read\_from\_file@{read\_from\_file}!parser.c@{parser.c}}
+\doxysubsubsection{\texorpdfstring{read\_from\_file()}{read\_from\_file()}}
+{\footnotesize\ttfamily \mbox{\hyperlink{structData}{Data}}$\ast$ read\+\_\+from\+\_\+file (\begin{DoxyParamCaption}\item[{FILE $\ast$}]{file }\end{DoxyParamCaption})}
+
+
+
+Read data structure from a file. 
+
+
+\begin{DoxyParams}{Parameters}
+{\em file} & The file where the data will be read. \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+The data structure. 
+\end{DoxyReturn}
+\mbox{\Hypertarget{parser_8c_ab9f81d994d62dc1d7616c88f617e4fed}\label{parser_8c_ab9f81d994d62dc1d7616c88f617e4fed}} 
+\index{parser.c@{parser.c}!write\_to\_file@{write\_to\_file}}
+\index{write\_to\_file@{write\_to\_file}!parser.c@{parser.c}}
+\doxysubsubsection{\texorpdfstring{write\_to\_file()}{write\_to\_file()}}
+{\footnotesize\ttfamily \mbox{\hyperlink{structData}{Data}}$\ast$ write\+\_\+to\+\_\+file (\begin{DoxyParamCaption}\item[{FILE $\ast$}]{file }\end{DoxyParamCaption})}
+
+
+
+Write data structure to a binary file. 
+
+
+\begin{DoxyParams}{Parameters}
+{\em file} & The file where the data will be written. \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+The data structure. 
+\end{DoxyReturn}

@@ -52,7 +52,7 @@ doc::
 clean:
 	@echo -e "$(GREEN)Cleaning...$(DEFAULT)"
 	$(RM) -r $(PATH_BUILD) $(PATH_EXE) $(PATH_OBJS) $(PATH_DEPS)
-	$(RM) -r $(PATH_DOC)html $(PATH_DOC)latex
+	$(RM) -r $(PATH_DOC)*/
 	$(RM) $(TARGET)
 
 # Rule for compiling a C source file

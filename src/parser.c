@@ -6,6 +6,7 @@
 #include "parser.h"
 #include "utils.h"
 
+#define EPOCH_YEAR 1900
 #define LENGTH_MAX_TITLE 120
 #define MAX_NUMBER_MOVIES 17771
 #define MAX_NUMBER_RATINGS 250000
@@ -29,6 +30,7 @@ void free_data(Data *data)
 int parse_titles(Data *data, FILE *titles_file)
 {
     unsigned short id;
+    unsigned int year_int;
     char year[5];
     char title[LENGTH_MAX_TITLE];
     unsigned int m = 0;
@@ -37,7 +39,9 @@ int parse_titles(Data *data, FILE *titles_file)
         data->movies[m] = calloc(1, sizeof(Movie));
         data->movies[m]->id = (uint16_t)id;
         data->movies[m]->title = strdup(title);
-        data->movies[m]->date = days_from_epoch(strtoul(year, NULL, 10), 1, 1);
+        if ((year_int = strtoul(year, NULL, 10)) == 0)
+            year_int = EPOCH_YEAR;
+        data->movies[m]->date = days_from_epoch(year_int, 1, 1);
         m++;
     }
     data->nb_movies = m;

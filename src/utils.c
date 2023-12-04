@@ -22,6 +22,5 @@ unsigned int days_from_epoch(unsigned int year, unsigned int month, unsigned int
     // Number of days between 1st March 1 and 1st March <year y> excluding leap years
     unsigned int year_days = 365*y + y/4 - y/100 + y/400;
     unsigned int total = year_days + month_days + day - 1;
-    // Default to 0 if the date if invalid
-    return (total > EPOCH) ? total - EPOCH : 0;
+    return total - EPOCH;
 }

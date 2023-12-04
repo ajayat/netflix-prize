@@ -1,0 +1,17 @@
+image: alpine
+
+workflow:
+  rules:
+    - if: $CI_COMMIT_BRANCH
+
+pages:
+  script:
+  - apk update && apk add doxygen graphviz ttf-freefont
+  - doxygen Doxyfile
+  - mv doc/html/ public/
+  artifacts:
+    paths:
+    - public
+  rules:
+    - if: $CI_COMMIT_BRANCH == "master"
+  environment: production

@@ -7,4 +7,5 @@ data/
 
 # build folder
 build/
+doc/*/
 main

@@ -2,17 +2,17 @@
 
 ## Composition of the dataset Netflix Prize
 
-Read <span style="color:#1779c4;">**About Dataset**</span>.
+Read **[About Dataset](AboutDataset.md)**.
 
-#### Details
+### Details
 
-- Each pairs of movies and customer contained in 📄 **probe.txt** <u>also present</u> in the 📁 **training_set**. This allow us to use it to evaluate the accuracy of our recommendation algorithm because we know real ratings.
+- Each pairs of movies and customer contained in 📄 *probe.txt* **also present** in the 📁 *training_set*. This allow us to use it to evaluate the accuracy of our recommendation algorithm because we know real ratings.
 
-- Conversely, pairs contained in 📄 **qualifying.txt** are <u>not present</u> in the 📁 **training_set**. This file was used as part of the competition, but it does not interest us since we do not know real ratings of customers.
+- Conversely, pairs contained in 📄 *qualifying.txt* are **not present** in the 📁 *training_set*. This file was used as part of the competition, but it does not interest us since we do not know real ratings of customers.
 
-- A ⚙️ **rmse.pl** program providing an implementation in Perl of the RMSE (Root Mean Square Error) algorithm which will allow us to evaluate the accuracy of our recommendantion algorithm.
+- A ⚙️ *rmse.pl* program providing an implementation in Perl of the RMSE (Root Mean Square Error) algorithm which will allow us to evaluate the accuracy of our recommendantion algorithm.
 
-#### References
+### References
 
 - [The Netflix Prize Bennett](https://www.cs.uic.edu/~liub/KDD-cup-2007/proceedings/The-Netflix-Prize-Bennett.pdf)
 
@@ -33,8 +33,8 @@ De même, chaque client sera représenté par une structure contenant:
 
 - The customer identifier
 - The given rating
-- The rating date, stocked in the form of an integral representing number of 
-- la date de notation, stockée sous la forme d'un entier représentant le nombre de jours depuis la date Epoch (1er Janvier 1970).
+- The rating date, stocked in the form of an integral representing number of days since the Epoch date (defined as January 1st 1889).
+- la date de notation, stockée sous la forme d'un entier représentant le nombre de jours depuis la date Epoch.
 
 Ces données seront écrits dans un fichier binaire avec *fwrite* en C pour optimiser la récupération des données, car l'encodage et le décodage unicode est très couteux en temps.
 
@@ -48,7 +48,7 @@ Il sera donc interessant de calculer la fréquence de notation de chaque client 
 
 ## L'algorithme de recommandation
 
-#### Objectif
+### Objectif
 
 Le but de l'algorithme de recommandation est de prédire la note qu'un client donnerait à un film, avec un certaine précision.
 
@@ -57,7 +57,7 @@ Notre algorithme devra donc **obtenir un RMSE le plus petit possible.**
 
 Cette note doit donc être necessairement à virgule flottante, pour qu'elle soit la plus précise possible du point de vu probabiliste.
 
-#### Conception
+### Conception
 
 Pour concevoir un algorithme de recommandation, nous avons deux principales approches:
 
@@ -78,6 +78,6 @@ Quelques fonctions de corrélation possibles:
 - Loi de Spearman
 - Corrélation d'ensemble
 
-#### References
+### References
 
 - [Recommender system (Wikipedia)](https://en.wikipedia.org/wiki/Recommender_system)

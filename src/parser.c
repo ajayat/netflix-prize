@@ -6,7 +6,7 @@
 #include "parser.h"
 #include "utils.h"
 
-#define EPOCH_YEAR 1900
+#define EPOCH_YEAR 1889
 #define LENGTH_MAX_TITLE 120
 #define MAX_NUMBER_MOVIES 17771
 #define MAX_NUMBER_RATINGS 250000

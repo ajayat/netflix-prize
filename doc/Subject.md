@@ -1,6 +1,6 @@
 # Subject
 
-`Télécom Physque Strasboourg: 1A-IR`
+`Télécom Physique Strasbourg: 1A-IR`
 `Teacher: Pierre Galmiche`
 
 ## 1. General idea of the project
@@ -14,10 +14,11 @@ The project must be carried out alone or in pairs. Header files must all be docu
 Please note, if you use source code found on the internet, you must cite it clearly in the source code and you must understand what you have copied (I reserve the right to ask you questions about it). The difficulty of the project depends on how much you implemented yourself and is taken into account in the rating. The grading grid takes into account the clarity of the code, the structure, the implementation choices, the tests and the quantity of things achieved.
 
 In particular you must:
+
 - organize your files correctly (in multiple folders).
 - write documentation (in header files).
 - render a project that compiles without errors or warnings (by activating all warnings), and without valgrind errors.
-- write separate tests (unit with a tests.c program and/or execution with a <span>test.sh</span>) which allow you to check that your functions are correct.
+- write separate tests (unit with a tests.c program and/or execution with a test.sh) which allow you to check that your functions are correct.
 - write a makefile with appropriate rules (all, doc, tests).
 - support the SIGINT signal (which occurs during a ”Ctrl+C”).
 
@@ -38,6 +39,7 @@ Once parsing is complete, your program must be able to save the structure in a b
 #### Some statistics
 
 Once the structure is in memory, you must implement algorithms to obtain statistics from the saved data. Each algorithm is executed by giving a command line option. For example :
+
 - the `-f FOLDER` option will specify the path of the folder where the files corresponding to the requested results will be saved.
 - the option `-l LIMITED` will prohibit taking notes into account if their date is greater than LIMITED.
 - the `-s FILM_ID` option will give statistics on the film's FILM_ID identifier (number of ratings, average rating, etc.).
@@ -51,7 +53,8 @@ Once the structure is in memory, you must implement algorithms to obtain statist
 If the basis of your statistics program works, you can test it with the recommendation part. For example, your algorithm could give a list of recommended movies from a list of films that the user liked.
 
 `./prog -r ”M1,M2,M3,M4,M5,M6” -n 10` would give a list of 10 movies that might interest someone who likes the M1-M6 films. It should work if we give a file as input: `./prog -r my_likes.txt -n 10`. With the file *my_likes.txt* which contains:
-```
+
+```md
 M1
 M2
 M3
@@ -64,4 +67,4 @@ Obviously many of the examples above are possible extensions, you must start by 
 
 ### 3.4. Tests to check that everything is working properly
 
-The project must have a Makefile with a clean rule and whose first rule allows the main executable to be compiled. A tests folder must contain a Makefile allowing you to compile a tests.c program which tests the different functions that you have implemented. There may also be a <span>test.sh</span> script that runs the program on test files to verify that the output is correct.
+The project must have a Makefile with a clean rule and whose first rule allows the main executable to be compiled. A tests folder must contain a Makefile allowing you to compile a tests.c program which tests the different functions that you have implemented. There may also be a test.sh script that runs the program on test files to verify that the output is correct.

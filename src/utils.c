@@ -2,7 +2,7 @@
 
 #include "utils.h"
 
-#define EPOCH 693901 // 1st January 1900
+#define EPOCH 689884 // 1st January 1889
 
 unsigned int get_size(FILE *file)
 {

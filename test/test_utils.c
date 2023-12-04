@@ -1,7 +1,7 @@
 #include "unity.h"
 #include "utils.h"
 
-#define EPOCH_YEAR 1900
+#define EPOCH_YEAR 1889
 
 void setUp(void) {}
 void tearDown(void) {}

@@ -34,23 +34,23 @@ DEFAULT = $(strip \033[0m)
 all: $(TARGET)
 
 run: $(TARGET)
-	@echo -e "$(GREEN)Running $(TARGET):$(DEFAULT)"
+	@printf "$(GREEN)Running $(TARGET):$(DEFAULT)\n"
 	@./$(TARGET)
 
 tests: $(TESTS)
-	@echo -e "$(GREEN)Running tests...$(DEFAULT)"
+	@printf "$(GREEN)Running tests...$(DEFAULT)\n"
 	@for test in $(TESTS); do \
-		echo -e "\n$(GREEN)Running $$test:$(DEFAULT)"; \
+		printf "\n$(GREEN)Running $$test:$(DEFAULT)\n"; \
 		./$$test; \
 	done
 
 doc::
 	@mkdir -p $(PATH_DOC)
-	@echo -e "$(GREEN)Generating documentation...$(DEFAULT)"
+	@printf "$(GREEN)Generating documentation...$(DEFAULT)\n"
 	@doxygen Doxyfile
 
 clean:
-	@echo -e "$(GREEN)Cleaning...$(DEFAULT)"
+	@printf "$(GREEN)Cleaning...$(DEFAULT)\n"
 	$(RM) -r $(PATH_BUILD) $(PATH_EXE) $(PATH_OBJS) $(PATH_DEPS)
 	$(RM) -r $(PATH_DOC)*/
 	$(RM) $(TARGET)
@@ -58,9 +58,9 @@ clean:
 # Rule for compiling a C source file
 $(PATH_OBJS)%.o: $(PATH_SRC)%.c
 	@mkdir -p $(PATH_OBJS)
-	@echo -e "$(GREEN)Compiling $< $(DEFAULT)"
+	@printf "$(GREEN)Compiling $< $(DEFAULT)\n"
 	$(CC) $(CFLAGS) -c $< -o $@
-	@echo
+	@printf "\n"
 
 # Rule for compiling a C test file
 $(PATH_OBJS)%.o: $(PATH_TEST)%.c
@@ -70,9 +70,9 @@ $(PATH_OBJS)%.o: $(PATH_TEST)%.c
 # Rule for compiling main file
 $(PATH_OBJS)$(TARGET).o: $(TARGET).c
 	@mkdir -p $(PATH_OBJS)
-	@echo -e "$(GREEN)Compiling $< $(DEFAULT)"
+	@printf "$(GREEN)Compiling $< $(DEFAULT)\n"
 	$(CC) $(CFLAGS) -c $< -o $@
-	@echo
+	@printf "\n"
 
 # Build Unity
 $(PATH_OBJS)unity.o: $(PATH_UNITY)unity.c $(PATH_UNITY)unity.h
@@ -87,7 +87,7 @@ $(PATH_EXE)test_%: $(PATH_OBJS)test_%.o $(OBJECTS) $(PATH_OBJS)unity.o
 # Rule for building the final executable
 $(TARGET): $(OBJECTS) $(PATH_OBJS)$(TARGET).o
 	@mkdir -p $(PATH_EXE)
-	@echo -e "$(GREEN)Linking...$(DEFAULT)"
+	@printf "$(GREEN)Linking...$(DEFAULT)\n"
 	$(CC) $^ -o $@ $(LDFLAGS)
 
 .PRECIOUS: $(PATH_DEPS)%.d

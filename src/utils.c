@@ -2,8 +2,6 @@
 
 #include "utils.h"
 
-#define EPOCH 689884 // 1st January 1889
-
 unsigned int get_size(FILE *file)
 {
     fseek(file, 0L, SEEK_END);

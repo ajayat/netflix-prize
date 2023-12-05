@@ -57,7 +57,8 @@ int parse_ratings(Movie *movie, FILE *mv_file)
     }
     unsigned int size = get_size(mv_file);
     char buffer[size+1];
-    fread(buffer, sizeof(char), size, mv_file);
+    if (fread(buffer, sizeof(char), size, mv_file) == 0)
+        return 1;
 
     unsigned int r = 0;  // Number of ratings
     unsigned int id;  // Customer id
@@ -101,8 +102,8 @@ Data *write_to_file(FILE *file)
 
     for (unsigned int i = 0; i < data->nb_movies; i++)
     {
-        printf("Processing movie %d\n", i);  // Information for the user
         Movie *movie = data->movies[i];
+        printf("Processing movie %d\n", movie->id);  // Information for the user
         // Open the movie file
         char mv_filename[40];
         snprintf(mv_filename, 40, "data/training_set/mv_%07u.txt", movie->id);
@@ -129,7 +130,8 @@ Data *read_from_file(FILE* file)
 {
     // Allocate memory for data
     Data *data = malloc(sizeof(Data));
-    fread(&data->nb_movies, sizeof(uint32_t), 1, file);
+    if (fread(&data->nb_movies, sizeof(uint32_t), 1, file) != sizeof(uint32_t))
+        goto read_error;
     data->movies = malloc(data->nb_movies * sizeof(Movie*));
 
     for (unsigned int i = 0; i < data->nb_movies; i++)
@@ -137,15 +139,22 @@ Data *read_from_file(FILE* file)
         Movie *movie = malloc(sizeof(Movie));
         data->movies[i] = movie;
         // Read informations about the movie
-        fread(&movie->id, sizeof(uint16_t), 1, file);
         uint8_t title_length;
-        fread(&title_length, sizeof(uint8_t), 1, file);
+        if (fread(&movie->id, sizeof(uint16_t), 1, file) != sizeof(uint16_t) ||
+            fread(&title_length, sizeof(uint8_t), 1, file) != sizeof(uint8_t))
+            goto read_error;
         movie->title = malloc(title_length * sizeof(char));
-        fread(movie->title, sizeof(char), title_length, file);
-        fread(&movie->date, sizeof(uint16_t), 1, file);
-        fread(&movie->nb_ratings, sizeof(uint32_t), 1, file);
+        if (fread(movie->title, sizeof(char), title_length, file) != sizeof(char) ||
+            fread(&movie->date, sizeof(uint16_t), 1, file) != sizeof(uint16_t) ||
+            fread(&movie->nb_ratings, sizeof(uint32_t), 1, file) != sizeof(uint32_t))
+            goto read_error;
         movie->ratings = malloc(movie->nb_ratings * sizeof(Rating));
-        fread(movie->ratings, sizeof(Rating), movie->nb_ratings, file);
+        if (fread(movie->ratings, sizeof(Rating), movie->nb_ratings, file) != sizeof(Rating))
+            goto read_error;
     }
     return data;
+
+read_error:
+    free_data(data);
+    return NULL;
 }

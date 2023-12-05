@@ -45,7 +45,7 @@ tests: $(TESTS)
 	done
 
 doc::
-	@mkdir -p $(PATH_DOC)
+	@mkdir -p $(PATH_DOC) && $(RM) -r $(PATH_DOC)*/
 	@printf "$(GREEN)Generating documentation...$(DEFAULT)\n"
 	@doxygen Doxyfile
 

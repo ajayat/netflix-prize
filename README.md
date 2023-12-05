@@ -1,8 +1,8 @@
-# Projet Programmation 2023
+# Programming Project
 
 This project is using the [Unity](https://www.throwtheswitch.org/unity) framework for testing.
 
-This project is using the [Doxygen](https://www.doxygen.nl/download.html) tool for documentation generation, with the theme [Doxygen Awesome](https://jothepro.github.io/doxygen-awesome-css/).
+This project is using the [Doxygen](https://www.doxygen.nl/download.html) tool for documentation generation, with the [Doxygen Awesome](https://jothepro.github.io/doxygen-awesome-css/) theme.
 
 ## Get Started
 

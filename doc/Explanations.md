@@ -6,15 +6,11 @@ Read **[About Dataset](AboutDataset.md)**.
 
 ### Details
 
-- Each pairs of movies and customer contained in 📄 *probe.txt* **also present** in the 📁 *training_set*. This allow us to use it to evaluate the accuracy of our recommendation algorithm because we know real ratings.
+- Each pairs of movies and customer contained in 📄 *probe.txt* **also present** in the 📁 *training_set*[¹][1]. This allow us to use it to evaluate the accuracy of our recommendation algorithm because we know real ratings.
 
 - Conversely, pairs contained in 📄 *qualifying.txt* are **not present** in the 📁 *training_set*. This file was used as part of the competition, but it does not interest us since we do not know real ratings of customers.
 
 - A ⚙️ *rmse.pl* program providing an implementation in Perl of the RMSE (Root Mean Square Error) algorithm which will allow us to evaluate the accuracy of our recommendantion algorithm.
-
-### References
-
-- [The Netflix Prize Bennett](https://www.cs.uic.edu/~liub/KDD-cup-2007/proceedings/The-Netflix-Prize-Bennett.pdf)
 
 ## The parser
 
@@ -59,7 +55,7 @@ Cette note doit donc être necessairement à virgule flottante, pour qu'elle soi
 
 ### Conception
 
-Pour concevoir un algorithme de recommandation, nous avons deux principales approches:
+Pour concevoir un algorithme de recommandation, nous avons deux principales approches[²][2]:
 
 - Un système orienté client
 - Un système orienté film
@@ -78,6 +74,10 @@ Quelques fonctions de corrélation possibles:
 - Loi de Spearman
 - Corrélation d'ensemble
 
-### References
+## References
 
-- [Recommender system (Wikipedia)](https://en.wikipedia.org/wiki/Recommender_system)
+1. <https://www.cs.uic.edu/~liub/KDD-cup-2007/proceedings/The-Netflix-Prize-Bennett.pdf>
+2. <https://en.wikipedia.org/wiki/Recommender_system>
+
+[1]: https://www.cs.uic.edu/~liub/KDD-cup-2007/proceedings/The-Netflix-Prize-Bennett.pdf
+[2]: https://en.wikipedia.org/wiki/Recommender_system

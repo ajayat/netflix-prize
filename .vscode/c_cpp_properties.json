@@ -8,7 +8,7 @@
                 "${workspaceFolder}/include/**/"
             ],
             "defines": [],
-            "cStandard": "gnu23"
+            "cStandard": "gnu17"
         }
     ],
     "version": 4

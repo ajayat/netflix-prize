@@ -38,7 +38,10 @@ int parse_titles(Data *data, FILE *titles_file)
     while (fscanf(titles_file, "%hu%*c%4c%*c%119[^\n]\n", &id, year, title) != EOF) {
         data->movies[m] = calloc(1, sizeof(Movie));
         data->movies[m]->id = (uint16_t)id;
-        data->movies[m]->title = strdup(title);
+        size_t title_length = strlen(title) + 1;
+        data->movies[m]->title = malloc(title_length * sizeof(char));
+        strncpy(data->movies[m]->title, title, title_length);
+        // data->movies[m]->title = strdup(title);  // C23
         if ((year_int = strtoul(year, NULL, 10)) == 0)
             year_int = EPOCH_YEAR;
         data->movies[m]->date = days_from_epoch(year_int, 1, 1);
@@ -51,6 +54,7 @@ int parse_titles(Data *data, FILE *titles_file)
 int parse_ratings(Movie *movie, FILE *mv_file)
 {
     Rating *ratings = malloc(MAX_NUMBER_RATINGS * sizeof(Rating));
+    movie->ratings = ratings;
     if (ratings == NULL) {
         fprintf(stderr, "Error: could not allocate memory for ratings\n");
         return 1;
@@ -136,7 +140,7 @@ Data *read_from_file(FILE* file)
 
     for (unsigned int i = 0; i < data->nb_movies; i++)
     {
-        Movie *movie = malloc(sizeof(Movie));
+        Movie *movie = calloc(1, sizeof(Movie));
         data->movies[i] = movie;
         // Read informations about the movie
         uint8_t title_length;

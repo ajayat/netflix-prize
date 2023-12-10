@@ -21,7 +21,7 @@ TESTS := $(SRCS_TEST:$(PATH_TEST)%.c=$(PATH_EXE)%)
 
 # Compiler options
 CC := gcc
-CFLAGS := -std=c2x -Wall -Wextra -g -O3 -I $(PATH_INCLUDE)
+CFLAGS := -std=c17 -Wall -Wextra -g -O3 -I $(PATH_INCLUDE)
 
 # Linker options
 LDFLAGS := -lm

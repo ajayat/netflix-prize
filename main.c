@@ -5,6 +5,7 @@
 
 #include "parser.h"
 #include "utils.h"
+#include "stats.h"
 
 static char doc[] = "Programming Project";
 static char args_doc[] = "";
@@ -20,19 +21,9 @@ static struct argp_option options[] = {
     { 0 }
 };
 
-typedef struct arguments {
-    const char* folder;
-    unsigned int limit;
-    unsigned int movie_id;
-    unsigned int customer_ids[2];
-    unsigned int bad_reviewers[2];
-    unsigned int min;
-    bool time;
-} arguments;
-
 static error_t parse_opt(int key, char *arg, struct argp_state *state)
 {
-    arguments *args = state->input;
+    Arguments *args = state->input;
     switch (key) {
     case 'f':
         args->folder = arg;
@@ -68,7 +59,7 @@ static struct argp argp = { options, parse_opt, args_doc, doc, 0, 0, 0 };
 
 int main(int argc, char *argv[])
 {
-    arguments args;
+    Arguments args;
     argp_parse(&argp, argc, argv, 0, 0, &args);
 
     return 0;

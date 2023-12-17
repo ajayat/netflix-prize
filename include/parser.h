@@ -68,11 +68,16 @@ int parse_titles(Data *data, FILE *titles_file);
 int parse_ratings(Movie *movie, FILE *mv_file);
 
 /**
+ * @brief Parse the training_set.
+ * @return The data structure.
+*/
+Data *parse(void);
+/**
  * @brief Write data structure to a binary file.
  * @param file The file where the data will be written.
- * @return The data structure.
+ * @param data The data structure.
  */
-Data *write_to_file(FILE *file);
+void write_to_file(FILE *file, Data *data);
 
 /**
  * @brief Read data structure from a file.

@@ -89,7 +89,7 @@ int parse_ratings(Movie *movie, FILE *mv_file)
     return 0;
 }
 
-Data *write_to_file(FILE *file)
+Data *parse(void)
 {
     FILE *titles_file = fopen("data/movie_titles.txt", "r");
     if (titles_file == NULL) {
@@ -101,13 +101,11 @@ Data *write_to_file(FILE *file)
     data->movies = malloc(MAX_NUMBER_MOVIES * sizeof(Movie*));
     parse_titles(data, titles_file);
     fclose(titles_file);
-    // Write the number of movies
-    fwrite(&data->nb_movies, sizeof(uint32_t), 1, file);
 
     for (unsigned int i = 0; i < data->nb_movies; i++)
     {
         Movie *movie = data->movies[i];
-        printf("Processing movie %d\n", movie->id);  // Information for the user
+        // printf("Processing movie %d\n", movie->id);  // Information for the user
         // Open the movie file
         char mv_filename[40];
         snprintf(mv_filename, 40, "data/training_set/mv_%07u.txt", movie->id);
@@ -117,6 +115,18 @@ Data *write_to_file(FILE *file)
             continue; // Ignore this movie
         }
         parse_ratings(movie, mv_file);
+    }
+    return data;
+}
+
+void write_to_file(FILE *file, Data *data)
+{
+    // Write the number of movies
+    fwrite(&data->nb_movies, sizeof(uint32_t), 1, file);
+
+    for (unsigned int i = 0; i < data->nb_movies; i++)
+    {
+        Movie *movie = data->movies[i];
         uint8_t title_length = strlen(movie->title) + 1;
         // Write informations about the movie
         fwrite(&movie->id, sizeof(uint16_t), 1, file);
@@ -125,36 +135,38 @@ Data *write_to_file(FILE *file)
         fwrite(&movie->date, sizeof(uint16_t), 1, file);
         fwrite(&movie->nb_ratings, sizeof(uint32_t), 1, file);
         fwrite(movie->ratings, sizeof(Rating), movie->nb_ratings, file);
-        fclose(mv_file);
     }
-    return data;
 }
 
 Data *read_from_file(FILE* file)
 {
     // Allocate memory for data
     Data *data = malloc(sizeof(Data));
-    if (fread(&data->nb_movies, sizeof(uint32_t), 1, file) != sizeof(uint32_t))
-        goto read_error;
-    data->movies = malloc(data->nb_movies * sizeof(Movie*));
-
-    for (unsigned int i = 0; i < data->nb_movies; i++)
+    data->nb_movies = 0;
+    unsigned int nb_movies;
+    if (!fread(&nb_movies, sizeof(uint32_t), 1, file)) {
+        free(data);
+        return NULL;
+    }
+    data->movies = malloc(nb_movies * sizeof(Movie*));
+    for (unsigned int i = 0; i < nb_movies; i++)
     {
         Movie *movie = calloc(1, sizeof(Movie));
         data->movies[i] = movie;
         // Read informations about the movie
         uint8_t title_length;
-        if (fread(&movie->id, sizeof(uint16_t), 1, file) != sizeof(uint16_t) ||
-            fread(&title_length, sizeof(uint8_t), 1, file) != sizeof(uint8_t))
+        if (!fread(&movie->id, sizeof(uint16_t), 1, file) ||
+            !fread(&title_length, sizeof(uint8_t), 1, file))
             goto read_error;
         movie->title = malloc(title_length * sizeof(char));
-        if (fread(movie->title, sizeof(char), title_length, file) != sizeof(char) ||
-            fread(&movie->date, sizeof(uint16_t), 1, file) != sizeof(uint16_t) ||
-            fread(&movie->nb_ratings, sizeof(uint32_t), 1, file) != sizeof(uint32_t))
+        if (fread(movie->title, sizeof(char), title_length, file) != title_length ||
+            !fread(&movie->date, sizeof(uint16_t), 1, file) ||
+            !fread(&movie->nb_ratings, sizeof(uint32_t), 1, file))
             goto read_error;
         movie->ratings = malloc(movie->nb_ratings * sizeof(Rating));
-        if (fread(movie->ratings, sizeof(Rating), movie->nb_ratings, file) != sizeof(Rating))
+        if (!fread(movie->ratings, sizeof(Rating), movie->nb_ratings, file))
             goto read_error;
+        data->nb_movies++;
     }
     return data;
 

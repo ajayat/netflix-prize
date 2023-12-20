@@ -16,7 +16,7 @@ void test_write_to_file(void)
     char filepath[1024];
     if (getcwd(filepath, 1024) == NULL)
         perror("getcwd() error");
-    strncat(filepath, "/data/data.bin", 17);
+    strncat(filepath, "/data/fulldata.bin", 17);
 
     FILE *file = fopen(filepath, "wb");
     TEST_ASSERT_EQUAL(0, errno);
@@ -33,7 +33,7 @@ void test_read_from_file(void)
     char filepath[1024];
     if (getcwd(filepath, 1024) == NULL)
         perror("getcwd() error");
-    strncat(filepath, "/data/data.bin", 17);
+    strncat(filepath, "/data/fulldata.bin", 17);
 
     FILE *file = fopen(filepath, "rb");
     TEST_ASSERT_EQUAL(0, errno);

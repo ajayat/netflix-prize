@@ -1,6 +1,9 @@
 #pragma once
 
+#include <stdio.h>
+#include <stdint.h>
 #include <stdbool.h>
+#include "parser.h"
 
 /** 
  * @brief Contains all arguments given by the user, already parsed.
@@ -24,11 +27,9 @@ typedef struct Arguments {
  * 
  */
 typedef struct Movie_stats {
-    uint32_t nb_ratings;
-    float r_average;
-    uint8_t r_min;
-    uint8_t r_max;
-    uint16_t date;
+    float average;
+    uint8_t min;
+    uint8_t max;
 } Movie_stats;
 
 /**
@@ -55,7 +56,7 @@ void free_stats(Stats *stats);
  * @return `True` if all work during the process.
  * @return `False` otherwise.
  */
-bool count_ratings(FILE *file, unsigned int *elite);
+void count_ratings(Data *data, unsigned int *elite);
 
 /**
  * @brief 
@@ -79,9 +80,10 @@ bool not_a_bad_reviewer(Arguments *args, unsigned long id);
 
 /**
  * @brief Main function to collect statistic from the binary file, respectings given arguments.
+ * @note This function also make a new binary file with dessired data.
  * 
- * @param file Binary file from which data is extracted
+ * @param fulldata Data extracted from the binary file
  * @param args Arguments given by the user.
  * @return A `Stats*` structure containing all requested statistics.
  */
-Stats *read_all_stats(FILE *file, Arguments *args);
+Stats *read_stats_from_data(Data *fulladata, Arguments *args);

@@ -16,3 +16,12 @@ unsigned int get_size(FILE *file);
  * @note Epoch is the 1st January 1889.
  */
 unsigned int days_from_epoch(unsigned int year, unsigned int month, unsigned int day);
+
+/**
+ * @brief Duplicate a string.
+ * @param str The string to duplicate.
+ * @return The duplicated string.
+ * 
+ * @note This function is not part of the C standard library before C23.
+*/
+char *strdup(const char *str);

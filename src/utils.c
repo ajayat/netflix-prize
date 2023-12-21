@@ -1,4 +1,6 @@
 #include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
 
 #include "utils.h"
 
@@ -21,4 +23,13 @@ unsigned int days_from_epoch(unsigned int year, unsigned int month, unsigned int
     unsigned int year_days = 365*y + y/4 - y/100 + y/400;
     unsigned int total = year_days + month_days + day - 1;
     return total - EPOCH;
+}
+
+char *strdup(const char *str)
+{
+    size_t str_length = strlen(str) + 1;
+    char *dup = malloc(str_length * sizeof(char));
+    if (dup != NULL)
+        strncpy(dup, str, str_length);
+    return dup;
 }

@@ -38,10 +38,7 @@ int parse_titles(Data *data, FILE *titles_file)
     while (fscanf(titles_file, "%hu%*c%4c%*c%119[^\n]\n", &id, year, title) != EOF) {
         data->movies[m] = calloc(1, sizeof(Movie));
         data->movies[m]->id = (uint16_t)id;
-        size_t title_length = strlen(title) + 1;
-        data->movies[m]->title = malloc(title_length * sizeof(char));
-        strncpy(data->movies[m]->title, title, title_length);
-        // data->movies[m]->title = strdup(title);  // C23
+        data->movies[m]->title = strdup(title);
         if ((year_int = strtoul(year, NULL, 10)) == 0)
             year_int = EPOCH_YEAR;
         data->movies[m]->date = days_from_epoch(year_int, 1, 1);

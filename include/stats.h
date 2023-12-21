@@ -24,57 +24,45 @@ typedef struct Arguments {
 
 /**
  * @brief Contains all stats about a movie.
- * 
  */
-typedef struct Movie_stats {
-    float average;
+typedef struct MovieStats {
+    double average;
     uint8_t min;
     uint8_t max;
-} Movie_stats;
+} MovieStats;
 
 /**
  * @brief Contains all stats about all movies.
- * 
  */
 typedef struct Stats {
-    Movie_stats *movies;
+    MovieStats *movies;
     int nb_movies;
 } Stats;
 
 /**
  * @brief Free a stat structure.
- * 
  * @param stats Structure to free.
  */
 void free_stats(Stats *stats);
 
 /**
  * @brief Count the number of ratings per customer in order to know if they are an elite or not.
- * 
  * @param file Binary file used to count.
- * @param elite Array with the number of ratings per customers.
+ * @param ratings Array with the number of ratings per customers.
  * @return `True` if all work during the process.
  * @return `False` otherwise.
  */
-void count_ratings(Data *data, unsigned int *elite);
+void count_ratings(Data *data, unsigned int *ratings);
 
 /**
- * @brief 
- * 
- * @param args 
- * @param id 
  * @return `True` if the customer must be taken into account.
- * @return `False` otherwise.
+ *         `False` otherwise.
  */
 bool is_requested(Arguments *args, unsigned long id);
 
 /**
- * @brief 
- * 
- * @param args 
- * @param id 
  * @return `True` if the customer must be taken into account.
- * @return `False` otherwise.
+ *         `False` otherwise.
  */
 bool not_a_bad_reviewer(Arguments *args, unsigned long id);
 

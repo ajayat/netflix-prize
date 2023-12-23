@@ -14,27 +14,40 @@ Read **[About Dataset](AboutDataset.md)**.
 
 ## The parser
 
-The parser will read the data of the 📁 **training_set** and stock them in the form of a structure in C.
+The parser will read the data of the 📁 **training_set** and stock them in the form of a structure in C. This one should contain all information without adding any in order to optimize memory and readding time.
 
-La structure doit contenir toutes les informations fournies, sans en rajouter des superflues pour optimiser la mémoire et ainsi le temps de lecture.
-Par exemple, on ne va pas stocker la note moyenne pour chaque film car elle peut etre facilement recalculée et son calcul ne va pas nous être essentiel pour notre algorithme de recommandation.
-
-L'idée est de stocker un tableau de films dont l'id est donné par son index, chaque film étant représenté par une structure contenant:
+The idea is to stock an array of movies for which their index is their identifier. Each movie is represented by a structure containing:
 
 - The movie title
 - The number of ratings
 - An array of customers who rated this movie
 
-De même, chaque client sera représenté par une structure contenant:
+Likewise, each rating will be represented by a structure containing:
 
 - The customer identifier
 - The given rating
 - The rating date, stocked in the form of an integral representing number of days since the Epoch date (defined as January 1st 1889).
-- la date de notation, stockée sous la forme d'un entier représentant le nombre de jours depuis la date Epoch.
 
-Ces données seront écrits dans un fichier binaire avec *fwrite* en C pour optimiser la récupération des données, car l'encodage et le décodage unicode est très couteux en temps.
+These data will be written in a binary file thanks to `fwrite` in C to optimize date recovery, because unicode encoding and decoding is very time-consuming. Data are stocked in this order:
 
-## Les statistiques
+- Number of movies (2 bytes), and for each one:
+  - Its identifier (2 bytes)
+  - The number of bytes to encode its title (1 byte)
+  - Its title (previous value × bytes)
+  - Its date (2 bytes)
+  - Its number of ratings (4 bytes), and for each one:
+    - The customer identifier (3 bytes) divided into:
+      - Most significant bytes (2 bytes)
+      - Less significant byte (1 byte)
+    - The given score (1 byte)
+    - The date of the rating (2 bytes)
+
+| Number of movies | Movie identifier | Length of title | Title                   | Date    | Number of ratings | Customer identifier         | Score  | Date of rating |
+| :--------------: | :--------------: | :-------------: | :---------------------: | :-----: | :---------------: | :-------------------------: | :----: | :------------: |
+|     2 bytes      | 2 byte           | 1 byte          | Length of title × bytes | 2 bytes | 4 bytes           | msb: 2 bytes & lsb: 1 byte | 1 byte | 2 bytes        |
+
+
+## The statistics
 
 Dans cette partie, et avant de commencer l'algorithme de recommandation, il est important d'analyser la taille et la répartition de nos données.
 

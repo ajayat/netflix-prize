@@ -22,10 +22,10 @@ void test_write_to_file(void)
     TEST_ASSERT_EQUAL(0, errno);
     TEST_ASSERT_NOT_EQUAL(NULL, file);
 
-    Data *data = parse();
+    MovieData *data = parse();
     write_to_file(file, data);
     fclose(file);
-    free_data(data); // Free memory
+    free_movie_data(data); // Free memory
 }
 
 void test_read_from_file(void)
@@ -39,11 +39,11 @@ void test_read_from_file(void)
     TEST_ASSERT_EQUAL(0, errno);
     TEST_ASSERT_NOT_EQUAL(NULL, file);
 
-    Data *data = read_from_file(file);
+    MovieData *data = read_from_file(file);
     TEST_ASSERT_NOT_EQUAL(NULL, data);
     TEST_ASSERT_EQUAL(17770, data->nb_movies);
     fclose(file);
-    free_data(data); // Free memory
+    free_movie_data(data); // Free memory
 }
 
 int main(void)

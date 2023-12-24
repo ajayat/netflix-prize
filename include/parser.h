@@ -31,12 +31,31 @@ typedef struct Movie {
 /**
  * @brief Contains all information contained in the training_set.
  */
-typedef struct Data {
+typedef struct MovieData {
     /*@{*/
     Movie **movies; /**< Array containing movies information sorted by movies identifiers. */
     unsigned int nb_movies; /**< Number of movies. (length of Data::movies)*/
     /*@}*/
-} Data;
+} MovieData;
+
+/**
+ * @brief Contains all information about a user.
+ */
+typedef struct User {
+    /*@{*/
+    uint16_t id; /**< Identifier of the user. */
+    uint32_t nb_ratings; /**< Number of ratings given by the user. */
+    Rating *ratings; /**< Array of all ratings given by the user. */
+    /*@}*/
+} User;
+
+/**
+ * @brief User data oriented structure.
+ */
+typedef struct UserData {
+    User **users; /**< Array containing users information sorted by users identifiers. */
+    unsigned int nb_users; /**< Number of users. (length of UserData::users)*/
+} UserData;
 
 /**
  * @brief Get the customer id of a rating.
@@ -49,7 +68,9 @@ unsigned long get_customer_id(Rating rating);
  * @brief Free the memory allocated for the movies.
  * @param data The data to free.
  */
-void free_data(Data *data);
+void free_movie_data(MovieData *data);
+
+void free_user_data(UserData *data);
 
 /**
  * @brief Parse a file containing the titles of movies.
@@ -57,7 +78,7 @@ void free_data(Data *data);
  * @param titles_file The file containing the titles.
  * @return 0 if the parsing was successful, 1 otherwise.
  */
-int parse_titles(Data *data, FILE *titles_file);
+int parse_titles(MovieData *data, FILE *titles_file);
 
 /**
  * @brief Parse a file containing ratings of a movie.
@@ -71,17 +92,24 @@ int parse_ratings(Movie *movie, FILE *mv_file);
  * @brief Parse the training_set.
  * @return The data structure.
 */
-Data *parse(void);
+MovieData *parse(void);
 /**
  * @brief Write data structure to a binary file.
  * @param file The file where the data will be written.
  * @param data The data structure.
  */
-void write_to_file(FILE *file, Data *data);
+void write_to_file(FILE *file, MovieData *data);
 
 /**
  * @brief Read data structure from a file.
  * @param file The file where the data will be read.
  * @return The data structure.
  */
-Data *read_from_file(FILE* file);
+MovieData *read_from_file(FILE* file);
+
+/**
+ * @brief Convert a movie oriented data to a user oriented data.
+ * @param data The movie oriented data.
+ * @return The user oriented data.
+ */
+UserData *to_user_oriented(MovieData *data);

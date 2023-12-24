@@ -2,6 +2,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <string.h>
+#include <stdbool.h>
 
 #include "parser.h"
 #include "utils.h"
@@ -10,13 +11,14 @@
 #define LENGTH_MAX_TITLE 120
 #define MAX_NUMBER_MOVIES 17771
 #define MAX_NUMBER_RATINGS 250000
+#define MAX_USER_ID 2649430
 
 unsigned long get_customer_id(Rating rating)
 {
     return (((uint32_t)rating.customer_id_msb) << 8) + (uint32_t)rating.customer_id_lsb;
 }
 
-void free_data(Data *data)
+void free_movie_data(MovieData *data)
 {
     for (unsigned int i = 0; i < data->nb_movies; i++) {
         free(data->movies[i]->title);
@@ -27,7 +29,17 @@ void free_data(Data *data)
     free(data);
 }
 
-int parse_titles(Data *data, FILE *titles_file)
+void free_user_data(UserData *data)
+{
+    for (unsigned int i = 0; i < data->nb_users; i++) {
+        free(data->users[i]->ratings);
+        free(data->users[i]);
+    }
+    free(data->users);
+    free(data);
+}
+
+int parse_titles(MovieData *data, FILE *titles_file)
 {
     unsigned short id;
     unsigned int year_int;
@@ -80,13 +92,12 @@ int parse_ratings(Movie *movie, FILE *mv_file)
         r++;
     }
     if (r > 0)
-        ratings = realloc(ratings, r * sizeof(Rating));
+        movie->ratings = realloc(ratings, r * sizeof(Rating));
     movie->nb_ratings = r;
-    movie->ratings = ratings;
     return 0;
 }
 
-Data *parse(void)
+MovieData *parse(void)
 {
     FILE *titles_file = fopen("data/movie_titles.txt", "r");
     if (titles_file == NULL) {
@@ -94,7 +105,7 @@ Data *parse(void)
         exit(EXIT_FAILURE);
     }
     // Allocate memory for data
-    Data *data = malloc(sizeof(Data));
+    MovieData *data = malloc(sizeof(MovieData));
     data->movies = malloc(MAX_NUMBER_MOVIES * sizeof(Movie*));
     parse_titles(data, titles_file);
     fclose(titles_file);
@@ -116,7 +127,7 @@ Data *parse(void)
     return data;
 }
 
-void write_to_file(FILE *file, Data *data)
+void write_to_file(FILE *file, MovieData *data)
 {
     // Write the number of movies
     fwrite(&data->nb_movies, sizeof(uint32_t), 1, file);
@@ -135,10 +146,10 @@ void write_to_file(FILE *file, Data *data)
     }
 }
 
-Data *read_from_file(FILE* file)
+MovieData *read_from_file(FILE* file)
 {
     // Allocate memory for data
-    Data *data = malloc(sizeof(Data));
+    MovieData *data = malloc(sizeof(MovieData));
     data->nb_movies = 0;
     unsigned int nb_movies;
     if (!fread(&nb_movies, sizeof(uint32_t), 1, file)) {
@@ -168,6 +179,41 @@ Data *read_from_file(FILE* file)
     return data;
 
 read_error:
-    free_data(data);
+    free_movie_data(data);
     return NULL;
+}
+
+static bool is_power_of_two(unsigned long x)
+{
+    return (x != 0) && ((x & (x - 1)) == 0);
+}
+
+UserData *to_user_oriented(MovieData *data)
+{
+    UserData *user_data = malloc(sizeof(UserData));
+    user_data->nb_users = 0;
+    user_data->users = calloc(MAX_USER_ID, sizeof(User*));
+
+    for (unsigned int i = 0; i < data->nb_movies; i++) 
+    {
+        Movie *movie = data->movies[i];
+        for (unsigned int r = 0; r < movie->nb_ratings; r++) 
+        {
+            Rating rating = movie->ratings[r];
+            unsigned long id = get_customer_id(rating);
+            if (user_data->users[id] == NULL) {
+                User *user = user_data->users[id] = malloc(sizeof(User));
+                user->id = id;
+                user->nb_ratings = 0;
+                user->ratings = malloc(sizeof(Rating));
+                user_data->nb_users++;
+            }
+            User *user = user_data->users[id];
+            if (is_power_of_two(user->nb_ratings))
+                user->ratings = realloc(user->ratings, 
+                                        2 * user->nb_ratings * sizeof(Rating));
+            user->ratings[user->nb_ratings++] = rating;
+        }
+    }
+    return user_data;
 }

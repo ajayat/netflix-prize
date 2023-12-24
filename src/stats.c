@@ -4,9 +4,6 @@
 #include "stats.h"
 #include "utils.h"
 
-#define MAX_NUMBER_RATINGS 250000
-#define MAX_CUSTOMER_ID 2649430
-
 void free_stats(Stats *stats)
 {
     if (stats == NULL)
@@ -14,16 +11,6 @@ void free_stats(Stats *stats)
     if (stats->movies != NULL) 
         free(stats->movies);
     free(stats);
-}
-
-void count_ratings(Data *data, unsigned int *ratings)
-{
-    for (unsigned int m = 0; m < data->nb_movies; m++) {
-        for (unsigned int r = 0; r < data->movies[m]->nb_ratings; r++) {
-            unsigned long id = get_customer_id(data->movies[m]->ratings[r]);
-            ratings[id]++;
-        }
-    }
 }
 
 bool is_requested(Arguments *args, unsigned long id)
@@ -44,24 +31,21 @@ bool is_a_bad_reviewer(Arguments *args, unsigned long id)
     return false;
 }
 
-Stats *read_stats_from_data(Data *fulldata, Arguments *args)
+Stats *read_stats_from_data(MovieData *movie_data, Arguments *args)
 {
-    unsigned int ratings_count[MAX_CUSTOMER_ID] = {0};
-    if (args->min > 0)
-        count_ratings(fulldata, ratings_count);
-
+    UserData *user_data = to_user_oriented(movie_data);
     // Allocate memory for stats
     Stats *stats = malloc(sizeof(Stats));
-    stats->movies = calloc(fulldata->nb_movies, sizeof(MovieStats));
+    stats->movies = calloc(movie_data->nb_movies, sizeof(MovieStats));
     // Allocate memory for partial data
-    Data *data = malloc(sizeof(Data));
-    data->nb_movies = fulldata->nb_movies;
+    MovieData *data = malloc(sizeof(MovieData));
+    data->nb_movies = movie_data->nb_movies;
     data->movies = malloc(data->nb_movies * sizeof(Movie*));
 
     unsigned long c_id;
     for (unsigned int m = 0; m < data->nb_movies; m++)
     {
-        Movie *movie = fulldata->movies[m];
+        Movie *movie = movie_data->movies[m];
         Movie *movie_dst = data->movies[m] = malloc(sizeof(Movie));
         // Copy of unchanged caracteristics
         movie_dst->id = movie->id;
@@ -70,14 +54,14 @@ Stats *read_stats_from_data(Data *fulldata, Arguments *args)
         // Ratings treatment
         movie_dst->nb_ratings = 0;
         unsigned long r_dst = 0;
-        movie_dst->ratings = malloc(MAX_NUMBER_RATINGS * sizeof(Rating));
+        movie_dst->ratings = malloc(movie->nb_ratings * sizeof(Rating));
         
         for (unsigned int r = 0; r < movie->nb_ratings ; r++) 
         {
             c_id = get_customer_id(movie->ratings[r]);
 
             if (movie->ratings[r].date >= args->limit // opt -l
-                || ratings_count[c_id] < args->min // opt -e
+                || user_data->users[c_id]->nb_ratings < args->min // opt -e
                 || args->nb_customer_ids && !is_requested(args, c_id) // opt -c
                 || args->nb_bad_reviewers && is_a_bad_reviewer(args, c_id)) // opt -b
                 continue;
@@ -112,6 +96,7 @@ Stats *read_stats_from_data(Data *fulldata, Arguments *args)
         if (fclose(one_movie) == EOF)
             perror("The file can't be closed."); // ! Modifier avec nom du fichier
     }
-    free_data(data);
+    free_movie_data(data);
+    free_user_data(user_data);
     return stats;
 }

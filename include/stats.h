@@ -32,11 +32,22 @@ typedef struct MovieStats {
 } MovieStats;
 
 /**
+ * @brief Contains all stats about a user.
+ */
+typedef struct UserStats {
+    int *frequency;
+    double average;
+    uint32_t nb_ratings;
+} UserStats;
+
+/**
  * @brief Contains all stats about all movies.
  */
 typedef struct Stats {
     MovieStats *movies;
+    UserStats *users;
     int nb_movies;
+    int nb_users;
 } Stats;
 
 /**
@@ -44,15 +55,6 @@ typedef struct Stats {
  * @param stats Structure to free.
  */
 void free_stats(Stats *stats);
-
-/**
- * @brief Count the number of ratings per customer in order to know if they are an elite or not.
- * @param file Binary file used to count.
- * @param ratings Array with the number of ratings per customers.
- * @return `True` if all work during the process.
- * @return `False` otherwise.
- */
-void count_ratings(Data *data, unsigned int *ratings);
 
 /**
  * @return `True` if the customer must be taken into account.
@@ -74,4 +76,4 @@ bool not_a_bad_reviewer(Arguments *args, unsigned long id);
  * @param args Arguments given by the user.
  * @return A `Stats*` structure containing all requested statistics.
  */
-Stats *read_stats_from_data(Data *fulladata, Arguments *args);
+Stats *read_stats_from_data(MovieData *fulldata, Arguments *args);

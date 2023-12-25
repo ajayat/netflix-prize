@@ -13,24 +13,14 @@ typedef struct Arguments {
     const char* folder; /**< Directory where put file corresponding to results. */
     uint16_t limit; /**< `-l` option: prohibits taking notes into account if their date is greater than Arguments::limit. */
     uint16_t movie_id; /**< `-s` option: film than the user wants statistics for. */
-    unsigned int nb_customer_ids; /**< Length of Arguments::customer_ids. */
-    unsigned long *customer_ids; /**< `-c` option: customers than the user wants to take into account. */
-    unsigned int nb_bad_reviewers; /**< Length of Arguments::bad_reviewers. */
-    unsigned int *bad_reviewers; /**< `-b` option: customers than the user does not want to take into account. */
-    unsigned int min; /**< `-e` option: to take into account only customers with Arguments::min ratings at least. */
+    u_int nb_customer_ids; /**< Length of Arguments::customer_ids. */
+    u_long *customer_ids; /**< `-c` option: customers than the user wants to take into account. */
+    u_int nb_bad_reviewers; /**< Length of Arguments::bad_reviewers. */
+    u_int *bad_reviewers; /**< `-b` option: customers than the user does not want to take into account. */
+    u_int min; /**< `-e` option: to take into account only customers with Arguments::min ratings at least. */
     bool time; /**< True to give the executive time of the algorithm. */
     /*@}*/
 } Arguments;
-
-/**
- * @brief Contaains all stats aboout an user.
- * 
- */
-typedef struct UserStats {
-    unsigned int nb_ratings; /**< Number of all his ratings. */
-    double average; /**< Average of his ratings. */
-    int *daily_ratings; /**< Number of ratings per day. */
-} UserStats;
 
 /**
  * @brief Contains all stats about a movie.
@@ -54,8 +44,6 @@ typedef struct UserStats {
  * @brief Contains all stats about all movies.
  */
 typedef struct Stats {
-    UserStats *users;
-    int nb_users;
     MovieStats *movies;
     UserStats *users;
     int nb_movies;
@@ -72,13 +60,13 @@ void free_stats(Stats *stats);
  * @return `True` if the customer must be taken into account.
  *         `False` otherwise.
  */
-bool is_requested(Arguments *args, unsigned long id);
+bool is_requested(Arguments *args, u_long id);
 
 /**
  * @return `True` if the customer must be taken into account.
  *         `False` otherwise.
  */
-bool not_a_bad_reviewer(Arguments *args, unsigned long id);
+bool not_a_bad_reviewer(Arguments *args, u_long id);
 
 /**
  * @brief Main function to collect statistic from the binary file, respectings given arguments.

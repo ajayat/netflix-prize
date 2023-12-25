@@ -1,5 +1,6 @@
 #include <stdlib.h>
-#include "hashtable.h"
+
+#include "hashmap.h"
 
 HashTable* create_table(int size)
 {

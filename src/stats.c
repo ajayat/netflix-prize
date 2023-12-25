@@ -13,18 +13,18 @@ void free_stats(Stats *stats)
     free(stats);
 }
 
-bool is_requested(Arguments *args, unsigned long id)
+bool is_requested(Arguments *args, u_long id)
 {
-    for (unsigned int c = 0; c < args->nb_customer_ids; c++) {
+    for (u_int c = 0; c < args->nb_customer_ids; c++) {
         if (args->customer_ids[c] == id)
             return true;
     }
     return false;
 }
 
-bool is_a_bad_reviewer(Arguments *args, unsigned long id)
+bool is_a_bad_reviewer(Arguments *args, u_long id)
 {
-    for (unsigned int b=0; b<args->nb_bad_reviewers; b++) {
+    for (u_int b=0; b<args->nb_bad_reviewers; b++) {
         if (args->bad_reviewers[b] == id)
             return true;
     }
@@ -42,8 +42,8 @@ Stats *read_stats_from_data(MovieData *movie_data, Arguments *args)
     data->nb_movies = movie_data->nb_movies;
     data->movies = malloc(data->nb_movies * sizeof(Movie*));
 
-    unsigned long c_id;
-    for (unsigned int m = 0; m < data->nb_movies; m++)
+    u_long c_id;
+    for (u_int m = 0; m < data->nb_movies; m++)
     {
         Movie *movie = movie_data->movies[m];
         Movie *movie_dst = data->movies[m] = malloc(sizeof(Movie));
@@ -53,10 +53,10 @@ Stats *read_stats_from_data(MovieData *movie_data, Arguments *args)
         movie_dst->title = strdup(movie->title);
         // Ratings treatment
         movie_dst->nb_ratings = 0;
-        unsigned long r_dst = 0;
-        movie_dst->ratings = malloc(movie->nb_ratings * sizeof(Rating));
+        u_long r_dst = 0;
+        movie_dst->ratings = malloc(movie->nb_ratings * sizeof(MovieRating));
         
-        for (unsigned int r = 0; r < movie->nb_ratings ; r++) 
+        for (u_int r = 0; r < movie->nb_ratings ; r++) 
         {
             c_id = get_customer_id(movie->ratings[r]);
 
@@ -66,7 +66,7 @@ Stats *read_stats_from_data(MovieData *movie_data, Arguments *args)
                 || args->nb_bad_reviewers && is_a_bad_reviewer(args, c_id)) // opt -b
                 continue;
             // Copy ratings
-            memcpy(&movie_dst->ratings[r_dst++], &movie->ratings[r], sizeof(Rating));
+            memcpy(&movie_dst->ratings[r_dst++], &movie->ratings[r], sizeof(MovieRating));
             // Update stats
             stats->movies[m].average += (double)(movie->ratings[r].score);
             if (movie->ratings[r].score > stats->movies[m].max)

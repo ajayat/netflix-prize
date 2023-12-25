@@ -23,12 +23,22 @@ typedef struct Arguments {
 } Arguments;
 
 /**
+ * @brief Contaains all stats aboout an user.
+ * 
+ */
+typedef struct UserStats {
+    unsigned int nb_ratings; /**< Number of all his ratings. */
+    double average; /**< Average of his ratings. */
+    int *daily_ratings; /**< Number of ratings per day. */
+} UserStats;
+
+/**
  * @brief Contains all stats about a movie.
  */
 typedef struct MovieStats {
-    double average;
-    uint8_t min;
-    uint8_t max;
+    double average; /**< Average of its ratings. */
+    uint8_t min; /** Minimum of its ratings. */
+    uint8_t max; /**< Maximum of its ratings. */
 } MovieStats;
 
 /**
@@ -44,6 +54,8 @@ typedef struct UserStats {
  * @brief Contains all stats about all movies.
  */
 typedef struct Stats {
+    UserStats *users;
+    int nb_users;
     MovieStats *movies;
     UserStats *users;
     int nb_movies;

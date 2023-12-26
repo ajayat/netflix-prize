@@ -4,83 +4,63 @@
 
 #include "parser.h"
 #include "predictors.h"
+#include "stats.h"
 
-#define MAX_USER_ID 2649430
-
-static double shrink(double value, u_int n, double alpha)
-{
-    return value * (double)n / (n + alpha);
-}
-
-double mse_correlation(MovieData *data, Movie *movie1, Movie *movie2)
-{
-    u_int user_ratings1[MAX_USER_ID] = { -1 };
-    u_int user_ratings2[MAX_USER_ID] = { -1 };
-
-    for (int i = 0; i < movie1->nb_ratings; i++)
-        user_ratings1[get_customer_id(movie1->ratings[i])] = i;
-    
-    for (int i = 0; i < movie2->nb_ratings; i++)
-        user_ratings2[get_customer_id(movie2->ratings[i])] = i;
-
-    // Calculate MSE between score given by same user
-    double sum = 0;
-    u_int nb_ratings = 0;
-    u_int r1, r2;
-
-    for (int i = 0; i < MAX_USER_ID; i++) {
-        r1 = user_ratings1[i];
-        r2 = user_ratings2[i];
-        if (r1 != -1 && r2 != -1) {
-            sum += pow(movie1->ratings[r1].score - movie2->ratings[r2].score, 2);
-            nb_ratings++;
-        }
-    }
-    double c = (double)nb_ratings / sum;
-    return shrink(c, nb_ratings, 100);
-}
-
-void create_similarity_matrix(MovieData *data, double **similarity)
-{
-    for (int i = 0; i < data->nb_movies; i++) {
-        for (int j = 0; j < i + 1; j++) {
-            similarity[i][j] = mse_correlation(data, data->movies[i], data->movies[j]);
-            similarity[j][i] = similarity[i][j];
-        }
-    }
-}
-
-static double logistic(double value, double a, double b)
-{
-    return 1 / (1 + exp(-a * (value - b)));
-}   
-
-UserRating *knn(double **similarity, u_int i, u_int k, User *u)
+UserRating *knn_ratings(Stats *stats, User *u, u_int i, u_int k)
 {
     return NULL;
 }
 
-double knn_movie(MovieData *data, double **similarity, User *user, Movie *movie)
+double knn_predictor(Stats *stats, User *user, Movie *movie)
 {
-    u_int k = 10;
-    double tau = 30;
-    double offset = 1;
+    u_int k = 80;
+    double tau = 0.01;
+    double scale = 4;
+    double offset = -5;
 
     double score = 0;
     double sum_weights = 0;
     UserRating *nearest_ratings;
-    if (k > data->nb_movies)
-        nearest_ratings = knn(similarity, movie->id, k, user);
+    if (k > stats->nb_movies)
+        nearest_ratings = knn_ratings(stats, user, movie->id, k);
     else
         nearest_ratings = user->ratings;
 
     for (u_int i = 0; i < k; i++) {
         UserRating rating = nearest_ratings[i];
-        double s = similarity[movie->id][rating.movie_id];
+        double s = stats->similarity[movie->id][rating.movie_id];
         u_int delta = abs(rating.date - movie->date);
-        double s_date = logistic(s * exp(-delta / tau) + offset, 1, 0);
-        score += s_date * user->ratings[rating.movie_id].score;
-        sum_weights += s_date;
+        double time_factor = 1 / (1 + tau * delta);
+        double weight = logistic(scale * s * time_factor + offset, 1, 0);
+        score += weight * user->ratings[rating.movie_id].score;
+        sum_weights += weight;
     }
     return score / sum_weights;
+}
+
+static double proximity(Stats *stats, u_int i, u_int *ids, u_int m)
+{
+    double distance = 0;
+    double sum_weights = 0;
+    for (u_int j = 0; j < m; j++) {
+        double s = stats->similarity[i][ids[j]];
+        double weight = exp(2 * s);
+        distance += weight * s;
+        sum_weights += weight;
+    }
+    return distance / sum_weights;
+}
+
+u_int *knn_movies(Stats *stats, u_int *ids, u_int m, u_int k)
+{
+    double a = 1;
+    double b = 3;
+
+    for (int i = 0; i < stats->nb_movies; i++) {
+        double distance = proximity(stats, i, ids, m);
+        MovieStats movie = stats->movies[i];
+        double popularity = movie.nb_ratings / stats->nb_users;
+        double score = a * movie.average * popularity + b * distance;
+    }
+    return NULL;
 }

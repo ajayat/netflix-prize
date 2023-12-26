@@ -1,8 +1,12 @@
 #include <string.h>
 #include <stdlib.h>
+#include <math.h>
+#include <assert.h>
 
 #include "stats.h"
 #include "utils.h"
+
+#define MAX_USER_ID 2649430
 
 void free_stats(Stats *stats)
 {
@@ -29,6 +33,60 @@ bool is_a_bad_reviewer(Arguments *args, u_long id)
             return true;
     }
     return false;
+}
+
+double logistic(double x, double a, double b)
+{
+    return 1 / (1 + exp(-a * (x - b)));
+}
+
+double shrink(double value, u_int n, double alpha)
+{
+    return value * (double)n / (n + alpha);
+}
+
+double mse_correlation(MovieData *data, Movie *movie1, Movie *movie2)
+{
+    u_int user_ratings1[MAX_USER_ID] = { -1 };
+    u_int user_ratings2[MAX_USER_ID] = { -1 };
+
+    for (int i = 0; i < movie1->nb_ratings; i++)
+        user_ratings1[get_customer_id(movie1->ratings[i])] = i;
+    
+    for (int i = 0; i < movie2->nb_ratings; i++)
+        user_ratings2[get_customer_id(movie2->ratings[i])] = i;
+
+    // Calculate MSE between score given by same user
+    double sum = 0;
+    u_int nb_ratings = 0;
+    u_int r1, r2;
+
+    for (int i = 0; i < MAX_USER_ID; i++) {
+        r1 = user_ratings1[i];
+        r2 = user_ratings2[i];
+        if (r1 != -1 && r2 != -1) {
+            sum += pow(movie1->ratings[r1].score - movie2->ratings[r2].score, 2);
+            nb_ratings++;
+        }
+    }
+    double c = (double)nb_ratings / sum;
+    return shrink(c, nb_ratings, 100);
+}
+
+double **create_similarity_matrix(MovieData *data)
+{
+    double **sim = malloc(data->nb_movies * sizeof(double*));
+    for (u_int i = 0; i < data->nb_movies; i++) {
+        sim[i] = calloc(data->nb_movies, sizeof(double));
+        assert(sim[i] != NULL);
+    }
+    for (int i = 0; i < data->nb_movies; i++) {
+        for (int j = 0; j < i + 1; j++) {
+            sim[i][j] = mse_correlation(data, data->movies[i], data->movies[j]);
+            sim[j][i] = sim[i][j];
+        }
+    }
+    return sim;
 }
 
 Stats *read_stats_from_data(MovieData *movie_data, Arguments *args)
@@ -96,6 +154,7 @@ Stats *read_stats_from_data(MovieData *movie_data, Arguments *args)
         if (fclose(one_movie) == EOF)
             perror("The file can't be closed."); // ! Modifier avec nom du fichier
     }
+    stats->similarity = create_similarity_matrix(data);
     free_movie_data(data);
     free_user_data(user_data);
     return stats;

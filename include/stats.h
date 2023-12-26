@@ -29,6 +29,7 @@ typedef struct MovieStats {
     double average; /**< Average of its ratings. */
     uint8_t min; /** Minimum of its ratings. */
     uint8_t max; /**< Maximum of its ratings. */
+    uint32_t nb_ratings; /**< Number of ratings. */
 } MovieStats;
 
 /**
@@ -44,6 +45,7 @@ typedef struct UserStats {
  * @brief Contains all stats about all movies.
  */
 typedef struct Stats {
+    double **similarity;
     MovieStats *movies;
     UserStats *users;
     int nb_movies;
@@ -69,6 +71,17 @@ bool is_requested(Arguments *args, u_long id);
 bool not_a_bad_reviewer(Arguments *args, u_long id);
 
 /**
+ * @brief Compute logistic function.
+*/
+double logistic(double x, double a, double b);
+
+/**
+ * @brief Reduce the value when n is low.
+ * @param alpha The shrink factor.
+*/
+double shrink(double value, u_int n, double alpha);
+
+/**
  * @brief Main function to collect statistic from the binary file, respectings given arguments.
  * @note This function also make a new binary file with dessired data.
  * 
@@ -77,3 +90,19 @@ bool not_a_bad_reviewer(Arguments *args, u_long id);
  * @return A `Stats*` structure containing all requested statistics.
  */
 Stats *read_stats_from_data(MovieData *fulldata, Arguments *args);
+
+/**
+ * @brief Create a similarity matrix.
+ * @param data The data structure.
+ * @return The similarity matrix.
+ */
+double **create_similarity_matrix(MovieData *data);
+
+/**
+ * @brief Compute the similarity between two movies.
+ * @param data The data structure.
+ * @param movie1 The first movie.
+ * @param movie2 The second movie.
+ * @return The similarity between the two movies.
+ */
+double mse_correlation(MovieData *data, Movie *movie1, Movie *movie2);

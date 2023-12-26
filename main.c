@@ -21,6 +21,18 @@ static struct argp_option options[] = {
     { 0 }
 };
 
+static u_int parse_ints(char *arg, u_long *ids)
+{
+    char* end = NULL;
+    u_int i = 0;
+    u_int id;
+    while ((id = strtoul(arg, &end, 10)) != 0) {
+        ids[i++] = id;
+        arg = end + 1;
+    }
+    return i;
+}
+
 static error_t parse_opt(int key, char *arg, struct argp_state *state)
 {
     Arguments *args = state->input;
@@ -35,15 +47,15 @@ static error_t parse_opt(int key, char *arg, struct argp_state *state)
         args->movie_id = strtoul(arg, NULL, 10);
         return 0;
     case 'c':
-        args->customer_ids[0] = strtol(arg, NULL, 10);
-        args->customer_ids[1] = strtol(arg, NULL, 10);
+        args->customer_ids = malloc(2 * sizeof(u_long));
+        args->nb_customer_ids = parse_ints(arg, args->customer_ids);
         return 0;
     case 'b':
-        args->bad_reviewers[0] = strtol(arg, NULL, 10);
-        args->bad_reviewers[1] = strtol(arg, NULL, 10);
+        args->bad_reviewers = malloc(2 * sizeof(u_long));
+        args->nb_bad_reviewers = parse_ints(arg, args->bad_reviewers);
         return 0;
     case 'e':
-        args->min = strtol(arg, NULL, 10);
+        args->min = strtoul(arg, NULL, 10);
         return 0;
     case 't':
         args->time = true;
@@ -60,7 +72,25 @@ static struct argp argp = { options, parse_opt, args_doc, doc, 0, 0, 0 };
 int main(int argc, char *argv[])
 {
     Arguments args;
+    // defaults values
+    args.folder = "data/";
+    args.limit = INT16_MAX;
+    args.min = 0;
+    args.time = false;
+    args.nb_customer_ids = 0;
+    args.nb_bad_reviewers = 0;
+
     argp_parse(&argp, argc, argv, 0, 0, &args);
+
+    MovieData *movie_data = parse();
+    UserData *user_data = to_user_oriented(movie_data);
+    // Stats *stats = read_stats_from_data(movie_data, user_data, &args);
+
+    // printf("nb_movies: %d\n", stats->nb_movies);
+
+    free_movie_data(movie_data);
+    free_user_data(user_data);
+    // free_stats(stats);
 
     return 0;
 }

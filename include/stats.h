@@ -5,6 +5,8 @@
 #include <stdbool.h>
 #include "parser.h"
 
+typedef unsigned int u_int;
+
 /** 
  * @brief Contains all arguments given by the user, already parsed.
 */
@@ -16,7 +18,7 @@ typedef struct Arguments {
     u_int nb_customer_ids; /**< Length of Arguments::customer_ids. */
     u_long *customer_ids; /**< `-c` option: customers than the user wants to take into account. */
     u_int nb_bad_reviewers; /**< Length of Arguments::bad_reviewers. */
-    u_int *bad_reviewers; /**< `-b` option: customers than the user does not want to take into account. */
+    u_long *bad_reviewers; /**< `-b` option: customers than the user does not want to take into account. */
     u_int min; /**< `-e` option: to take into account only customers with Arguments::min ratings at least. */
     bool time; /**< True to give the executive time of the algorithm. */
     /*@}*/
@@ -48,8 +50,8 @@ typedef struct Stats {
     double **similarity;
     MovieStats *movies;
     UserStats *users;
-    int nb_movies;
-    int nb_users;
+    u_int nb_movies;
+    u_int nb_users;
 } Stats;
 
 /**
@@ -85,11 +87,12 @@ double shrink(double value, u_int n, double alpha);
  * @brief Main function to collect statistic from the binary file, respectings given arguments.
  * @note This function also make a new binary file with dessired data.
  * 
- * @param fulldata Data extracted from the binary file
+ * @param movie_data Data extracted from the binary file
+ * @param user_data User oriented data
  * @param args Arguments given by the user.
  * @return A `Stats*` structure containing all requested statistics.
  */
-Stats *read_stats_from_data(MovieData *fulldata, Arguments *args);
+Stats *read_stats_from_data(MovieData *movie_data, UserData *user_data, Arguments *args);
 
 /**
  * @brief Create a similarity matrix.
@@ -105,4 +108,4 @@ double **create_similarity_matrix(MovieData *data);
  * @param movie2 The second movie.
  * @return The similarity between the two movies.
  */
-double mse_correlation(MovieData *data, Movie *movie1, Movie *movie2);
+double mse_correlation(Movie *movie1, Movie *movie2);

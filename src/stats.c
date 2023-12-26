@@ -28,7 +28,7 @@ bool is_requested(Arguments *args, u_long id)
 
 bool is_a_bad_reviewer(Arguments *args, u_long id)
 {
-    for (u_int b=0; b<args->nb_bad_reviewers; b++) {
+    for (u_int b=0; b < args->nb_bad_reviewers; b++) {
         if (args->bad_reviewers[b] == id)
             return true;
     }
@@ -45,21 +45,21 @@ double shrink(double value, u_int n, double alpha)
     return value * (double)n / (n + alpha);
 }
 
-double mse_correlation(MovieData *data, Movie *movie1, Movie *movie2)
+double mse_correlation(Movie *movie1, Movie *movie2)
 {
     u_int user_ratings1[MAX_USER_ID] = { -1 };
     u_int user_ratings2[MAX_USER_ID] = { -1 };
 
-    for (int i = 0; i < movie1->nb_ratings; i++)
+    for (u_int i = 0; i < movie1->nb_ratings; i++)
         user_ratings1[get_customer_id(movie1->ratings[i])] = i;
     
-    for (int i = 0; i < movie2->nb_ratings; i++)
+    for (u_int i = 0; i < movie2->nb_ratings; i++)
         user_ratings2[get_customer_id(movie2->ratings[i])] = i;
 
     // Calculate MSE between score given by same user
     double sum = 0;
     u_int nb_ratings = 0;
-    u_int r1, r2;
+    int r1, r2;
 
     for (int i = 0; i < MAX_USER_ID; i++) {
         r1 = user_ratings1[i];
@@ -80,18 +80,18 @@ double **create_similarity_matrix(MovieData *data)
         sim[i] = calloc(data->nb_movies, sizeof(double));
         assert(sim[i] != NULL);
     }
-    for (int i = 0; i < data->nb_movies; i++) {
-        for (int j = 0; j < i + 1; j++) {
-            sim[i][j] = mse_correlation(data, data->movies[i], data->movies[j]);
+    for (u_int i = 0; i < data->nb_movies; i++) {
+        for (u_int j = 0; j < i + 1; j++) {
+            if (i == j) continue;
+            sim[i][j] = mse_correlation(data->movies[i], data->movies[j]);
             sim[j][i] = sim[i][j];
         }
     }
     return sim;
 }
 
-Stats *read_stats_from_data(MovieData *movie_data, Arguments *args)
+Stats *read_stats_from_data(MovieData *movie_data, UserData *user_data, Arguments *args)
 {
-    UserData *user_data = to_user_oriented(movie_data);
     // Allocate memory for stats
     Stats *stats = malloc(sizeof(Stats));
     stats->movies = calloc(movie_data->nb_movies, sizeof(MovieStats));
@@ -120,8 +120,8 @@ Stats *read_stats_from_data(MovieData *movie_data, Arguments *args)
 
             if (movie->ratings[r].date >= args->limit // opt -l
                 || user_data->users[c_id]->nb_ratings < args->min // opt -e
-                || args->nb_customer_ids && !is_requested(args, c_id) // opt -c
-                || args->nb_bad_reviewers && is_a_bad_reviewer(args, c_id)) // opt -b
+                || (args->nb_customer_ids && !is_requested(args, c_id)) // opt -c
+                || (args->nb_bad_reviewers && is_a_bad_reviewer(args, c_id))) // opt -b
                 continue;
             // Copy ratings
             memcpy(&movie_dst->ratings[r_dst++], &movie->ratings[r], sizeof(MovieRating));
@@ -155,7 +155,5 @@ Stats *read_stats_from_data(MovieData *movie_data, Arguments *args)
             perror("The file can't be closed."); // ! Modifier avec nom du fichier
     }
     stats->similarity = create_similarity_matrix(data);
-    free_movie_data(data);
-    free_user_data(user_data);
     return stats;
 }

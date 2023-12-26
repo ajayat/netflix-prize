@@ -4,6 +4,8 @@
 
 #define EPOCH 689884 // 1st January 1889
 
+typedef unsigned int u_int;
+
 /**
  * @brief Get the size in byte of a file.
  * @param file The file to get the size from.

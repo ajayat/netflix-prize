@@ -53,14 +53,13 @@ static double proximity(Stats *stats, u_int i, u_int *ids, u_int m)
 
 u_int *knn_movies(Stats *stats, u_int *ids, u_int m, u_int k)
 {
-    double a = 1;
-    double b = 3;
+    double a = 3;
+    double b = 1;
 
-    for (int i = 0; i < stats->nb_movies; i++) {
+    for (u_int i = 0; i < stats->nb_movies; i++) {
         double distance = proximity(stats, i, ids, m);
-        MovieStats movie = stats->movies[i];
-        double popularity = movie.nb_ratings / stats->nb_users;
-        double score = a * movie.average * popularity + b * distance;
+        double popularity = stats->movies[i].nb_ratings / stats->nb_users;
+        double score = a * stats->movies[i].average * popularity + b * distance;
     }
     return NULL;
 }

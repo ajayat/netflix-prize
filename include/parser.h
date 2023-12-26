@@ -3,6 +3,9 @@
 #include <stdio.h>
 #include <stdint.h>
 
+typedef unsigned int u_int;
+typedef unsigned long u_long;
+
 /**
  * @brief Contains all information about a rating.
  */

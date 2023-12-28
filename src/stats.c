@@ -152,7 +152,7 @@ Stats *read_stats_from_data(MovieData *movie_data, UserData *user_data, Argument
                 mv_stats.average, mv_stats.min, mv_stats.max);
 
         if (fclose(one_movie) == EOF)
-            perror("The file can't be closed."); // ! Modifier avec nom du fichier
+            perror("The file for one movie can't be closed.");
     }
     stats->similarity = create_similarity_matrix(data);
     return stats;

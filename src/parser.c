@@ -7,7 +7,6 @@
 #include "parser.h"
 #include "utils.h"
 
-#define EPOCH_YEAR 1889
 #define LENGTH_MAX_TITLE 120
 #define MAX_NUMBER_MOVIES 17771
 #define MAX_NUMBER_RATINGS 250000
@@ -53,9 +52,7 @@ int parse_titles(MovieData *data, FILE *titles_file)
         data->movies[m] = calloc(1, sizeof(Movie));
         data->movies[m]->id = (uint16_t)id;
         data->movies[m]->title = strdup(title);
-        if ((year_int = strtoul(year, NULL, 10)) == 0)
-            year_int = EPOCH_YEAR;
-        data->movies[m]->date = days_from_epoch(year_int, 1, 1);
+        data->movies[m]->date = strtoul(year, NULL, 10);
         m++;
     }
     data->nb_movies = m;
@@ -115,7 +112,7 @@ MovieData *parse(void)
     for (u_int i = 0; i < data->nb_movies; i++)
     {
         Movie *movie = data->movies[i];
-        // printf("Processing movie %d\n", movie->id);  // Information for the user
+        printf("Processing movie %d\n", movie->id);  // Information for the user
         // Open the movie file
         char mv_filename[40];
         snprintf(mv_filename, 40, "data/training_set/mv_%07u.txt", movie->id);
@@ -125,6 +122,8 @@ MovieData *parse(void)
             continue; // Ignore this movie
         }
         parse_ratings(movie, mv_file);
+        if (fclose(mv_file) == EOF)
+            perror("A movie file can't be closed.");
     }
     return data;
 }

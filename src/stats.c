@@ -114,7 +114,7 @@ Stats *read_stats_from_data(MovieData *movie_data, UserData *user_data, Argument
         u_long r_dst = 0;
         movie_dst->ratings = malloc(movie->nb_ratings * sizeof(MovieRating));
         
-        for (u_int r = 0; r < movie->nb_ratings ; r++) 
+        for (u_int r = 0; r < movie->nb_ratings; r++) 
         {
             c_id = get_customer_id(movie->ratings[r]);
 
@@ -124,7 +124,7 @@ Stats *read_stats_from_data(MovieData *movie_data, UserData *user_data, Argument
                 || (args->nb_bad_reviewers && is_a_bad_reviewer(args, c_id))) // opt -b
                 continue;
             // Copy ratings
-            memcpy(&movie_dst->ratings[r_dst++], &movie->ratings[r], sizeof(MovieRating));
+            movie_dst->ratings[r_dst++] = movie->ratings[r];
             // Update stats
             stats->movies[m].average += (double)(movie->ratings[r].score);
             if (movie->ratings[r].score > stats->movies[m].max)
@@ -136,7 +136,7 @@ Stats *read_stats_from_data(MovieData *movie_data, UserData *user_data, Argument
         stats->movies[m].average /= (double)(r_dst);
         movie_dst->nb_ratings = r_dst;
     }
-    FILE *databin = fopen("data/data.bin", "r");
+    FILE *databin = fopen("data/data.bin", "w");
     write_to_file(databin, data);
     if (fclose(databin) == EOF)
         perror("data.bin can't be closed.");
@@ -148,12 +148,11 @@ Stats *read_stats_from_data(MovieData *movie_data, UserData *user_data, Argument
 
         MovieStats mv_stats = stats->movies[args->movie_id - 1];
         fprintf(one_movie, "average; min; max\n");
-        fprintf(one_movie, "%lf; %ui; %ui\n", 
+        fprintf(one_movie, "%lf; %u; %u\n", 
                 mv_stats.average, mv_stats.min, mv_stats.max);
 
         if (fclose(one_movie) == EOF)
             perror("The file for one movie can't be closed.");
     }
-    stats->similarity = create_similarity_matrix(data);
     return stats;
 }

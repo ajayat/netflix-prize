@@ -2,7 +2,7 @@
 
 #include <stdio.h>
 
-#define EPOCH 689884 // 1st January 1889
+#define EPOCH 729695 // 1st January 1998
 
 typedef unsigned int u_int;
 

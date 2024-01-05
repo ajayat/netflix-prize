@@ -53,7 +53,7 @@ static double proximity(Stats *stats, u_int i, u_int *ids, u_int m)
 
 u_int *knn_movies(Stats *stats, u_int *ids, u_int m, u_int k)
 {
-    double a = 3;
+    double a = 0;
     double b = 1;
 
     for (u_int i = 0; i < stats->nb_movies; i++) {

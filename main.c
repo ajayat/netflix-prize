@@ -74,6 +74,7 @@ int main(int argc, char *argv[])
     Arguments args;
     // defaults values
     args.folder = "data/";
+    args.movie_id = 0;
     args.limit = INT16_MAX;
     args.min = 0;
     args.time = false;
@@ -84,13 +85,13 @@ int main(int argc, char *argv[])
 
     MovieData *movie_data = parse();
     UserData *user_data = to_user_oriented(movie_data);
-    // Stats *stats = read_stats_from_data(movie_data, user_data, &args);
+    Stats *stats = read_stats_from_data(movie_data, user_data, &args);
+    // stats->similarity = create_similarity_matrix(movie_data);
 
     // printf("nb_movies: %d\n", stats->nb_movies);
-
     free_movie_data(movie_data);
     free_user_data(user_data);
-    // free_stats(stats);
+    free_stats(stats);
 
     return 0;
 }

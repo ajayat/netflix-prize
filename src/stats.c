@@ -109,39 +109,39 @@ Stats *read_stats_from_data(MovieData *movie_data, UserData *user_data, Argument
     u_long c_id;
     for (u_int m = 0; m < data->nb_movies; m++)
     {
-        Movie *movie = movie_data->movies[m];
+        Movie *movie_src = movie_data->movies[m];
         Movie *movie_dst = data->movies[m] = malloc(sizeof(Movie));
         // Copy of unchanged caracteristics
-        movie_dst->id = movie->id;
-        movie_dst->date = movie->date;
-        movie_dst->title = strdup(movie->title);
+        movie_dst->id = movie_src->id;
+        movie_dst->date = movie_src->date;
+        movie_dst->title = strdup(movie_src->title);
         // Ratings treatment
         movie_dst->nb_ratings = 0;
         u_long r_dst = 0;
-        movie_dst->ratings = malloc(movie->nb_ratings * sizeof(MovieRating));
+        movie_dst->ratings = malloc(movie_src->nb_ratings * sizeof(MovieRating));
         
-        for (u_int r = 0; r < movie->nb_ratings; r++) 
+        for (u_int r = 0; r < movie_src->nb_ratings ; r++) 
         {
-            c_id = get_customer_id(movie->ratings[r]);
+            c_id = get_customer_id(movie_src->ratings[r]);
 
-            if (movie->ratings[r].date >= args->limit // opt -l
+            if (movie_src->ratings[r].date >= args->limit // opt -l
                 || user_data->users[c_id]->nb_ratings < args->min // opt -e
                 || (args->nb_customer_ids && !is_requested(args, c_id)) // opt -c
                 || (args->nb_bad_reviewers && is_a_bad_reviewer(args, c_id))) // opt -b
                 continue;
             // Copy ratings
-            movie_dst->ratings[r_dst++] = movie->ratings[r];
+            memcpy(&movie_dst->ratings[r_dst++], &movie_src->ratings[r], sizeof(MovieRating));
             // Update stats
-            stats->movies[m].average += (double)(movie->ratings[r].score);
-            if (movie->ratings[r].score > stats->movies[m].max)
-                stats->movies[m].max = movie->ratings[r].score;
-
-            if (movie->ratings[r].score < stats->movies[m].min)
-                stats->movies[m].min = movie->ratings[r].score;
+            stats->movies[m].average += (double)(movie_src->ratings[r].score);
+            if (movie_src->ratings[r].score > stats->movies[m].max)
+                stats->movies[m].max = movie_src->ratings[r].score;
+            if (movie_src->ratings[r].score < stats->movies[m].min)
+                stats->movies[m].min = movie_src->ratings[r].score;
         }
         stats->movies[m].average /= (double)(r_dst);
         movie_dst->nb_ratings = r_dst;
     }
+    
     FILE *databin = fopen("data/data.bin", "w");
     write_to_file(databin, data);
     if (fclose(databin) == EOF)

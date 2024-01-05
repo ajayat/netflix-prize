@@ -12,8 +12,12 @@ void free_stats(Stats *stats)
 {
     if (stats == NULL)
         return;
-    if (stats->movies != NULL) 
-        free(stats->movies);
+    if (stats->similarity != NULL) {
+        for (u_int i = 0; i < stats->nb_movies; i++)
+            free(stats->similarity[i]);
+        free(stats->similarity);
+    }
+    free(stats->movies);
     free(stats);
 }
 
@@ -47,8 +51,8 @@ double shrink(double value, u_int n, double alpha)
 
 double mse_correlation(Movie *movie1, Movie *movie2)
 {
-    u_int user_ratings1[MAX_USER_ID] = { -1 };
-    u_int user_ratings2[MAX_USER_ID] = { -1 };
+    u_int *user_ratings1 = calloc(MAX_USER_ID, sizeof(u_int));
+    u_int *user_ratings2 = calloc(MAX_USER_ID, sizeof(u_int));
 
     for (u_int i = 0; i < movie1->nb_ratings; i++)
         user_ratings1[get_customer_id(movie1->ratings[i])] = i;
@@ -64,12 +68,14 @@ double mse_correlation(Movie *movie1, Movie *movie2)
     for (int i = 0; i < MAX_USER_ID; i++) {
         r1 = user_ratings1[i];
         r2 = user_ratings2[i];
-        if (r1 != -1 && r2 != -1) {
+        if (r1 && r2) {
             sum += pow(movie1->ratings[r1].score - movie2->ratings[r2].score, 2);
             nb_ratings++;
         }
     }
-    double c = (double)nb_ratings / sum;
+    free(user_ratings1);
+    free(user_ratings2);
+    double c = (double)nb_ratings / (1.0 + sum);
     return shrink(c, nb_ratings, 100);
 }
 
@@ -81,8 +87,8 @@ double **create_similarity_matrix(MovieData *data)
         assert(sim[i] != NULL);
     }
     for (u_int i = 0; i < data->nb_movies; i++) {
-        for (u_int j = 0; j < i + 1; j++) {
-            if (i == j) continue;
+        printf("Compute similarity of movie : %u\n", i + 1);
+        for (u_int j = 0; j < i; j++) {
             sim[i][j] = mse_correlation(data->movies[i], data->movies[j]);
             sim[j][i] = sim[i][j];
         }
@@ -154,5 +160,6 @@ Stats *read_stats_from_data(MovieData *movie_data, UserData *user_data, Argument
         if (fclose(one_movie) == EOF)
             perror("The file for one movie can't be closed.");
     }
+    stats->similarity = create_similarity_matrix(data);
     return stats;
 }

@@ -43,7 +43,6 @@ void free_user_data(UserData *data)
 int parse_titles(MovieData *data, FILE *titles_file)
 {
     unsigned short id;
-    u_int year_int;
     char year[5];
     char title[LENGTH_MAX_TITLE];
     u_int m = 0;

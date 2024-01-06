@@ -74,8 +74,8 @@ int main(int argc, char *argv[])
     Arguments args;
     // defaults values
     args.folder = "data/";
-    args.movie_id = 0;
     args.limit = INT16_MAX;
+    args.movie_id = 0;
     args.min = 0;
     args.time = false;
     args.nb_customer_ids = 0;

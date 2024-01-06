@@ -3,12 +3,12 @@
 #include <stdint.h>
 
 typedef struct Item {
-    int *key;
-    uint16_t *value;
+    uint key;
+    uint value;
 } Item;
 
-typedef struct HashTable {
+typedef struct Hashmap {
     Item** items;
-    int size;
-    int count;
-} HashTable;
+    uint size;
+    uint count;
+} Hashmap;

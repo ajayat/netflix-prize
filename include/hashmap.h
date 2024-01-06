@@ -12,3 +12,62 @@ typedef struct Hashmap {
     uint size;
     uint count;
 } Hashmap;
+
+/**
+ * @brief Create a hashmap with an initial size.
+ * 
+ * @param size Initial size of the hashmap.
+ * @return Hashmap* A pointer to the created hashmap.
+ */
+Hashmap* hashmap_create(uint size);
+
+/**
+ * @brief Create an item structure with given arguments.
+ * 
+ * @param key 
+ * @param value 
+ * @return Item* A pointer to the created item.
+ */
+Item* create_item(uint key, uint value);
+
+/**
+ * @brief Free the hashmap.
+ * 
+ * @param h The hashmap to free.
+ */
+void hashmap_free(Hashmap* h);
+
+/**
+ * @brief Resize the given hashmap by 2.
+ * 
+ * @param h The hashmap to resize.
+ */
+void hashmap_resize(Hashmap* h);
+
+/**
+ * @brief Find the index in the hashmap of the given key.
+ * 
+ * @param h  The given hashmap.
+ * @param key The key we are looking for.
+ * @return uint The finden key.
+ */
+uint hashmap_find(Hashmap* h, uint key);
+
+/**
+ * @brief Insert a new element in the hashmap, if it doesn't already exist.
+ * 
+ * @param h The given hashmap.
+ * @param key The key to add.
+ * @param value The associated value.
+ * @return uint The value.
+ */
+uint hashmap_insert(Hashmap* h, uint key, uint value);
+
+/**
+ * @brief Remove the item with the corresponding key from the hashmap.
+ * 
+ * @param h The given hashmap.
+ * @param key The key to remove.
+ * @return uint The removed key.
+ */
+uint hashmap_remove(Hashmap* h, uint key);

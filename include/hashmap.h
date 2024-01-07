@@ -1,6 +1,6 @@
 #pragma once
 
-#include <stdint.h>
+typedef unsigned int uint;
 
 typedef struct Item {
     uint key;
@@ -8,7 +8,7 @@ typedef struct Item {
 } Item;
 
 typedef struct Hashmap {
-    Item** items;
+    Item* items;
     uint size;
     uint count;
 } Hashmap;
@@ -20,15 +20,6 @@ typedef struct Hashmap {
  * @return Hashmap* A pointer to the created hashmap.
  */
 Hashmap* hashmap_create(uint size);
-
-/**
- * @brief Create an item structure with given arguments.
- * 
- * @param key 
- * @param value 
- * @return Item* A pointer to the created item.
- */
-Item* create_item(uint key, uint value);
 
 /**
  * @brief Free the hashmap.

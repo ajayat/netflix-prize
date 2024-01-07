@@ -1,5 +1,6 @@
 #include <stdio.h>
 #include <stdlib.h>
+#include <stdint.h>
 
 #include "hashmap.h"
 
@@ -13,28 +14,12 @@ Hashmap* hashmap_create(uint size)
     Hashmap* h = (Hashmap*) malloc(sizeof(Hashmap));
     h->size = size;
     h->count = 0;
-    h->items = (Item**) calloc(h->size, sizeof(Item*));
-
-    for (uint i = 0; i < h->size; i++)
-        h->items[i] = NULL;
-
+    h->items = (Item*) calloc(h->size, sizeof(Item));
     return h;
-}
-
-Item* create_item(uint key, uint value)
-{
-    Item* i = (Item*) malloc(sizeof(Item));
-    i->key = key;
-    i->value = value;
-    return i;
 }
 
 void hashmap_free(Hashmap* h)
 {
-    for (uint i = 0; i<h->size; i++) {
-        if (h->items[i] != NULL)
-            free(h->items[i]);
-    }
     free(h->items);
     free(h);
 }
@@ -42,16 +27,17 @@ void hashmap_free(Hashmap* h)
 void hashmap_resize(Hashmap* h)
 {
     h->size *= 2;
-    Item** new_tab = calloc(h->size, sizeof(Item*));
+    Item* new_tab = calloc(h->size, sizeof(Item));
     for (uint i=0; i<(h->size/2); i++) {
-        if (h->items[i] != NULL) {
-            uint index = hash_function(h->size, h->items[i]->key);
+        if (h->items[i].key > 0) {
+            uint index = hash_function(h->size, h->items[i].key);
             uint jump = 0;
-            while (new_tab[index] != NULL) {
+            while (new_tab[index].key > 0) {
                 jump++;
                 index += jump;
             }
-            new_tab[index] = h->items[i];
+            new_tab[index].key = h->items[i].key;
+            new_tab[index].value = h->items[i].value;
         }
     }
     free(h->items);
@@ -61,16 +47,16 @@ void hashmap_resize(Hashmap* h)
 uint hashmap_find(Hashmap* h, uint key)
 {
     uint index = hash_function(h->size, key);
-    Item* current = h->items[index];
+    uint current = h->items[index].key;
     uint jump = 0;
-    while (current != NULL && current->key != key) {
+    while (current > 0 && current != key) {
         jump++;
         index += jump;
         if (index >= h->size)
             return UINT32_MAX; // Key not found
-        current = h->items[index];
+        current = h->items[index].key;
     }
-    if (current == NULL)
+    if (current == 0)
         return UINT32_MAX; // Key not found
     return index;
 }
@@ -78,22 +64,23 @@ uint hashmap_find(Hashmap* h, uint key)
 uint hashmap_insert(Hashmap* h, uint key, uint value)
 {
     uint index = hash_function(h->size, key);
-    Item* current = h->items[index];
+    uint current = h->items[index].key;
     uint jump = 0;
 
     if (h->count/h->size > 0.5) // the load is too high
         hashmap_resize(h);
 
-    while (current != NULL && current->key != key) {
+    while (current > 0 && current != key) {
         jump++;
         index += jump;
         if (index >= h->size)
             hashmap_resize(h);
-        current = h->items[index];
+        current = h->items[index].key;
     }
 
-    if (current == NULL) { // the key doesn't exist
-        h->items[index] = create_item(key, value);
+    if (current == 0) { // the key doesn't exist
+        h->items[index].key = key;
+        h->items[index].value = value;
         h->count++;
     }
 

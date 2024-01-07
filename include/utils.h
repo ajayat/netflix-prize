@@ -1,10 +1,21 @@
 #pragma once
 
 #include <stdio.h>
+#include <stdbool.h>
 
 #define EPOCH 729695 // 1st January 1998
 
 typedef unsigned int u_int;
+typedef unsigned long u_long;
+
+/**
+ * @brief Return true if the given number is a power of two.
+ * 
+ * @param x Given number.
+ * @return true if it is a power of two.
+ * @return false otherwise.
+ */
+bool is_power_of_two(u_long x);
 
 /**
  * @brief Get the size in byte of a file.

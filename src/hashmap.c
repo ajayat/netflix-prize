@@ -1,17 +1,25 @@
+#include <math.h>
 #include <stdio.h>
 #include <stdlib.h>
 
 #include "hashmap.h"
 
-static uint hash_function(int size, uint key)
+const double LOAD = 0.75;
+
+static uint hash(uint size, uint key)
 {
-    return (key % size);
+    return key % size;
+}
+
+static uint jump(uint i)
+{
+    return (i * (i+1)) / 2;
 }
 
 Hashmap* hashmap_create(uint size)
 {
     Hashmap* h = (Hashmap*) malloc(sizeof(Hashmap));
-    h->size = size;
+    h->size = 1 << (int)ceil(log2(size));
     h->count = 0;
     h->items = (Item*) calloc(h->size, sizeof(Item));
     return h;
@@ -23,109 +31,86 @@ void hashmap_free(Hashmap* h)
     free(h);
 }
 
-void hashmap_resize(Hashmap* h)
+Hashmap* hashmap_resize(Hashmap* h, uint new_size)
 {
-    h->size *= 2;
-    Item* new_tab = calloc(h->size, sizeof(Item));
-    for (uint i=0; i<(h->size/2); i++) {
-        if (h->items[i].key > 0) {
-            uint index = hash_function(h->size, h->items[i].key);
-            uint jump = 0;
-            while (new_tab[index].key > 0) {
-                jump++;
-                index += jump;
-            }
-            new_tab[index].key = h->items[i].key;
-            new_tab[index].value = h->items[i].value;
+    Hashmap *new_h = calloc(1, sizeof(Hashmap));
+    new_h->size = new_size;
+    new_h->count = 0;
+    new_h->items = calloc(new_size, sizeof(Item));
+
+    for (uint i=0; i<h->size; i++) {
+        uint k = h->items[i].key;
+        if (k != EMPTY && k != TOMBSTONE)
+            hashmap_insert(new_h, k, h->items[i].value);
+    }
+
+    hashmap_free(h);
+    return new_h;
+}
+
+int hashmap_find(Hashmap* h, uint key)
+{
+    uint index = hash(h->size, key);
+    uint current_pos = index;
+    uint current_key = h->items[index].key;
+    uint i = 0;
+
+    while (i < h->size && current_key != EMPTY && current_key != key) {
+        current_pos = (index + jump(++i)) % h->size;
+        current_key = h->items[index].key;
+    }
+    if (current_key == EMPTY || i >= h->size)
+        return -1; // Key not found
+    return current_pos;
+}
+
+uint hashmap_get(Hashmap* h, uint key)
+{
+    int pos = hashmap_find(h, key);
+    if (pos == -1)
+        return 0; // Key not found
+    return h->items[pos].value;
+}
+
+void hashmap_insert(Hashmap* h, uint key, uint value)
+{
+    uint index = hash(h->size, key);
+    uint current_pos = index;
+    uint current_key = h->items[index].key;
+    uint i = 0;
+    int id_tombstone = -1;
+
+    if ((double)h->count / (double)h->size >= LOAD) // the load is too high
+        h = hashmap_resize(h, 2*h->size);
+
+    while (current_key != EMPTY && current_key != key) {
+        if (current_key == TOMBSTONE && id_tombstone < 0)
+            id_tombstone = current_pos;
+        current_pos = (index + jump(++i)) % h->size;
+        current_key = h->items[current_pos].key;
+    }
+
+    if (current_key == EMPTY) { // The key doesn't exist.
+        if (id_tombstone >= 0) { // Replace the tombstone.
+            h->items[id_tombstone].key = key;
+            h->items[id_tombstone].value = value;
         }
-    }
-    free(h->items);
-    h->items = new_tab;
-}
-
-uint hashmap_find(Hashmap* h, uint key)
-{
-    uint index = hash_function(h->size, key);
-    uint current = h->items[index].key;
-    uint jump = 0;
-
-    while (current > 0 && current != key) {
-        jump++;
-        index += jump;
-        if (index >= h->size)
-            return UINT32_MAX; // Key not found
-        current = h->items[index].key;
-    }
-    if (current == 0)
-        return UINT32_MAX; // Key not found
-    return index;
-}
-
-uint hashmap_insert(Hashmap* h, uint key, uint16_t value)
-{
-    uint index = hash_function(h->size, key);
-    uint current = h->items[index].key;
-    uint jump = 0;
-
-    if (h->count/h->size > 0.5) // the load is too high
-        hashmap_resize(h);
-
-    while (current > 0 && current != key) {
-        jump++;
-        index += jump;
-        if (index >= h->size)
-            hashmap_resize(h);
-        current = h->items[index].key;
-    }
-
-    if (current == 0) { // the key doesn't exist
-        h->items[index].key = key;
-        h->items[index].value = value;
+        else { // Full the empty case.
+            h->items[current_pos].key = key;
+            h->items[current_pos].value = value;
+        }
         h->count++;
     }
-
     // Otherwise, the hashmap already contains the key.
-
-    return value;
 }
 
 uint hashmap_remove(Hashmap* h, uint key)
 {
-    uint hash = hash_function(h->size, key);
-    uint index = hash;
-    uint current = h->items[index].key;
-    uint jump = 0;
-
-    while (current > 0 && current != key) {
-        jump++;
-        index += jump;
-        if (index >= h->size)
-            return UINT32_MAX; // Key not found
-        current = h->items[index].key;
-    }
-
-    if (current == 0)
-        return UINT32_MAX; // Key not found
-
-    h->items[index].key = 0;
-    h->items[index].value = 0;
-    jump++;
-    uint last_index = index;
-    uint test_index = index+jump;
-    uint test_key = h->items[test_index].key;
-
-    while (test_index < h->size && (test_key == 0 || hash_function(h->size, test_key) == hash)) {
-        if (test_key != 0)
-            last_index += test_index;
-        jump++;
-        test_index += jump;
-        test_key = h->items[test_index].key;
-    }
-
-    h->items[index].key = h->items[last_index].key;
-    h->items[index].value = h->items[last_index].value;
-    h->items[last_index].key = 0;
-    h->items[last_index].value = 0;
-
-    return key;
+    int pos = hashmap_find(h, key);
+    if (pos < 0)
+        return 0;
+    uint value = h->items[pos].value;
+    h->items[pos].key = TOMBSTONE;
+    h->items[pos].value = 0;
+    return value;
 }

@@ -1,8 +1,13 @@
-#include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 
 #include "utils.h"
+
+bool is_power_of_two(u_long x)
+{
+    return (x != 0) && ((x & (x - 1)) == 0);
+}
+
 
 u_int get_size(FILE *file)
 {

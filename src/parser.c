@@ -183,11 +183,6 @@ read_error:
     return NULL;
 }
 
-static bool is_power_of_two(u_long x)
-{
-    return (x != 0) && ((x & (x - 1)) == 0);
-}
-
 UserData *to_user_oriented(MovieData *data)
 {
     UserData *user_data = malloc(sizeof(UserData));

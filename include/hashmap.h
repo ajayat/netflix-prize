@@ -4,9 +4,12 @@
 
 typedef unsigned int uint;
 
+const uint EMPTY = 0;
+const uint TOMBSTONE = UINT32_MAX;
+
 typedef struct Item {
     uint key;
-    uint16_t value;
+    uint value;
 } Item;
 
 typedef struct Hashmap {
@@ -34,17 +37,29 @@ void hashmap_free(Hashmap* h);
  * @brief Resize the given hashmap by 2.
  * 
  * @param h The hashmap to resize.
+ * @param new_size New size for the hashmap.
+ * @return Hashmap* The hashmap 
  */
-void hashmap_resize(Hashmap* h);
+Hashmap* hashmap_resize(Hashmap* h, uint new_size);
+
 
 /**
- * @brief Find the index in the hashmap of the given key.
+ * @brief Find the index of a given key in the hashmap.
+ * 
+ * @param h The given hashmap.
+ * @param key The key to find.
+ * @return int -1 if the key doesn't exist, its index otherwise.
+ */
+int hashmap_find(Hashmap* h, uint key);
+
+/**
+ * @brief Find the value associated to he given key in the hashmap.
  * 
  * @param h  The given hashmap.
  * @param key The key we are looking for.
- * @return uint The finden key.
+ * @return uint The value associated to the key.
  */
-uint hashmap_find(Hashmap* h, uint key);
+uint hashmap_get(Hashmap* h, uint key);
 
 /**
  * @brief Insert a new element in the hashmap, if it doesn't already exist.
@@ -52,9 +67,8 @@ uint hashmap_find(Hashmap* h, uint key);
  * @param h The given hashmap.
  * @param key The key to add.
  * @param value The associated value.
- * @return uint The value.
  */
-uint hashmap_insert(Hashmap* h, uint key, uint16_t value);
+void hashmap_insert(Hashmap* h, uint key, uint value);
 
 /**
  * @brief Remove the item with the corresponding key from the hashmap.

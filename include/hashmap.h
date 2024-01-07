@@ -1,10 +1,12 @@
 #pragma once
 
+#include <stdint.h>
+
 typedef unsigned int uint;
 
 typedef struct Item {
     uint key;
-    uint value;
+    uint16_t value;
 } Item;
 
 typedef struct Hashmap {
@@ -52,7 +54,7 @@ uint hashmap_find(Hashmap* h, uint key);
  * @param value The associated value.
  * @return uint The value.
  */
-uint hashmap_insert(Hashmap* h, uint key, uint value);
+uint hashmap_insert(Hashmap* h, uint key, uint16_t value);
 
 /**
  * @brief Remove the item with the corresponding key from the hashmap.

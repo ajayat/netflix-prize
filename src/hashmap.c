@@ -1,6 +1,5 @@
 #include <stdio.h>
 #include <stdlib.h>
-#include <stdint.h>
 
 #include "hashmap.h"
 
@@ -49,6 +48,7 @@ uint hashmap_find(Hashmap* h, uint key)
     uint index = hash_function(h->size, key);
     uint current = h->items[index].key;
     uint jump = 0;
+
     while (current > 0 && current != key) {
         jump++;
         index += jump;
@@ -61,7 +61,7 @@ uint hashmap_find(Hashmap* h, uint key)
     return index;
 }
 
-uint hashmap_insert(Hashmap* h, uint key, uint value)
+uint hashmap_insert(Hashmap* h, uint key, uint16_t value)
 {
     uint index = hash_function(h->size, key);
     uint current = h->items[index].key;
@@ -91,6 +91,41 @@ uint hashmap_insert(Hashmap* h, uint key, uint value)
 
 uint hashmap_remove(Hashmap* h, uint key)
 {
-    // ! À COMPLÉTER
+    uint hash = hash_function(h->size, key);
+    uint index = hash;
+    uint current = h->items[index].key;
+    uint jump = 0;
+
+    while (current > 0 && current != key) {
+        jump++;
+        index += jump;
+        if (index >= h->size)
+            return UINT32_MAX; // Key not found
+        current = h->items[index].key;
+    }
+
+    if (current == 0)
+        return UINT32_MAX; // Key not found
+
+    h->items[index].key = 0;
+    h->items[index].value = 0;
+    jump++;
+    uint last_index = index;
+    uint test_index = index+jump;
+    uint test_key = h->items[test_index].key;
+
+    while (test_index < h->size && (test_key == 0 || hash_function(h->size, test_key) == hash)) {
+        if (test_key != 0)
+            last_index += test_index;
+        jump++;
+        test_index += jump;
+        test_key = h->items[test_index].key;
+    }
+
+    h->items[index].key = h->items[last_index].key;
+    h->items[index].value = h->items[last_index].value;
+    h->items[last_index].key = 0;
+    h->items[last_index].value = 0;
+
     return key;
 }

@@ -31,21 +31,20 @@ void hashmap_free(Hashmap* h)
     free(h);
 }
 
-Hashmap* hashmap_resize(Hashmap* h, uint new_size)
+void hashmap_resize(Hashmap* h, uint new_size)
 {
-    Hashmap *new_h = calloc(1, sizeof(Hashmap));
-    new_h->size = new_size;
-    new_h->count = 0;
-    new_h->items = calloc(new_size, sizeof(Item));
+    uint old_size = h->size;
+    Item* old_items = h->items;
+    h->size = new_size;
+    h->count = 0;
+    h->items = (Item*)calloc(h->size, sizeof(Item));
 
-    for (uint i=0; i<h->size; i++) {
-        uint k = h->items[i].key;
+    for (uint i = 0; i < old_size; i++) {
+        uint k = old_items[i].key;
         if (k != EMPTY && k != TOMBSTONE)
-            hashmap_insert(new_h, k, h->items[i].value);
+            hashmap_insert(h, k, old_items[i].value);
     }
-
-    hashmap_free(h);
-    return new_h;
+    free(old_items);
 }
 
 int hashmap_find(Hashmap* h, uint key)
@@ -68,7 +67,7 @@ uint hashmap_get(Hashmap* h, uint key)
 {
     int pos = hashmap_find(h, key);
     if (pos == -1)
-        return 0; // Key not found
+        return EMPTY; // Key not found
     return h->items[pos].value;
 }
 
@@ -81,7 +80,7 @@ void hashmap_insert(Hashmap* h, uint key, uint value)
     int id_tombstone = -1;
 
     if ((double)h->count / (double)h->size >= LOAD) // the load is too high
-        h = hashmap_resize(h, 2*h->size);
+        hashmap_resize(h, 2 * h->size);
 
     while (current_key != EMPTY && current_key != key) {
         if (current_key == TOMBSTONE && id_tombstone < 0)
@@ -108,9 +107,15 @@ uint hashmap_remove(Hashmap* h, uint key)
 {
     int pos = hashmap_find(h, key);
     if (pos < 0)
-        return 0;
+        return EMPTY;
+
     uint value = h->items[pos].value;
     h->items[pos].key = TOMBSTONE;
     h->items[pos].value = 0;
+    h->count--;
+
+    if ((double)h->count / (double)h->size < 1 - LOAD) // the load is too low
+        hashmap_resize(h, h->size / 2);
+
     return value;
 }

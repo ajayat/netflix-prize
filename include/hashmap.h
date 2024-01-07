@@ -38,9 +38,8 @@ void hashmap_free(Hashmap* h);
  * 
  * @param h The hashmap to resize.
  * @param new_size New size for the hashmap.
- * @return Hashmap* The hashmap 
  */
-Hashmap* hashmap_resize(Hashmap* h, uint new_size);
+void hashmap_resize(Hashmap* h, uint new_size);
 
 
 /**

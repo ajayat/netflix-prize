@@ -3,6 +3,7 @@
 #include <math.h>
 #include <assert.h>
 
+#include "hashmap.h"
 #include "stats.h"
 #include "utils.h"
 

@@ -3,7 +3,9 @@
 #include <stdio.h>
 #include <stdint.h>
 #include <stdbool.h>
+
 #include "parser.h"
+#include "hashmap.h"
 
 typedef unsigned int uint;
 
@@ -47,7 +49,7 @@ typedef struct UserStats {
  * @brief Contains all stats about all movies.
  */
 typedef struct Stats {
-    double **similarity;
+    float **similarity;
     MovieStats *movies;
     UserStats *users;
     uint nb_movies;
@@ -92,14 +94,14 @@ double shrink(double value, uint n, double alpha);
  * @param args Arguments given by the user.
  * @return A `Stats*` structure containing all requested statistics.
  */
-Stats *read_stats_from_data(MovieData *movie_data, Arguments *args);
+Stats *read_stats_from_data(MovieData *movie_data, UserData *user_data, Arguments *args);
 
 /**
  * @brief Create a similarity matrix.
  * @param data The data structure.
  * @return The similarity matrix.
  */
-double **create_similarity_matrix(MovieData *data);
+float **create_similarity_matrix(MovieData *data);
 
 /**
  * @brief Compute the similarity between two movies.
@@ -108,4 +110,4 @@ double **create_similarity_matrix(MovieData *data);
  * @param movie2 The second movie.
  * @return The similarity between the two movies.
  */
-double mse_correlation(Movie *movie1, Movie *movie2);
+double mse_correlation(Movie *movie1, Movie *movie2, Hashmap *ratings);

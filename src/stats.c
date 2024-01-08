@@ -51,57 +51,49 @@ double shrink(double value, uint n, double alpha)
     return value * (double)n / (n + alpha);
 }
 
-double mse_correlation(Movie *movie1, Movie *movie2)
+double mse_correlation(Movie *movie1, Movie *movie2, Hashmap *ratings)
 {
-    // if (movie1->id == 175)
-    //     printf("Movie 2 : %d\n", movie2->id);
-    Movie *min_movie, *max_movie;
-    if (movie1->nb_ratings < movie2->nb_ratings) {
-        min_movie = movie1;
-        max_movie = movie2;
-    } else {
-        min_movie = movie2;
-        max_movie = movie1;
-    }
-    Hashmap *h = hashmap_create(min_movie->nb_ratings);
-    for (uint i = 0; i < min_movie->nb_ratings; i++)
-        hashmap_insert(h, get_customer_id(min_movie->ratings[i]), i);
-
     // Calculate MSE between score given by same user
     double sum = 0;
     uint nb_ratings = 0;
-    uint r2, customer_id;
+    uint r1, customer_id;
 
-    for (uint r1 = 0; r1 < max_movie->nb_ratings; r1++) {
-        customer_id = get_customer_id(max_movie->ratings[r1]);
-        if ((r2 = hashmap_get(h, customer_id)) == EMPTY)
+    for (uint r2 = 0; r2 < movie2->nb_ratings; r2++) {
+        customer_id = get_customer_id(movie2->ratings[r2]);
+        if ((r1 = hashmap_get(ratings, customer_id)) == EMPTY)
             continue;
         sum += pow(movie1->ratings[r1].score - movie2->ratings[r2].score, 2);
         nb_ratings++;
     }
-    hashmap_free(h);
     double c = (double)nb_ratings / (1.0 + sum);
     return shrink(c, nb_ratings, 400);
 }
 
-double **create_similarity_matrix(MovieData *data)
+float **create_similarity_matrix(MovieData *data)
 {
-    double **sim = malloc(data->nb_movies * sizeof(double*));
+    float **sim = malloc(data->nb_movies * sizeof(float*));
     for (uint i = 0; i < data->nb_movies; i++) {
-        sim[i] = calloc(data->nb_movies, sizeof(double));
+        sim[i] = calloc(data->nb_movies, sizeof(float));
         assert(sim[i] != NULL);
     }
     for (uint i = 0; i < data->nb_movies; i++) {
         printf("Compute similarity of movie : %u\n", i + 1);
+        Movie *movie1 = data->movies[i];
+        Hashmap *ratings = hashmap_create(movie1->nb_ratings);
+
+        for (uint i = 0; i < movie1->nb_ratings; i++)
+            hashmap_insert(ratings, get_customer_id(movie1->ratings[i]), i);
+
         for (uint j = 0; j < i; j++) {
-            sim[i][j] = mse_correlation(data->movies[i], data->movies[j]);
+            sim[i][j] = (float)mse_correlation(movie1, data->movies[j], ratings);
             sim[j][i] = sim[i][j];
         }
+        hashmap_free(ratings);
     }
     return sim;
 }
 
-void write_matrix_to_csv(double **matrix, uint size, char *filename)
+void write_matrix_to_csv(float **matrix, uint size, char *filename)
 {
     FILE *csv = fopen(filename, "w");
     for (uint i = 0; i < size; i++) {
@@ -112,9 +104,8 @@ void write_matrix_to_csv(double **matrix, uint size, char *filename)
     fclose(csv);
 }
 
-Stats *read_stats_from_data(MovieData *movie_data, Arguments *args)
+Stats *read_stats_from_data(MovieData *movie_data, UserData *user_data, Arguments *args)
 {
-    UserData *user_data = to_user_oriented(movie_data);
     // Allocate memory for stats
     Stats *stats = malloc(sizeof(Stats));
     stats->nb_movies = movie_data->nb_movies;
@@ -160,12 +151,8 @@ Stats *read_stats_from_data(MovieData *movie_data, Arguments *args)
         stats->movies[m].average /= (double)(r_dst);
         movie_dst->nb_ratings = r_dst;
     }
-    // Free memory
-    free_user_data(user_data);
-
     FILE *databin = fopen("data/data.bin", "wb");
     write_to_file(databin, data);
-    free_movie_data(data);
 
     if (fclose(databin) == EOF)
         perror("data.bin can't be closed.");
@@ -183,7 +170,10 @@ Stats *read_stats_from_data(MovieData *movie_data, Arguments *args)
         if (fclose(one_movie) == EOF)
             perror("The file for one movie can't be closed.");
     }
+    free_user_data(user_data);
     stats->similarity = create_similarity_matrix(data);
+    // Free memory
+    free_movie_data(data);
     write_matrix_to_csv(stats->similarity, 100, "data/similarity.csv");
     return stats;
 }

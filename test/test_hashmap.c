@@ -16,7 +16,8 @@ void hashmap_running(void)
     hashmap_insert(h,4,8);
     hashmap_insert(h,7,14);
     TEST_ASSERT_EQUAL(8,h->size);
-    TEST_ASSERT_EQUAL(5,hashmap_find(h,5));
+    TEST_ASSERT_EQUAL(5, hashmap_find(h,5));
+    TEST_ASSERT_EQUAL(10, hashmap_get(h,5));
     uint r = hashmap_remove(h,5);
     TEST_ASSERT_EQUAL(10,r);
     TEST_ASSERT_EQUAL(TOMBSTONE,h->items[5].key);

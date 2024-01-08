@@ -83,17 +83,20 @@ int main(int argc, char *argv[])
 
     argp_parse(&argp, argc, argv, 0, 0, &args);
 
-    FILE *databin = fopen("data/fulldata.bin", "rb");
-    if (databin == NULL) {
-        fprintf(stderr, "Error: cannot open file data/fulldata.bin\n");
-        exit(EXIT_FAILURE);
-    }
-    MovieData *movie_data = read_from_file(databin);
-    fclose(databin);
-    // MovieData *movie_data = parse();
-    Stats *stats = read_stats_from_data(movie_data, &args);
+    // FILE *databin = fopen("data/fulldata.bin", "rb");
+    // if (databin == NULL) {
+    //     fprintf(stderr, "Error: cannot open file data/fulldata.bin\n");
+    //     exit(EXIT_FAILURE);
+    // }
+    // MovieData *movie_data = read_from_file(databin);
+    // fclose(databin);
+    MovieData *movie_data = parse();
+    UserData *user_data = to_user_oriented(movie_data);
+    Stats *stats = read_stats_from_data(movie_data, user_data, &args);
 
     printf("nb_movies: %d\n", stats->nb_movies);
+    // Free memory
+    free_user_data(user_data);
     free_movie_data(movie_data);
     free_stats(stats);
 

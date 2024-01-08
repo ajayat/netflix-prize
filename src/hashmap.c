@@ -56,7 +56,7 @@ int hashmap_find(Hashmap* h, uint key)
 
     while (i < h->size && current_key != EMPTY && current_key != key) {
         current_pos = (index + jump(++i)) % h->size;
-        current_key = h->items[index].key;
+        current_key = h->items[current_pos].key;
     }
     if (current_key == EMPTY || i >= h->size)
         return -1; // Key not found

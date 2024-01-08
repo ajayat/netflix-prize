@@ -30,7 +30,7 @@ void free_movie_data(MovieData *data)
 
 void free_user_data(UserData *data)
 {
-    for (uint i = 0; i < data->nb_users; i++) {
+    for (uint i = 0; i < MAX_USER_ID; i++) {
         if (data->users[i] != NULL) {
             free(data->users[i]->ratings);
             free(data->users[i]);

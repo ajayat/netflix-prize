@@ -53,6 +53,8 @@ double shrink(double value, uint n, double alpha)
 
 double mse_correlation(Movie *movie1, Movie *movie2)
 {
+    // if (movie1->id == 175)
+    //     printf("Movie 2 : %d\n", movie2->id);
     Movie *min_movie, *max_movie;
     if (movie1->nb_ratings < movie2->nb_ratings) {
         min_movie = movie1;
@@ -79,7 +81,7 @@ double mse_correlation(Movie *movie1, Movie *movie2)
     }
     hashmap_free(h);
     double c = (double)nb_ratings / (1.0 + sum);
-    return shrink(c, nb_ratings, 100);
+    return shrink(c, nb_ratings, 400);
 }
 
 double **create_similarity_matrix(MovieData *data)
@@ -99,10 +101,24 @@ double **create_similarity_matrix(MovieData *data)
     return sim;
 }
 
-Stats *read_stats_from_data(MovieData *movie_data, UserData *user_data, Arguments *args)
+void write_matrix_to_csv(double **matrix, uint size, char *filename)
 {
+    FILE *csv = fopen(filename, "w");
+    for (uint i = 0; i < size; i++) {
+        for (uint j = 0; j < size; j++)
+            fprintf(csv, "%lf;", matrix[i][j]);
+        fprintf(csv, "\n");
+    }
+    fclose(csv);
+}
+
+Stats *read_stats_from_data(MovieData *movie_data, Arguments *args)
+{
+    UserData *user_data = to_user_oriented(movie_data);
     // Allocate memory for stats
     Stats *stats = malloc(sizeof(Stats));
+    stats->nb_movies = movie_data->nb_movies;
+    stats->nb_users = user_data->nb_users;
     stats->movies = calloc(movie_data->nb_movies, sizeof(MovieStats));
     // Allocate memory for partial data
     MovieData *data = malloc(sizeof(MovieData));
@@ -133,9 +149,9 @@ Stats *read_stats_from_data(MovieData *movie_data, UserData *user_data, Argument
                 || (args->nb_bad_reviewers && is_a_bad_reviewer(args, c_id))) // opt -b
                 continue;
             // Copy ratings
-            memcpy(&movie_dst->ratings[r_dst++], &movie_src->ratings[r], sizeof(MovieRating));
+            movie_dst->ratings[r_dst++] = movie_src->ratings[r];
             // Update stats
-            stats->movies[m].average += (double)(movie_src->ratings[r].score);
+            stats->movies[m].average += (double)movie_src->ratings[r].score;
             if (movie_src->ratings[r].score > stats->movies[m].max)
                 stats->movies[m].max = movie_src->ratings[r].score;
             if (movie_src->ratings[r].score < stats->movies[m].min)
@@ -144,9 +160,13 @@ Stats *read_stats_from_data(MovieData *movie_data, UserData *user_data, Argument
         stats->movies[m].average /= (double)(r_dst);
         movie_dst->nb_ratings = r_dst;
     }
-    
-    FILE *databin = fopen("data/data.bin", "w");
+    // Free memory
+    free_user_data(user_data);
+
+    FILE *databin = fopen("data/data.bin", "wb");
     write_to_file(databin, data);
+    free_movie_data(data);
+
     if (fclose(databin) == EOF)
         perror("data.bin can't be closed.");
 
@@ -164,5 +184,6 @@ Stats *read_stats_from_data(MovieData *movie_data, UserData *user_data, Argument
             perror("The file for one movie can't be closed.");
     }
     stats->similarity = create_similarity_matrix(data);
+    write_matrix_to_csv(stats->similarity, 100, "data/similarity.csv");
     return stats;
 }

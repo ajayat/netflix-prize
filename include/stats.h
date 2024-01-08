@@ -92,7 +92,7 @@ double shrink(double value, uint n, double alpha);
  * @param args Arguments given by the user.
  * @return A `Stats*` structure containing all requested statistics.
  */
-Stats *read_stats_from_data(MovieData *movie_data, UserData *user_data, Arguments *args);
+Stats *read_stats_from_data(MovieData *movie_data, Arguments *args);
 
 /**
  * @brief Create a similarity matrix.

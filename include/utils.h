@@ -5,8 +5,8 @@
 
 #define EPOCH 729695 // 1st January 1998
 
-typedef unsigned int u_int;
-typedef unsigned long u_long;
+typedef unsigned int uint;
+typedef unsigned long ulong;
 
 /**
  * @brief Return true if the given number is a power of two.
@@ -15,20 +15,20 @@ typedef unsigned long u_long;
  * @return true if it is a power of two.
  * @return false otherwise.
  */
-bool is_power_of_two(u_long x);
+bool is_power_of_two(ulong x);
 
 /**
  * @brief Get the size in byte of a file.
  * @param file The file to get the size from.
  * @return The size of the file.
  */
-u_int get_size(FILE *file);
+uint get_size(FILE *file);
 
 /**
  * @brief Get the number of days between a gven date and Epoch.
  * @note Epoch is the 1st January 1889.
  */
-u_int days_from_epoch(u_int year, u_int month, u_int day);
+uint days_from_epoch(uint year, uint month, uint day);
 
 /**
  * @brief Duplicate a string.

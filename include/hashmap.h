@@ -4,8 +4,8 @@
 
 typedef unsigned int uint;
 
-const uint EMPTY = 0;
-const uint TOMBSTONE = UINT32_MAX;
+#define EMPTY 0
+#define TOMBSTONE 4294967295
 
 typedef struct Item {
     uint key;

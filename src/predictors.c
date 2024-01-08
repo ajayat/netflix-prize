@@ -6,14 +6,14 @@
 #include "predictors.h"
 #include "stats.h"
 
-UserRating *knn_ratings(Stats *stats, User *u, u_int i, u_int k)
+UserRating *knn_ratings(Stats *stats, User *u, uint i, uint k)
 {
     return NULL;
 }
 
 double knn_predictor(Stats *stats, User *user, Movie *movie)
 {
-    u_int k = 80;
+    uint k = 80;
     double tau = 0.01;
     double scale = 4;
     double offset = -5;
@@ -26,10 +26,10 @@ double knn_predictor(Stats *stats, User *user, Movie *movie)
     else
         nearest_ratings = user->ratings;
 
-    for (u_int i = 0; i < k; i++) {
+    for (uint i = 0; i < k; i++) {
         UserRating rating = nearest_ratings[i];
         double s = stats->similarity[movie->id][rating.movie_id];
-        u_int delta = abs(rating.date - movie->date);
+        uint delta = abs(rating.date - movie->date);
         double time_factor = 1 / (1 + tau * delta);
         double weight = logistic(scale * s * time_factor + offset, 1, 0);
         score += weight * user->ratings[rating.movie_id].score;
@@ -38,11 +38,11 @@ double knn_predictor(Stats *stats, User *user, Movie *movie)
     return score / sum_weights;
 }
 
-static double proximity(Stats *stats, u_int i, u_int *ids, u_int m)
+static double proximity(Stats *stats, uint i, uint *ids, uint m)
 {
     double distance = 0;
     double sum_weights = 0;
-    for (u_int j = 0; j < m; j++) {
+    for (uint j = 0; j < m; j++) {
         double s = stats->similarity[i][ids[j]];
         double weight = exp(2 * s);
         distance += weight * s;
@@ -51,12 +51,12 @@ static double proximity(Stats *stats, u_int i, u_int *ids, u_int m)
     return distance / sum_weights;
 }
 
-u_int *knn_movies(Stats *stats, u_int *ids, u_int m, u_int k)
+uint *knn_movies(Stats *stats, uint *ids, uint m, uint k)
 {
     double a = 0.5;
     double b = 0.5;
 
-    for (u_int i = 0; i < stats->nb_movies; i++) {
+    for (uint i = 0; i < stats->nb_movies; i++) {
         double distance = proximity(stats, i, ids, m);  // between 0 and 1
         double popularity = stats->movies[i].nb_ratings / stats->nb_users;
         double score = a * stats->movies[i].average * popularity + b * distance;

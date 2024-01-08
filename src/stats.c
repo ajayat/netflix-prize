@@ -6,6 +6,7 @@
 #include "hashmap.h"
 #include "stats.h"
 #include "utils.h"
+#include "hashmap.h"
 
 #define MAX_USER_ID 2649430
 
@@ -14,7 +15,7 @@ void free_stats(Stats *stats)
     if (stats == NULL)
         return;
     if (stats->similarity != NULL) {
-        for (u_int i = 0; i < stats->nb_movies; i++)
+        for (uint i = 0; i < stats->nb_movies; i++)
             free(stats->similarity[i]);
         free(stats->similarity);
     }
@@ -22,18 +23,18 @@ void free_stats(Stats *stats)
     free(stats);
 }
 
-bool is_requested(Arguments *args, u_long id)
+bool is_requested(Arguments *args, ulong id)
 {
-    for (u_int c = 0; c < args->nb_customer_ids; c++) {
+    for (uint c = 0; c < args->nb_customer_ids; c++) {
         if (args->customer_ids[c] == id)
             return true;
     }
     return false;
 }
 
-bool is_a_bad_reviewer(Arguments *args, u_long id)
+bool is_a_bad_reviewer(Arguments *args, ulong id)
 {
-    for (u_int b=0; b < args->nb_bad_reviewers; b++) {
+    for (uint b=0; b < args->nb_bad_reviewers; b++) {
         if (args->bad_reviewers[b] == id)
             return true;
     }
@@ -45,37 +46,38 @@ double logistic(double x, double a, double b)
     return 1 / (1 + exp(-a * (x - b)));
 }
 
-double shrink(double value, u_int n, double alpha)
+double shrink(double value, uint n, double alpha)
 {
     return value * (double)n / (n + alpha);
 }
 
 double mse_correlation(Movie *movie1, Movie *movie2)
 {
-    u_int *user_ratings1 = calloc(MAX_USER_ID, sizeof(u_int));
-    u_int *user_ratings2 = calloc(MAX_USER_ID, sizeof(u_int));
-
-    for (u_int i = 0; i < movie1->nb_ratings; i++)
-        user_ratings1[get_customer_id(movie1->ratings[i])] = i;
-    
-    for (u_int i = 0; i < movie2->nb_ratings; i++)
-        user_ratings2[get_customer_id(movie2->ratings[i])] = i;
+    Movie *min_movie, *max_movie;
+    if (movie1->nb_ratings < movie2->nb_ratings) {
+        min_movie = movie1;
+        max_movie = movie2;
+    } else {
+        min_movie = movie2;
+        max_movie = movie1;
+    }
+    Hashmap *h = hashmap_create(min_movie->nb_ratings);
+    for (uint i = 0; i < min_movie->nb_ratings; i++)
+        hashmap_insert(h, get_customer_id(min_movie->ratings[i]), i);
 
     // Calculate MSE between score given by same user
     double sum = 0;
-    u_int nb_ratings = 0;
-    int r1, r2;
+    uint nb_ratings = 0;
+    uint r2, customer_id;
 
-    for (int i = 0; i < MAX_USER_ID; i++) {
-        r1 = user_ratings1[i];
-        r2 = user_ratings2[i];
-        if (r1 && r2) {
-            sum += pow(movie1->ratings[r1].score - movie2->ratings[r2].score, 2);
-            nb_ratings++;
-        }
+    for (uint r1 = 0; r1 < max_movie->nb_ratings; r1++) {
+        customer_id = get_customer_id(max_movie->ratings[r1]);
+        if ((r2 = hashmap_get(h, customer_id)) == EMPTY)
+            continue;
+        sum += pow(movie1->ratings[r1].score - movie2->ratings[r2].score, 2);
+        nb_ratings++;
     }
-    free(user_ratings1);
-    free(user_ratings2);
+    hashmap_free(h);
     double c = (double)nb_ratings / (1.0 + sum);
     return shrink(c, nb_ratings, 100);
 }
@@ -83,13 +85,13 @@ double mse_correlation(Movie *movie1, Movie *movie2)
 double **create_similarity_matrix(MovieData *data)
 {
     double **sim = malloc(data->nb_movies * sizeof(double*));
-    for (u_int i = 0; i < data->nb_movies; i++) {
+    for (uint i = 0; i < data->nb_movies; i++) {
         sim[i] = calloc(data->nb_movies, sizeof(double));
         assert(sim[i] != NULL);
     }
-    for (u_int i = 0; i < data->nb_movies; i++) {
+    for (uint i = 0; i < data->nb_movies; i++) {
         printf("Compute similarity of movie : %u\n", i + 1);
-        for (u_int j = 0; j < i; j++) {
+        for (uint j = 0; j < i; j++) {
             sim[i][j] = mse_correlation(data->movies[i], data->movies[j]);
             sim[j][i] = sim[i][j];
         }
@@ -107,8 +109,8 @@ Stats *read_stats_from_data(MovieData *movie_data, UserData *user_data, Argument
     data->nb_movies = movie_data->nb_movies;
     data->movies = malloc(data->nb_movies * sizeof(Movie*));
 
-    u_long c_id;
-    for (u_int m = 0; m < data->nb_movies; m++)
+    ulong c_id;
+    for (uint m = 0; m < data->nb_movies; m++)
     {
         Movie *movie_src = movie_data->movies[m];
         Movie *movie_dst = data->movies[m] = malloc(sizeof(Movie));
@@ -118,10 +120,10 @@ Stats *read_stats_from_data(MovieData *movie_data, UserData *user_data, Argument
         movie_dst->title = strdup(movie_src->title);
         // Ratings treatment
         movie_dst->nb_ratings = 0;
-        u_long r_dst = 0;
+        ulong r_dst = 0;
         movie_dst->ratings = malloc(movie_src->nb_ratings * sizeof(MovieRating));
         
-        for (u_int r = 0; r < movie_src->nb_ratings ; r++) 
+        for (uint r = 0; r < movie_src->nb_ratings ; r++) 
         {
             c_id = get_customer_id(movie_src->ratings[r]);
 

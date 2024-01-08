@@ -5,7 +5,7 @@
 #include <stdbool.h>
 #include "parser.h"
 
-typedef unsigned int u_int;
+typedef unsigned int uint;
 
 /** 
  * @brief Contains all arguments given by the user, already parsed.
@@ -15,11 +15,11 @@ typedef struct Arguments {
     const char* folder; /**< Directory where put file corresponding to results. */
     uint16_t limit; /**< `-l` option: prohibits taking notes into account if their date is greater than Arguments::limit. */
     uint16_t movie_id; /**< `-s` option: film than the user wants statistics for. */
-    u_int nb_customer_ids; /**< Length of Arguments::customer_ids. */
-    u_long *customer_ids; /**< `-c` option: customers than the user wants to take into account. */
-    u_int nb_bad_reviewers; /**< Length of Arguments::bad_reviewers. */
-    u_long *bad_reviewers; /**< `-b` option: customers than the user does not want to take into account. */
-    u_int min; /**< `-e` option: to take into account only customers with Arguments::min ratings at least. */
+    uint nb_customer_ids; /**< Length of Arguments::customer_ids. */
+    ulong *customer_ids; /**< `-c` option: customers than the user wants to take into account. */
+    uint nb_bad_reviewers; /**< Length of Arguments::bad_reviewers. */
+    ulong *bad_reviewers; /**< `-b` option: customers than the user does not want to take into account. */
+    uint min; /**< `-e` option: to take into account only customers with Arguments::min ratings at least. */
     bool time; /**< True to give the executive time of the algorithm. */
     /*@}*/
 } Arguments;
@@ -50,8 +50,8 @@ typedef struct Stats {
     double **similarity;
     MovieStats *movies;
     UserStats *users;
-    u_int nb_movies;
-    u_int nb_users;
+    uint nb_movies;
+    uint nb_users;
 } Stats;
 
 /**
@@ -64,13 +64,13 @@ void free_stats(Stats *stats);
  * @return `True` if the customer must be taken into account.
  *         `False` otherwise.
  */
-bool is_requested(Arguments *args, u_long id);
+bool is_requested(Arguments *args, ulong id);
 
 /**
  * @return `True` if the customer must be taken into account.
  *         `False` otherwise.
  */
-bool not_a_bad_reviewer(Arguments *args, u_long id);
+bool not_a_bad_reviewer(Arguments *args, ulong id);
 
 /**
  * @brief Compute logistic function.
@@ -81,7 +81,7 @@ double logistic(double x, double a, double b);
  * @brief Reduce the value when n is low.
  * @param alpha The shrink factor.
 */
-double shrink(double value, u_int n, double alpha);
+double shrink(double value, uint n, double alpha);
 
 /**
  * @brief Main function to collect statistic from the binary file, respectings given arguments.

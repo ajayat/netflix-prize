@@ -21,11 +21,11 @@ static struct argp_option options[] = {
     { 0 }
 };
 
-static u_int parse_ints(char *arg, u_long *ids)
+static uint parse_ints(char *arg, ulong *ids)
 {
     char* end = NULL;
-    u_int i = 0;
-    u_int id;
+    uint i = 0;
+    uint id;
     while ((id = strtoul(arg, &end, 10)) != 0) {
         ids[i++] = id;
         arg = end + 1;
@@ -47,11 +47,11 @@ static error_t parse_opt(int key, char *arg, struct argp_state *state)
         args->movie_id = strtoul(arg, NULL, 10);
         return 0;
     case 'c':
-        args->customer_ids = malloc(2 * sizeof(u_long));
+        args->customer_ids = malloc(2 * sizeof(ulong));
         args->nb_customer_ids = parse_ints(arg, args->customer_ids);
         return 0;
     case 'b':
-        args->bad_reviewers = malloc(2 * sizeof(u_long));
+        args->bad_reviewers = malloc(2 * sizeof(ulong));
         args->nb_bad_reviewers = parse_ints(arg, args->bad_reviewers);
         return 0;
     case 'e':

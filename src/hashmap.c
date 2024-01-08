@@ -21,7 +21,7 @@ Hashmap* hashmap_create(uint size)
     Hashmap* h = (Hashmap*) malloc(sizeof(Hashmap));
     h->size = 1 << (int)ceil(log2(size));
     h->count = 0;
-    h->items = (Item*) calloc(h->size, sizeof(Item));
+    h->items = (Item*)calloc(h->size, sizeof(Item));
     return h;
 }
 

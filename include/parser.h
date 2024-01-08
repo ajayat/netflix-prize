@@ -3,8 +3,8 @@
 #include <stdio.h>
 #include <stdint.h>
 
-typedef unsigned int u_int;
-typedef unsigned long u_long;
+typedef unsigned int uint;
+typedef unsigned long ulong;
 
 /**
  * @brief Contains all information about a rating.
@@ -37,7 +37,7 @@ typedef struct Movie {
 typedef struct MovieData {
     /*@{*/
     Movie **movies; /**< Array containing movies information sorted by movies identifiers. */
-    u_int nb_movies; /**< Number of movies. (length of Data::movies)*/
+    uint nb_movies; /**< Number of movies. (length of Data::movies)*/
     /*@}*/
 } MovieData;
 
@@ -65,7 +65,7 @@ typedef struct User {
  */
 typedef struct UserData {
     User **users; /**< Array containing users information sorted by users identifiers. */
-    u_int nb_users; /**< Number of users. (length of UserData::users)*/
+    uint nb_users; /**< Number of users. (length of UserData::users)*/
 } UserData;
 
 /**
@@ -73,7 +73,7 @@ typedef struct UserData {
  * @param rating The rating.
  * @return The customer id.
  */
-u_long get_customer_id(MovieRating rating);
+ulong get_customer_id(MovieRating rating);
 
 /**
  * @brief Free the memory allocated for the movies.

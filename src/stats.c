@@ -50,7 +50,7 @@ double shrink(double value, uint n, double alpha)
 double mse_correlation(Movie *movie1, Movie *movie2, Hashmap *ratings)
 {
     // Calculate MSE between score given by same user
-    double sum = 0, diff;
+    uint sum = 0, diff;
     uint nb_ratings = 0;
     uint r1, customer_id;
 
@@ -58,18 +58,18 @@ double mse_correlation(Movie *movie1, Movie *movie2, Hashmap *ratings)
         customer_id = get_customer_id(movie2->ratings[r2]);
         if ((r1 = hashmap_get(ratings, customer_id)) == EMPTY)
             continue;
-        diff = movie1->ratings[r1].score - movie2->ratings[r2].score;
+        diff = abs(movie1->ratings[r1].score - movie2->ratings[r2].score);
         sum += diff * diff;
         nb_ratings++;
     }
-    double c = (double)nb_ratings / (1.0 + sum);
+    double c = (nb_ratings > 0) ? (double)nb_ratings / (nb_ratings + sum) : 0;
     return shrink(c, nb_ratings, 400);
 }
 
 float *create_similarity_matrix(MovieData *data)
 {
     float *sim = calloc(data->nb_movies * data->nb_movies, sizeof(float));
-    uint x, y;
+    uint x;
 
     for (uint i = 0; i < data->nb_movies; i++) {
         printf("Compute similarity of movie : %u\n", i + 1);
@@ -79,23 +79,22 @@ float *create_similarity_matrix(MovieData *data)
         for (uint r = 0; r < movie1->nb_ratings; r++)
             hashmap_insert(ratings, get_customer_id(movie1->ratings[r]), r);
 
-        for (uint j = 0; j < i; j++) {
+        for (uint j = 0; j <= i; j++) {
             x = i * data->nb_movies + j;
-            y = j * data->nb_movies + i;
             sim[x] = (float)mse_correlation(movie1, data->movies[j], ratings);
-            sim[y] = sim[x];
+            sim[j * data->nb_movies + i] = sim[x];
         }
         hashmap_free(ratings);
     }
     return sim;
 }
 
-void write_matrix_to_csv(float *matrix, uint size, char *filename)
+void write_similarity_matrix_to_csv(Stats *stats, char *filename)
 {
     FILE *csv = fopen(filename, "w");
-    for (uint i = 0; i < size; i++) {
-        for (uint j = 0; j < size; j++)
-            fprintf(csv, "%lf;", matrix[i*size + j]);
+    for (uint i = 0; i < stats->nb_movies; i++) {
+        for (uint j = 0; j < stats->nb_movies; j++)
+            fprintf(csv, "%f;", stats->similarity[i*stats->nb_movies + j]);
         fprintf(csv, "\n");
     }
     fclose(csv);
@@ -171,6 +170,6 @@ Stats *read_stats_from_data(MovieData *movie_data, UserData *user_data, Argument
     stats->similarity = create_similarity_matrix(data);
     // Free memory
     free_movie_data(data);
-    write_matrix_to_csv(stats->similarity, 100, "data/similarity.csv");
+    write_similarity_matrix_to_csv(stats, "data/similarity.csv");
     return stats;
 }

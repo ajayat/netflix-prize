@@ -166,7 +166,6 @@ Stats *read_stats_from_data(MovieData *movie_data, UserData *user_data, Argument
         if (fclose(one_movie) == EOF)
             perror("The file for one movie can't be closed.");
     }
-    free_user_data(user_data);
     stats->similarity = create_similarity_matrix(data);
     // Free memory
     free_movie_data(data);

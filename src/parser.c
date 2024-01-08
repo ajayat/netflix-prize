@@ -196,17 +196,17 @@ UserData *to_user_oriented(MovieData *data)
         {
             MovieRating rating = movie->ratings[r];
             ulong id = get_customer_id(rating);
-            if (user_data->users[id] == NULL) {
-                User *user = user_data->users[id] = malloc(sizeof(User));
+            if (user_data->users[id-1] == NULL) {
+                User *user = user_data->users[id-1] = malloc(sizeof(User));
                 user->id = id;
                 user->nb_ratings = 0;
                 user->ratings = malloc(sizeof(UserRating));
                 user_data->nb_users++;
             }
-            User *user = user_data->users[id];
+            User *user = user_data->users[id-1];
             if (user->nb_ratings > 0 && is_power_of_two(user->nb_ratings))
-                user->ratings = realloc(user->ratings, 
-                                        2 * user->nb_ratings * sizeof(UserRating));
+                user->ratings = (UserRating *)realloc(user->ratings, 
+                                    2 * user->nb_ratings * sizeof(UserRating));
             // Add the rating to the user
             user->ratings[user->nb_ratings].movie_id = movie->id;
             user->ratings[user->nb_ratings].date = rating.date;

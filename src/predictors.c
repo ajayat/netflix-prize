@@ -28,7 +28,7 @@ double knn_predictor(Stats *stats, User *user, Movie *movie)
 
     for (uint i = 0; i < k; i++) {
         UserRating rating = nearest_ratings[i];
-        double s = stats->similarity[movie->id-1][rating.movie_id-1];
+        double s = stats->similarity[(movie->id-1) * stats->nb_movies + rating.movie_id-1];
         uint delta = abs(rating.date - movie->date);
         double time_factor = 1 / (1 + tau * delta);
         double weight = logistic(scale * s * time_factor + offset, 1, 0);
@@ -43,7 +43,7 @@ static double proximity(Stats *stats, uint i, uint *ids, uint m)
     double distance = 0;
     double sum_weights = 0;
     for (uint j = 0; j < m; j++) {
-        double s = stats->similarity[i][ids[j]-1];
+        double s = stats->similarity[i * stats->nb_movies + ids[j]-1];
         double weight = exp(2 * s);
         distance += weight * s;
         sum_weights += weight;

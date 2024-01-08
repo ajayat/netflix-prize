@@ -96,9 +96,9 @@ int main(int argc, char *argv[])
 
     printf("nb_movies: %d\n", stats->nb_movies);
     // Free memory
-    free_user_data(user_data);
-    free_movie_data(movie_data);
     free_stats(stats);
+    free_movie_data(movie_data);
+    free_user_data(user_data);
 
     return 0;
 }

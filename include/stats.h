@@ -49,7 +49,7 @@ typedef struct UserStats {
  * @brief Contains all stats about all movies.
  */
 typedef struct Stats {
-    float **similarity;
+    float *similarity;
     MovieStats *movies;
     UserStats *users;
     uint nb_movies;
@@ -101,7 +101,7 @@ Stats *read_stats_from_data(MovieData *movie_data, UserData *user_data, Argument
  * @param data The data structure.
  * @return The similarity matrix.
  */
-float **create_similarity_matrix(MovieData *data);
+float *create_similarity_matrix(MovieData *data);
 
 /**
  * @brief Compute the similarity between two movies.

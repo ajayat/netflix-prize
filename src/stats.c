@@ -10,32 +10,7 @@
 
 #define MAX_USER_ID 2649430
 
-void free_stats(Stats *stats)
-{
-    if (stats == NULL)
-        return;
-    free(stats->similarity);
-    free(stats->movies);
-    free(stats);
-}
-
-bool is_requested(Arguments *args, ulong id)
-{
-    for (uint c = 0; c < args->nb_customer_ids; c++) {
-        if (args->customer_ids[c] == id)
-            return true;
-    }
-    return false;
-}
-
-bool is_a_bad_reviewer(Arguments *args, ulong id)
-{
-    for (uint b=0; b < args->nb_bad_reviewers; b++) {
-        if (args->bad_reviewers[b] == id)
-            return true;
-    }
-    return false;
-}
+// ========== Functions to build the similarity matrix ==========
 
 double logistic(double x, double a, double b)
 {
@@ -100,6 +75,59 @@ void write_similarity_matrix_to_csv(Stats *stats, char *filename)
     fclose(csv);
 }
 
+// ========== Functions to calculate statistics from the fulldata ==========
+
+void free_stats(Stats *stats)
+{
+    if (stats == NULL)
+        return;
+    free(stats->similarity);
+    free(stats->movies);
+    free(stats);
+}
+
+bool is_requested(Arguments *args, ulong id)
+{
+    for (uint c = 0; c < args->nb_customer_ids; c++) {
+        if (args->customer_ids[c] == id)
+            return true;
+    }
+    return false;
+}
+
+bool is_a_bad_reviewer(Arguments *args, ulong id)
+{
+    for (uint b=0; b < args->nb_bad_reviewers; b++) {
+        if (args->bad_reviewers[b] == id)
+            return true;
+    }
+    return false;
+}
+
+bool ignored_rating(Arguments* args, UserData* user_data, Movie* movie_src, ulong c_id, uint r)
+{
+    if (movie_src->ratings[r].date >= args->limit // opt -l
+        || user_data->users[c_id-1]->nb_ratings < args->min // opt -e
+        || (args->nb_customer_ids && !is_requested(args, c_id)) // opt -c
+        || (args->nb_bad_reviewers && is_a_bad_reviewer(args, c_id))) // opt -b
+        return true;
+    else 
+        return false;
+}
+
+void one_movie_stats(Stats* stats, Arguments* args)
+{
+    char mv_filename[30];
+    snprintf(mv_filename, 30, "data/stats_mv_%07u.csv", args->movie_id);
+    FILE *one_movie = fopen(mv_filename, "w");
+    MovieStats mv_stats = stats->movies[args->movie_id - 1];
+    fprintf(one_movie, "average; min; max\n");
+    fprintf(one_movie, "%lf; %u; %u\n", 
+            mv_stats.average, mv_stats.min, mv_stats.max);
+    if (fclose(one_movie) == EOF)
+        perror("The file for one movie can't be closed.");
+}
+
 Stats *read_stats_from_data(MovieData *movie_data, UserData *user_data, Arguments *args)
 {
     // Allocate memory for stats
@@ -130,10 +158,7 @@ Stats *read_stats_from_data(MovieData *movie_data, UserData *user_data, Argument
         {
             c_id = get_customer_id(movie_src->ratings[r]);
 
-            if (movie_src->ratings[r].date >= args->limit // opt -l
-                || user_data->users[c_id-1]->nb_ratings < args->min // opt -e
-                || (args->nb_customer_ids && !is_requested(args, c_id)) // opt -c
-                || (args->nb_bad_reviewers && is_a_bad_reviewer(args, c_id))) // opt -b
+            if (ignored_rating(args, user_data, movie_src, c_id, r))
                 continue;
             // Copy ratings
             movie_dst->ratings[r_dst++] = movie_src->ratings[r];
@@ -147,28 +172,19 @@ Stats *read_stats_from_data(MovieData *movie_data, UserData *user_data, Argument
         stats->movies[m].average /= (double)(r_dst);
         movie_dst->nb_ratings = r_dst;
     }
+
     FILE *databin = fopen("data/data.bin", "wb");
     write_to_file(databin, data);
-
     if (fclose(databin) == EOF)
         perror("data.bin can't be closed.");
 
-    if (args->movie_id != 0) {
-        char mv_filename[30];
-        snprintf(mv_filename, 30, "data/stats_mv_%07u.csv", args->movie_id);
-        FILE *one_movie = fopen(mv_filename, "w");
+    if (args->movie_id != 0) // opt -s
+        one_movie_stats(stats, args);
 
-        MovieStats mv_stats = stats->movies[args->movie_id - 1];
-        fprintf(one_movie, "average; min; max\n");
-        fprintf(one_movie, "%lf; %u; %u\n", 
-                mv_stats.average, mv_stats.min, mv_stats.max);
-
-        if (fclose(one_movie) == EOF)
-            perror("The file for one movie can't be closed.");
-    }
     stats->similarity = create_similarity_matrix(data);
     // Free memory
     free_movie_data(data);
     write_similarity_matrix_to_csv(stats, "data/similarity.csv");
+
     return stats;
 }

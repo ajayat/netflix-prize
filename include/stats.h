@@ -8,6 +8,7 @@
 #include "hashmap.h"
 
 typedef unsigned int uint;
+typedef unsigned long ulong;
 
 /** 
  * @brief Contains all arguments given by the user, already parsed.
@@ -56,23 +57,7 @@ typedef struct Stats {
     uint nb_users;
 } Stats;
 
-/**
- * @brief Free a stat structure.
- * @param stats Structure to free.
- */
-void free_stats(Stats *stats);
-
-/**
- * @return `True` if the customer must be taken into account.
- *         `False` otherwise.
- */
-bool is_requested(Arguments *args, ulong id);
-
-/**
- * @return `True` if the customer must be taken into account.
- *         `False` otherwise.
- */
-bool not_a_bad_reviewer(Arguments *args, ulong id);
+// ========== Functions to build the similarity matrix ==========
 
 /**
  * @brief Compute logistic function.
@@ -86,15 +71,13 @@ double logistic(double x, double a, double b);
 double shrink(double value, uint n, double alpha);
 
 /**
- * @brief Main function to collect statistic from the binary file, respectings given arguments.
- * @note This function also make a new binary file with dessired data.
- * 
- * @param movie_data Data extracted from the binary file
- * @param user_data User oriented data
- * @param args Arguments given by the user.
- * @return A `Stats*` structure containing all requested statistics.
+ * @brief Compute the similarity between two movies.
+ * @param data The data structure.
+ * @param movie1 The first movie.
+ * @param movie2 The second movie.
+ * @return The similarity between the two movies.
  */
-Stats *read_stats_from_data(MovieData *movie_data, UserData *user_data, Arguments *args);
+double mse_correlation(Movie *movie1, Movie *movie2, Hashmap *ratings);
 
 /**
  * @brief Create a similarity matrix.
@@ -104,10 +87,63 @@ Stats *read_stats_from_data(MovieData *movie_data, UserData *user_data, Argument
 float *create_similarity_matrix(MovieData *data);
 
 /**
- * @brief Compute the similarity between two movies.
- * @param data The data structure.
- * @param movie1 The first movie.
- * @param movie2 The second movie.
- * @return The similarity between the two movies.
+ * @brief Write the similarity matrix in a csv file.
+ * 
+ * @param stats Stats containing the similarity matrix.
+ * @param filename Name of the csv fiile.
  */
-double mse_correlation(Movie *movie1, Movie *movie2, Hashmap *ratings);
+void write_similarity_matrix_to_csv(Stats *stats, char *filename);
+
+// ========== Functions to calculate statistics from the fulldata ==========
+
+/**
+ * @brief Free a stat structure.
+ * @param stats Structure to free.
+ */
+void free_stats(Stats *stats);
+
+/**
+ * @return `True` if the customer `id` must be taken into account.
+ *         `False` otherwise.
+ */
+bool is_requested(Arguments *args, ulong id);
+
+/**
+ * @return `True` if the customer `id` must not be taken into account.
+ *         `False` otherwise.
+ */
+bool is_a_bad_reviewer(Arguments *args, ulong id);
+
+/**
+ * @brief A succession of conditions to determinate if the given rating must be ignored or not.
+ * 
+ * @param args Arguments to determinate if the rating must be ignored.
+ * @param user_data Data of all user. Quick access to the number of ratings per user.
+ * @param movie_src Movie rated.
+ * @param c_id id of the customer author of the rating.
+ * @param r index of the rating in the `movie_src->ratings` array.
+ * @return `True` if the rating must be ignored.
+ * @return `False` otherwise.
+ */
+bool ignored_rating(Arguments* args, UserData* user_data, Movie* movie_src, ulong c_id, uint r);
+
+/**
+ * @brief Create a text file containing stats for the movie given by `-s` option.
+ * 
+ * @param stats Stats of all movies.
+ * @param args Arguments to know which movie need to be convert.
+ */
+void one_movie_stats(Stats* stats, Arguments* args);
+
+/**
+ * @brief Main function to collect statistic from the binary file, respectings given arguments.
+ * @note This function also make a new binary file with desired data.
+ * 
+ * @param movie_data Data extracted from the binary file
+ * @param user_data User oriented data
+ * @param args Arguments given by the user.
+ * @return A `Stats*` structure containing all requested statistics.
+ */
+Stats *read_stats_from_data(MovieData *movie_data, UserData *user_data, Arguments *args);
+
+

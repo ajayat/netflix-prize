@@ -25,7 +25,7 @@ double shrink(double value, uint n, double alpha)
 double mse_correlation(Movie *movie1, Movie *movie2, Hashmap *ratings)
 {
     // Calculate MSE between score given by same user
-    uint sum = 0, diff;
+    double sum = 0, diff;
     uint nb_ratings = 0;
     uint r1, customer_id;
 
@@ -33,7 +33,7 @@ double mse_correlation(Movie *movie1, Movie *movie2, Hashmap *ratings)
         customer_id = get_customer_id(movie2->ratings[r2]);
         if ((r1 = hashmap_get(ratings, customer_id)) == EMPTY)
             continue;
-        diff = abs(movie1->ratings[r1].score - movie2->ratings[r2].score);
+        diff = movie1->ratings[r1].score - movie2->ratings[r2].score;
         sum += diff * diff;
         nb_ratings++;
     }

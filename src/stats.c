@@ -115,6 +115,45 @@ bool ignored_rating(Arguments* args, UserData* user_data, Movie* movie_src, ulon
         return false;
 }
 
+void calculate_movies_stats(Stats* stats, Arguments* args, MovieData* data, MovieData* movie_data, UserData* user_data)
+{
+    for (uint m = 0; m < data->nb_movies; m++)
+    {
+        Movie *movie_src = movie_data->movies[m];
+        Movie *movie_dst = data->movies[m] = malloc(sizeof(Movie));
+        // Copy of unchanged caracteristics
+        movie_dst->id = movie_src->id;
+        movie_dst->date = movie_src->date;
+        movie_dst->title = strdup(movie_src->title);
+        // Ratings treatment
+        movie_dst->nb_ratings = 0;
+        ulong r_dst = 0;
+        movie_dst->ratings = malloc(movie_src->nb_ratings * sizeof(MovieRating));
+
+        for (uint r = 0; r < movie_src->nb_ratings ; r++) 
+        {
+            ulong c_id = get_customer_id(movie_src->ratings[r]);
+            if (ignored_rating(args, user_data, movie_src, c_id, r))
+                continue;
+            // Copy ratings
+            movie_dst->ratings[r_dst++] = movie_src->ratings[r];
+            // Update stats
+            stats->movies[m].average += (double)movie_src->ratings[r].score;
+            if (movie_src->ratings[r].score > stats->movies[m].max)
+                stats->movies[m].max = movie_src->ratings[r].score;
+            if (movie_src->ratings[r].score < stats->movies[m].min)
+                stats->movies[m].min = movie_src->ratings[r].score;
+        }
+        stats->movies[m].average /= (double)(r_dst);
+        movie_dst->nb_ratings = r_dst;
+    }
+}
+
+void calculate_users_stats(Stats* stats, Arguments* args, UserData* user_data)
+{
+    return;
+}
+
 void one_movie_stats(Stats* stats, Arguments* args)
 {
     char mv_filename[30];
@@ -140,38 +179,8 @@ Stats *read_stats_from_data(MovieData *movie_data, UserData *user_data, Argument
     data->nb_movies = movie_data->nb_movies;
     data->movies = malloc(data->nb_movies * sizeof(Movie*));
 
-    ulong c_id;
-    for (uint m = 0; m < data->nb_movies; m++)
-    {
-        Movie *movie_src = movie_data->movies[m];
-        Movie *movie_dst = data->movies[m] = malloc(sizeof(Movie));
-        // Copy of unchanged caracteristics
-        movie_dst->id = movie_src->id;
-        movie_dst->date = movie_src->date;
-        movie_dst->title = strdup(movie_src->title);
-        // Ratings treatment
-        movie_dst->nb_ratings = 0;
-        ulong r_dst = 0;
-        movie_dst->ratings = malloc(movie_src->nb_ratings * sizeof(MovieRating));
-        
-        for (uint r = 0; r < movie_src->nb_ratings ; r++) 
-        {
-            c_id = get_customer_id(movie_src->ratings[r]);
-
-            if (ignored_rating(args, user_data, movie_src, c_id, r))
-                continue;
-            // Copy ratings
-            movie_dst->ratings[r_dst++] = movie_src->ratings[r];
-            // Update stats
-            stats->movies[m].average += (double)movie_src->ratings[r].score;
-            if (movie_src->ratings[r].score > stats->movies[m].max)
-                stats->movies[m].max = movie_src->ratings[r].score;
-            if (movie_src->ratings[r].score < stats->movies[m].min)
-                stats->movies[m].min = movie_src->ratings[r].score;
-        }
-        stats->movies[m].average /= (double)(r_dst);
-        movie_dst->nb_ratings = r_dst;
-    }
+    calculate_movies_stats(stats, args, data, movie_data, user_data);
+    calculate_users_stats(stats, args, user_data);
 
     FILE *databin = fopen("data/data.bin", "wb");
     write_to_file(databin, data);

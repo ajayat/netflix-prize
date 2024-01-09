@@ -41,9 +41,9 @@ typedef struct MovieStats {
  * @brief Contains all stats about a user.
  */
 typedef struct UserStats {
-    int *frequency; /**< Number of all his ratings. */
+    int *frequency; /**< Number of ratings per day. */
     double average; /**< Average of his ratings. */
-    uint32_t nb_ratings; /**< Number of ratings per day. */
+    uint32_t nb_ratings; /**< Number of all his ratings. */
 } UserStats;
 
 /**
@@ -126,6 +126,26 @@ bool is_a_bad_reviewer(Arguments *args, ulong id);
  * @return `False` otherwise.
  */
 bool ignored_rating(Arguments* args, UserData* user_data, Movie* movie_src, ulong c_id, uint r);
+
+/**
+ * @brief Calculate all statistics for all movies, respecting arguments.
+ * 
+ * @param stats 
+ * @param args 
+ * @param data 
+ * @param movie_data 
+ * @param user_data 
+ */
+void calculate_movies_stats(Stats* stats, Arguments* args, MovieData* data, MovieData* movie_data, UserData* user_data);
+
+/**
+ * @brief Calculate all statistics for all requested user, respecting arguments.
+ * 
+ * @param stats 
+ * @param args 
+ * @param user_data 
+ */
+void calculate_users_stats(Stats* stats, Arguments* args, UserData* user_data);
 
 /**
  * @brief Create a text file containing stats for the movie given by `-s` option.

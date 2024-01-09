@@ -54,6 +54,10 @@ Par exemple, jusque là on pouvait penser que la date était une information peu
 
 Il sera donc interessant de calculer la fréquence de notation de chaque client chaque jour, afin d'ajuster la pertinence d'une note donnée.
 
+---
+
+To create the similarity matrix, we used a hashmap structure: we need to quickly kknow if a user who rated this movie also rated this other one. But it should be too long to sort all user identifiers for a movie. Thanks to the hashmap, we have a more or less direct access to the user.
+
 ## L'algorithme de recommandation
 
 ### Objectif

@@ -46,6 +46,17 @@ void h_get(void)
     hashmap_free(h);
 }
 
+void h_increase(void)
+{
+    Hashmap *h = hashmap_create(4);
+    hashmap_insert(h,1,2);
+    hashmap_increase(h,1,4);
+    TEST_ASSERT_EQUAL(6,h->items[1].value);
+    hashmap_increase(h,3,6);
+    TEST_ASSERT_EQUAL(6,h->items[3].value);
+    hashmap_free(h);
+}
+
 void h_resize(void)
 {
     Hashmap *h = hashmap_create(4);
@@ -80,6 +91,7 @@ int main(void)
     RUN_TEST(h_insert);
     RUN_TEST(h_find);
     RUN_TEST(h_get);
+    RUN_TEST(h_increase);
     RUN_TEST(h_resize);
     RUN_TEST(h_remove);
     return UNITY_END();

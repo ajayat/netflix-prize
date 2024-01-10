@@ -41,7 +41,6 @@ void hashmap_free(Hashmap* h);
  */
 void hashmap_resize(Hashmap* h, uint new_size);
 
-
 /**
  * @brief Find the index of a given key in the hashmap.
  * 
@@ -68,6 +67,16 @@ uint hashmap_get(Hashmap* h, uint key);
  * @param value The associated value.
  */
 void hashmap_insert(Hashmap* h, uint key, uint value);
+
+/**
+ * @brief Set the value of key to new_value.
+ * @note If the key doesn't exist, use `hashmap_insert` to create it.
+ * 
+ * @param h The given hashmap.
+ * @param key The key to find.
+ * @param incr The desiredd increase of the value.
+ */
+void hashmap_increase(Hashmap* h, uint key, uint incr);
 
 /**
  * @brief Remove the item with the corresponding key from the hashmap.

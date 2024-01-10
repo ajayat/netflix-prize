@@ -71,6 +71,15 @@ uint hashmap_get(Hashmap* h, uint key)
     return h->items[pos].value;
 }
 
+void hashmap_increase(Hashmap* h, uint key, uint incr)
+{
+    int i = hashmap_find(h,key);
+    if (i < 0)
+        hashmap_insert(h, key, incr);
+    else
+        h->items[i].value += incr;
+}
+
 void hashmap_insert(Hashmap* h, uint key, uint value)
 {
     uint index = hash(h->size, key);

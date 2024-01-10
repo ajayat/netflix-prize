@@ -159,7 +159,6 @@ MovieData *calculate_movies_stats(Stats* stats, Arguments* args, MovieData* movi
 
 void calculate_users_stats(Stats* stats, Arguments* args, UserData* user_data)
 {
-    uint nb_days = days_from_epoch(2005, 12, 31) - days_from_epoch(1998, 10, 1);
     for (uint u = 0; u < MAX_USER_ID; u++)
     {
         User* user = user_data->users[u];
@@ -168,14 +167,13 @@ void calculate_users_stats(Stats* stats, Arguments* args, UserData* user_data)
         ulong c_id = (ulong)user->id;
         if (is_a_bad_reviewer(args, c_id) || !is_requested(args, c_id) || user->nb_ratings < args->min)
             continue;
-        stats->users[c_id-1].frequency = calloc(nb_days, sizeof(int));
-        
-        for (uint r = 0; r < user->nb_ratings; r++)
+        Hashmap *h = stats->users[c_id-1].frequency = hashmap_create(user->nb_ratings/10);
+        for (int r = 0; r < user->nb_ratings; r++)
         {
             if (user->ratings[r].date >= args->limit)
                 continue;
-            uint date = user->ratings[r].date - days_from_epoch(1998, 10, 1);
-            stats->users[c_id-1].frequency[date]++;
+
+            hashmap_increase(h,user->ratings[r].date,1);
             stats->users[c_id-1].average += user->ratings[r].score;
             stats->users[c_id-1].nb_ratings++;
         }

@@ -41,7 +41,7 @@ typedef struct MovieStats {
  * @brief Contains all stats about a user.
  */
 typedef struct UserStats {
-    int *frequency; /**< Number of ratings per day. */
+    Hashmap *frequency; /**< Number of ratings per day. */
     double average; /**< Average of his ratings. */
     uint32_t nb_ratings; /**< Number of all his ratings. */
 } UserStats;

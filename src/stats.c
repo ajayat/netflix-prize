@@ -56,7 +56,7 @@ float *create_similarity_matrix(MovieData *data)
 
         for (uint j = 0; j <= i; j++) {
             x = i * data->nb_movies + j;
-            sim[x] = 1.; //(float)mse_correlation(movie1, data->movies[j], ratings);
+            sim[x] = (float)mse_correlation(movie1, data->movies[j], ratings);
             sim[j * data->nb_movies + i] = sim[x];
         }
         hashmap_free(ratings);
@@ -215,7 +215,7 @@ Stats *read_stats_from_data(MovieData *movie_data, UserData *user_data, Argument
     stats->similarity = create_similarity_matrix(data);
     // Free memory
     free_movie_data(data);
-    // write_similarity_matrix_to_csv(stats, "data/similarity.csv");
+    write_similarity_matrix_to_csv(stats, "data/similarity.csv");
 
     return stats;
 }

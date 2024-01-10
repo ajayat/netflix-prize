@@ -56,7 +56,7 @@ float *create_similarity_matrix(MovieData *data)
 
         for (uint j = 0; j <= i; j++) {
             x = i * data->nb_movies + j;
-            sim[x] = (float)mse_correlation(movie1, data->movies[j], ratings);
+            sim[x] = 1.; //(float)mse_correlation(movie1, data->movies[j], ratings);
             sim[j * data->nb_movies + i] = sim[x];
         }
         hashmap_free(ratings);
@@ -151,6 +151,27 @@ void calculate_movies_stats(Stats* stats, Arguments* args, MovieData* data, Movi
 
 void calculate_users_stats(Stats* stats, Arguments* args, UserData* user_data)
 {
+    uint nb_days = days_from_epoch(2005, 12, 31) - days_from_epoch(1998, 10, 1);
+    for (uint u=0; u<MAX_USER_ID; u++)
+    {
+        User* user = user_data->users[u];
+        if (user == NULL)
+            continue;
+        ulong c_id = (ulong)user->id;
+        if (is_a_bad_reviewer(args, c_id) || !is_requested(args, c_id) || user->nb_ratings < args->min)
+            continue;
+        stats->users[c_id-1].frequency = calloc(nb_days, sizeof(int));
+        for (int r=0; r<user->nb_ratings; r++)
+        {
+            if (user->ratings[r].date >= args->limit)
+                continue;
+            uint date = user->ratings[r].date - days_from_epoch(1998, 10, 1);
+            stats->users[c_id-1].frequency[date]++;
+            stats->users[c_id-1].average += user->ratings[r].score;
+            stats->users[c_id-1].nb_ratings++;
+        }
+        stats->users[c_id-1].average /= (double) stats->users[c_id-1].nb_ratings;
+    }
     return;
 }
 
@@ -174,6 +195,7 @@ Stats *read_stats_from_data(MovieData *movie_data, UserData *user_data, Argument
     stats->nb_movies = movie_data->nb_movies;
     stats->nb_users = user_data->nb_users;
     stats->movies = calloc(movie_data->nb_movies, sizeof(MovieStats));
+    stats->users = calloc(MAX_USER_ID, sizeof(UserStats));
     // Allocate memory for partial data
     MovieData *data = malloc(sizeof(MovieData));
     data->nb_movies = movie_data->nb_movies;
@@ -193,7 +215,7 @@ Stats *read_stats_from_data(MovieData *movie_data, UserData *user_data, Argument
     stats->similarity = create_similarity_matrix(data);
     // Free memory
     free_movie_data(data);
-    write_similarity_matrix_to_csv(stats, "data/similarity.csv");
+    // write_similarity_matrix_to_csv(stats, "data/similarity.csv");
 
     return stats;
 }

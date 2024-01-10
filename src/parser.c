@@ -111,7 +111,8 @@ MovieData *parse(void)
     for (uint i = 0; i < data->nb_movies; i++)
     {
         Movie *movie = data->movies[i];
-        printf("Processing movie %d\n", movie->id);  // Information for the user
+        printf("\n\033[A\033[2K");  // Clear the line
+        printf("Processing movie %u/%u", movie->id, data->nb_movies);
         // Open the movie file
         char mv_filename[40];
         snprintf(mv_filename, 40, "data/training_set/mv_%07u.txt", movie->id);
@@ -124,6 +125,7 @@ MovieData *parse(void)
         if (fclose(mv_file) == EOF)
             perror("A movie file can't be closed.");
     }
+    puts("\nDone!");  // Information for the user
     return data;
 }
 
@@ -192,6 +194,9 @@ UserData *to_user_oriented(MovieData *data)
     for (uint i = 0; i < data->nb_movies; i++) 
     {
         Movie *movie = data->movies[i];
+        printf("\n\033[A\033[2K");  // Clear the line
+        printf("Extract user data %u/%u", movie->id, data->nb_movies);
+
         for (uint r = 0; r < movie->nb_ratings; r++) 
         {
             MovieRating rating = movie->ratings[r];
@@ -214,5 +219,6 @@ UserData *to_user_oriented(MovieData *data)
             user->nb_ratings++;
         }
     }
+    puts("\nDone!");  // Information for the user
     return user_data;
 }

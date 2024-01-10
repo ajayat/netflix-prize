@@ -47,7 +47,9 @@ float *create_similarity_matrix(MovieData *data)
     uint x;
 
     for (uint i = 0; i < data->nb_movies; i++) {
-        printf("Compute similarity of movie : %u\n", i + 1);
+        printf("\n\033[A\033[2K");  // Clear the line
+        printf("Compute similarity matrix %.2lf%c", 
+                100 * i * (i+1) / (double)(data->nb_movies * data->nb_movies), '%');
         Movie *movie1 = data->movies[i];
         Hashmap *ratings = hashmap_create(movie1->nb_ratings);
 
@@ -61,6 +63,7 @@ float *create_similarity_matrix(MovieData *data)
         }
         hashmap_free(ratings);
     }
+    puts("\nDone!");  // Information for the user
     return sim;
 }
 
@@ -202,6 +205,7 @@ Stats *read_stats_from_data(MovieData *movie_data, UserData *user_data, Argument
     stats->movies = calloc(movie_data->nb_movies, sizeof(MovieStats));
     stats->users = calloc(MAX_USER_ID, sizeof(UserStats));
 
+    puts("Reading statistics...");  // Information for the user
     MovieData *data = calculate_movies_stats(stats, args, movie_data, user_data);
     calculate_users_stats(stats, args, user_data);
 
@@ -212,7 +216,7 @@ Stats *read_stats_from_data(MovieData *movie_data, UserData *user_data, Argument
 
     if (args->movie_id != 0) // opt -s
         one_movie_stats(stats, args);
-
+    
     stats->similarity = create_similarity_matrix(data);
     // Free memory
     free_movie_data(data);

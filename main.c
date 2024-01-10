@@ -21,6 +21,24 @@ static struct argp_option options[] = {
     { 0 }
 };
 
+static ulong* parse_ids(char *arg, uint *nb)
+{
+    char* end = NULL;
+    ulong* ids = (ulong*) calloc(1,sizeof(ulong));
+    uint length = 1;
+    uint id;
+    while ((id = strtoul(arg, &end, 10)) != 0) {
+        if ((*nb)+2 > length) {
+            length *= 2;
+            ids = realloc(ids, length*sizeof(ulong));
+        }
+        ids[(*nb)++] = id;
+        arg = end + 1;
+    }
+    return ids;
+}
+
+/*
 static uint parse_ints(char *arg, ulong *ids)
 {
     char* end = NULL;
@@ -32,6 +50,7 @@ static uint parse_ints(char *arg, ulong *ids)
     }
     return i;
 }
+*/
 
 static error_t parse_opt(int key, char *arg, struct argp_state *state)
 {
@@ -47,12 +66,14 @@ static error_t parse_opt(int key, char *arg, struct argp_state *state)
         args->movie_id = strtoul(arg, NULL, 10);
         return 0;
     case 'c':
-        args->customer_ids = malloc(2 * sizeof(ulong));
-        args->nb_customer_ids = parse_ints(arg, args->customer_ids);
+        args->customer_ids = parse_ids(arg, &(args->nb_customer_ids));
+        //args->customer_ids = malloc(2 * sizeof(ulong));
+        //args->nb_customer_ids = parse_ints(arg, args->customer_ids);
         return 0;
     case 'b':
-        args->bad_reviewers = malloc(2 * sizeof(ulong));
-        args->nb_bad_reviewers = parse_ints(arg, args->bad_reviewers);
+        args->bad_reviewers = parse_ids(arg, &(args->nb_bad_reviewers));
+        //args->bad_reviewers = malloc(2 * sizeof(ulong));
+        //args->nb_bad_reviewers = parse_ints(arg, args->bad_reviewers);
         return 0;
     case 'e':
         args->min = strtoul(arg, NULL, 10);

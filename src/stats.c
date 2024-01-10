@@ -111,12 +111,16 @@ bool ignored_rating(Arguments* args, UserData* user_data, Movie* movie_src, ulon
         || (args->nb_customer_ids && !is_requested(args, c_id)) // opt -c
         || (args->nb_bad_reviewers && is_a_bad_reviewer(args, c_id))) // opt -b
         return true;
-    else 
-        return false;
+    return false;
 }
 
-void calculate_movies_stats(Stats* stats, Arguments* args, MovieData* data, MovieData* movie_data, UserData* user_data)
+MovieData *calculate_movies_stats(Stats* stats, Arguments* args, MovieData* movie_data, UserData* user_data)
 {
+    // Allocate memory for partial data
+    MovieData *data = malloc(sizeof(MovieData));
+    data->nb_movies = movie_data->nb_movies;
+    data->movies = malloc(data->nb_movies * sizeof(Movie*));
+
     for (uint m = 0; m < data->nb_movies; m++)
     {
         Movie *movie_src = movie_data->movies[m];
@@ -130,7 +134,7 @@ void calculate_movies_stats(Stats* stats, Arguments* args, MovieData* data, Movi
         ulong r_dst = 0;
         movie_dst->ratings = malloc(movie_src->nb_ratings * sizeof(MovieRating));
 
-        for (uint r = 0; r < movie_src->nb_ratings ; r++) 
+        for (uint r = 0; r < movie_src->nb_ratings; r++) 
         {
             ulong c_id = get_customer_id(movie_src->ratings[r]);
             if (ignored_rating(args, user_data, movie_src, c_id, r))
@@ -147,12 +151,13 @@ void calculate_movies_stats(Stats* stats, Arguments* args, MovieData* data, Movi
         stats->movies[m].average /= (double)(r_dst);
         movie_dst->nb_ratings = r_dst;
     }
+    return data;
 }
 
 void calculate_users_stats(Stats* stats, Arguments* args, UserData* user_data)
 {
     uint nb_days = days_from_epoch(2005, 12, 31) - days_from_epoch(1998, 10, 1);
-    for (uint u=0; u<MAX_USER_ID; u++)
+    for (uint u = 0; u < MAX_USER_ID; u++)
     {
         User* user = user_data->users[u];
         if (user == NULL)
@@ -161,7 +166,8 @@ void calculate_users_stats(Stats* stats, Arguments* args, UserData* user_data)
         if (is_a_bad_reviewer(args, c_id) || !is_requested(args, c_id) || user->nb_ratings < args->min)
             continue;
         stats->users[c_id-1].frequency = calloc(nb_days, sizeof(int));
-        for (int r=0; r<user->nb_ratings; r++)
+        
+        for (uint r = 0; r < user->nb_ratings; r++)
         {
             if (user->ratings[r].date >= args->limit)
                 continue;
@@ -170,9 +176,8 @@ void calculate_users_stats(Stats* stats, Arguments* args, UserData* user_data)
             stats->users[c_id-1].average += user->ratings[r].score;
             stats->users[c_id-1].nb_ratings++;
         }
-        stats->users[c_id-1].average /= (double) stats->users[c_id-1].nb_ratings;
+        stats->users[c_id-1].average /= (double)stats->users[c_id-1].nb_ratings;
     }
-    return;
 }
 
 void one_movie_stats(Stats* stats, Arguments* args)
@@ -196,12 +201,8 @@ Stats *read_stats_from_data(MovieData *movie_data, UserData *user_data, Argument
     stats->nb_users = user_data->nb_users;
     stats->movies = calloc(movie_data->nb_movies, sizeof(MovieStats));
     stats->users = calloc(MAX_USER_ID, sizeof(UserStats));
-    // Allocate memory for partial data
-    MovieData *data = malloc(sizeof(MovieData));
-    data->nb_movies = movie_data->nb_movies;
-    data->movies = malloc(data->nb_movies * sizeof(Movie*));
 
-    calculate_movies_stats(stats, args, data, movie_data, user_data);
+    MovieData *data = calculate_movies_stats(stats, args, movie_data, user_data);
     calculate_users_stats(stats, args, user_data);
 
     FILE *databin = fopen("data/data.bin", "wb");

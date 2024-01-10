@@ -132,11 +132,11 @@ bool ignored_rating(Arguments* args, UserData* user_data, Movie* movie_src, ulon
  * 
  * @param stats 
  * @param args 
- * @param data 
  * @param movie_data 
  * @param user_data 
+ * @return The partial data
  */
-void calculate_movies_stats(Stats* stats, Arguments* args, MovieData* data, MovieData* movie_data, UserData* user_data);
+MovieData *calculate_movies_stats(Stats* stats, Arguments* args, MovieData* movie_data, UserData* user_data);
 
 /**
  * @brief Calculate all statistics for all requested user, respecting arguments.

@@ -49,7 +49,7 @@ float *create_similarity_matrix(MovieData *data)
     for (uint i = 1; i < data->nb_movies; i++) 
     {
         printf("\n\033[A\033[2K");  // Clear the line
-        printf("Compute similarity matrix %.2lf%c", 100 * i*(i-1)/ (size*2.), '%');
+        printf("Compute similarity matrix %.2lf%c", i*(i+1) / (size*2.) * 100, '%');
         Movie *movie1 = data->movies[i];
         Hashmap *ratings = hashmap_create(movie1->nb_ratings);
 
@@ -81,8 +81,9 @@ void write_similarity_matrix(Stats *stats, char *filename)
 float *read_similarity_matrix(char *filename)
 {
     FILE *bin = fopen(filename, "rb");
-    if (bin == NULL) return NULL;
-    
+    if (bin == NULL) 
+        return NULL;
+    puts("Reading similarity matrix...");  // Information for the user
     uint size;
     if (!fread(&size, sizeof(uint), 1, bin))
         goto read_error;

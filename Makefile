@@ -1,5 +1,6 @@
 # Sources options
 TARGET ?= main
+SIMILARITY_FILE ?= data/similarity.bin
 
 # Directories
 PATH_SRC ?= src/
@@ -31,7 +32,7 @@ GREEN = $(strip \033[0;32m)
 DEFAULT = $(strip \033[0m)
 
 # Commands
-all: $(TARGET)
+all: $(TARGET) unzip
 
 run: $(TARGET)
 	@printf "$(GREEN)Running $(TARGET):$(DEFAULT)\n"
@@ -55,6 +56,12 @@ clean:
 	$(RM) -r $(PATH_DOC)*/
 	$(RM) $(TARGET) data/data.bin
 
+unzip:
+	@if [ -f $(SIMILARITY_FILE).zst ] && [ ! -f $(SIMILARITY_FILE) ]; then \
+		echo -e "$(GREEN)Decompressing $(SIMILARITY_FILE).zst...$(DEFAULT)"; \
+		unzstd -kf -T0 $(SIMILARITY_FILE).zst; \
+	fi
+	
 # Rule for compiling a C source file
 $(PATH_OBJS)%.o: $(PATH_SRC)%.c
 	@mkdir -p $(PATH_OBJS)
@@ -89,6 +96,7 @@ $(TARGET): $(OBJECTS) $(PATH_OBJS)$(TARGET).o
 	@mkdir -p $(PATH_EXE)
 	@printf "$(GREEN)Linking...$(DEFAULT)\n"
 	$(CC) $^ -o $@ $(LDFLAGS)
+	@printf "\n"
 
 .PRECIOUS: $(PATH_DEPS)%.d
 .PRECIOUS: $(PATH_OBJS)%.o

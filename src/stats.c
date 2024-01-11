@@ -43,23 +43,22 @@ double mse_correlation(Movie *movie1, Movie *movie2, Hashmap *ratings)
 
 float *create_similarity_matrix(MovieData *data)
 {
-    float *sim = calloc(data->nb_movies * data->nb_movies, sizeof(float));
-    uint x;
+    uint size = data->nb_movies * (data->nb_movies - 1) / 2;
+    float *sim = calloc(size, sizeof(float));
 
-    for (uint i = 0; i < data->nb_movies; i++) {
+    for (uint i = 1; i < data->nb_movies; i++) 
+    {
         printf("\n\033[A\033[2K");  // Clear the line
-        printf("Compute similarity matrix %.2lf%c", 
-                100 * i * (i+1) / (double)(data->nb_movies * data->nb_movies), '%');
+        printf("Compute similarity matrix %.2lf%c", 100 * i*(i-1)/ (size*2.), '%');
         Movie *movie1 = data->movies[i];
         Hashmap *ratings = hashmap_create(movie1->nb_ratings);
 
         for (uint r = 0; r < movie1->nb_ratings; r++)
             hashmap_insert(ratings, get_customer_id(movie1->ratings[r]), r);
 
-        for (uint j = 0; j <= i; j++) {
-            x = i * data->nb_movies + j;
+        for (uint j = 0; j < i; j++) {
+            uint x = get_similarity(sim, i, j);
             sim[x] = (float)mse_correlation(movie1, data->movies[j], ratings);
-            sim[j * data->nb_movies + i] = sim[x];
         }
         hashmap_free(ratings);
     }
@@ -67,15 +66,37 @@ float *create_similarity_matrix(MovieData *data)
     return sim;
 }
 
-void write_similarity_matrix_to_csv(Stats *stats, char *filename)
+void write_similarity_matrix(Stats *stats, char *filename)
 {
-    FILE *csv = fopen(filename, "w");
-    for (uint i = 0; i < stats->nb_movies; i++) {
-        for (uint j = 0; j < stats->nb_movies; j++)
-            fprintf(csv, "%f;", stats->similarity[i*stats->nb_movies + j]);
-        fprintf(csv, "\n");
+    FILE *bin = fopen(filename, "wb");
+    if (bin == NULL)
+        return perror("The file for the similarity matrix can't be opened.");
+    
+    uint size = stats->nb_movies * (stats->nb_movies - 1) / 2;
+    fwrite(&size, sizeof(uint), 1, bin);
+    fwrite(stats->similarity, sizeof(float), size, bin);
+    fclose(bin);
+}
+
+float *read_similarity_matrix(char *filename)
+{
+    FILE *bin = fopen(filename, "rb");
+    if (bin == NULL) return NULL;
+    
+    uint size;
+    if (!fread(&size, sizeof(uint), 1, bin))
+        goto read_error;
+    // Read the matrix
+    float *sim = malloc(size * sizeof(float));
+    if (!fread(sim, sizeof(float), size, bin)) {
+        free(sim);
+        goto read_error;
     }
-    fclose(csv);
+    return sim;
+
+read_error:
+    fclose(bin);
+    return NULL;
 }
 
 // ========== Functions to calculate statistics from the fulldata ==========
@@ -156,37 +177,36 @@ MovieData *calculate_movies_stats(Stats* stats, Arguments* args, MovieData* movi
         stats->movies[m].average /= (double)(r_dst);
         movie_dst->nb_ratings = r_dst;
     }
-    puts("\nDone!");
+    printf("\n");
     return data;
 }
 
 void calculate_users_stats(Stats* stats, Arguments* args, UserData* user_data)
 {
     uint count = 0;
-    for (uint u = 0; u < MAX_USER_ID; u++)
+    for (uint u = 0; u < MAX_USER_ID; u++) 
     {
         User* user = user_data->users[u];
         if (user == NULL)
             continue;
-        count++;
         printf("\n\033[A\033[2K");  // Clear the line
-        printf("Compute users statistics %u/%u", count, user_data->nb_users);
+        printf("Compute users statistics %u/%u", ++count, user_data->nb_users);
+        
         ulong c_id = (ulong)user->id;
         if (is_a_bad_reviewer(args, c_id) || !is_requested(args, c_id) || user->nb_ratings < args->min)
             continue;
+
         Hashmap *h = stats->users[c_id-1].frequency = hashmap_create(user->nb_ratings/10);
-        for (int r = 0; r < user->nb_ratings; r++)
-        {
+        for (uint r = 0; r < user->nb_ratings; r++) {
             if (user->ratings[r].date >= args->limit)
                 continue;
-
-            hashmap_increase(h,user->ratings[r].date,1);
+            hashmap_increase(h, user->ratings[r].date, 1);
             stats->users[c_id-1].average += user->ratings[r].score;
             stats->users[c_id-1].nb_ratings++;
         }
         stats->users[c_id-1].average /= (double)stats->users[c_id-1].nb_ratings;
     }
-    puts("\nDone!");
+    printf("\n");
 }
 
 void one_movie_stats(Stats* stats, Arguments* args)
@@ -223,10 +243,11 @@ Stats *read_stats_from_data(MovieData *movie_data, UserData *user_data, Argument
     if (args->movie_id != 0) // opt -s
         one_movie_stats(stats, args);
     
-    stats->similarity = create_similarity_matrix(data);
-    // Free memory
+    stats->similarity = read_similarity_matrix("data/similarity.bin");
+    if (stats->similarity == NULL) {
+        stats->similarity = create_similarity_matrix(data);
+        write_similarity_matrix(stats, "data/similarity.bin");
+    }
     free_movie_data(data);
-    write_similarity_matrix_to_csv(stats, "data/similarity.csv");
-
     return stats;
 }

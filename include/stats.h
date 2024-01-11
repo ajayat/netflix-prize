@@ -12,7 +12,7 @@ typedef unsigned long ulong;
 
 /** 
  * @brief Contains all arguments given by the user, already parsed.
-*/
+ */
 typedef struct Arguments {
     /*@{*/
     const char* folder; /**< Directory where put file corresponding to results. */
@@ -61,13 +61,13 @@ typedef struct Stats {
 
 /**
  * @brief Compute logistic function.
-*/
+ */
 double logistic(double x, double a, double b);
 
 /**
  * @brief Reduce the value when n is low.
  * @param alpha The shrink factor.
-*/
+ */
 double shrink(double value, uint n, double alpha);
 
 /**
@@ -87,12 +87,21 @@ double mse_correlation(Movie *movie1, Movie *movie2, Hashmap *ratings);
 float *create_similarity_matrix(MovieData *data);
 
 /**
- * @brief Write the similarity matrix in a csv file.
+ * @brief Write the similarity matrix in a binary file.
  * 
  * @param stats Stats containing the similarity matrix.
- * @param filename Name of the csv fiile.
+ * @param filename Name of the binary file.
  */
-void write_similarity_matrix_to_csv(Stats *stats, char *filename);
+void write_similarity_matrix(Stats *stats, char *filename);
+
+/**
+ * @brief Read the similarity matrix from a binary file.
+ * 
+ * @param filename Name of the binary file.
+ * @return The similarity matrix.
+ */
+float *read_similarity_matrix(char *filename);
+
 
 // ========== Functions to calculate statistics from the fulldata ==========
 

@@ -195,7 +195,7 @@ UserData *to_user_oriented(MovieData *data)
     {
         Movie *movie = data->movies[i];
         printf("\n\033[A\033[2K");  // Clear the line
-        printf("Extract user data %u/%u", movie->id, data->nb_movies);
+        printf("Extracting user data %u/%u", movie->id, data->nb_movies);
 
         for (uint r = 0; r < movie->nb_ratings; r++) 
         {

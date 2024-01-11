@@ -53,7 +53,7 @@ clean:
 	@printf "$(GREEN)Cleaning...$(DEFAULT)\n"
 	$(RM) -r $(PATH_BUILD) $(PATH_EXE) $(PATH_OBJS) $(PATH_DEPS)
 	$(RM) -r $(PATH_DOC)*/
-	$(RM) $(TARGET)
+	$(RM) $(TARGET) data/data.bin
 
 # Rule for compiling a C source file
 $(PATH_OBJS)%.o: $(PATH_SRC)%.c

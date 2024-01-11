@@ -38,3 +38,13 @@ char *strdup(const char *str)
         strncpy(dup, str, str_length);
     return dup;
 }
+
+inline float get_similarity(float *sim, uint i, uint j)
+{
+    if (i == j)
+        return 0.;
+    if (i > j)
+        return sim[i * (i - 1) / 2 + j];
+    else
+        return sim[j * (j - 1) / 2 + i];
+}

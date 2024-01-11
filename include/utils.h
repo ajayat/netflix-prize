@@ -38,3 +38,8 @@ uint days_from_epoch(uint year, uint month, uint day);
  * @note This function is not part of the C standard library before C23.
 */
 char *strdup(const char *str);
+
+/**
+ * @brief Get the similarity between two movies.
+*/
+float get_similarity(float *similarity_matrix, uint i, uint j);

@@ -222,3 +222,53 @@ UserData *to_user_oriented(MovieData *data)
     puts("\nDone!");  // Information for the user
     return user_data;
 }
+
+uint16_t* parse_likes(char *filename, MovieData *movie_data)
+{
+    FILE* likes = fopen(filename, "r");
+    uint length = 1;
+    uint count = 0;
+    char** movies = calloc(length,sizeof(char*));
+
+    // Get the titles list
+    char* title = calloc(LENGTH_MAX_TITLE,sizeof(char));
+    size_t* size;
+    uint index;
+    while(getline(&title,size,likes) != -1)
+    {
+        if (count+1 == length) {
+            length *= 2;
+            movies = realloc(movies,length*sizeof(char*));
+        }
+        index = 0;
+        while (movies[index] != NULL && strcmp(title,movies[index]) < 0)
+            index++;
+        if (strcmp(title,movies[index]) == 0) // Titre déjà présent dans la liste
+            continue;
+        
+        strncpy(movies[index],title,(*size-1));
+    }
+    
+    // Get the corresponding identifiers
+    uint16_t *ids = calloc(count, sizeof(uint));
+    int s;
+    for (uint16_t m = 0; m < movie_data->nb_movies; m++)
+    {
+        s = -1;
+        for (uint i = 0; i < count; i++)
+        {
+            s = strcmp(movies[i], movie_data->movies[m]->title);
+            if (s == 0) {
+                ids[i] = movie_data->movies[m]->id;
+                count--;
+                break;
+            }
+            if (s > 0)
+                break;
+        }
+        if (count == 0) // Tous les titres ont été trouvés
+            break;
+    }
+
+    return ids;
+}

@@ -148,8 +148,6 @@ MovieData *calculate_movies_stats(Stats* stats, Arguments* args, MovieData* movi
 
     for (uint m = 0; m < data->nb_movies; m++)
     {
-        printf("\n\033[A\033[2K");  // Clear the line
-        printf("Compute movies statistics %u/%u", movie_data->movies[m]->id, movie_data->nb_movies);
         Movie *movie_src = movie_data->movies[m];
         Movie *movie_dst = data->movies[m] = malloc(sizeof(Movie));
         // Copy of unchanged caracteristics
@@ -178,7 +176,6 @@ MovieData *calculate_movies_stats(Stats* stats, Arguments* args, MovieData* movi
         stats->movies[m].average /= (double)(r_dst);
         movie_dst->nb_ratings = r_dst;
     }
-    printf("\n");
     return data;
 }
 
@@ -190,8 +187,6 @@ void calculate_users_stats(Stats* stats, Arguments* args, UserData* user_data)
         User* user = user_data->users[u];
         if (user == NULL)
             continue;
-        printf("\n\033[A\033[2K");  // Clear the line
-        printf("Compute users statistics %u/%u", ++count, user_data->nb_users);
         
         ulong c_id = (ulong)user->id;
         if (is_a_bad_reviewer(args, c_id) || !is_requested(args, c_id) || user->nb_ratings < args->min)
@@ -207,7 +202,6 @@ void calculate_users_stats(Stats* stats, Arguments* args, UserData* user_data)
         }
         stats->users[c_id-1].average /= (double)stats->users[c_id-1].nb_ratings;
     }
-    printf("\n");
 }
 
 void one_movie_stats(Stats* stats, Arguments* args)

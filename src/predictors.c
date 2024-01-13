@@ -39,7 +39,7 @@ double knn_predictor(Stats *stats, User *user, Movie *movie)
     return score / sum_weights;
 }
 
-static double proximity(Stats *stats, uint i, uint *ids, uint m)
+static double proximity(Stats *stats, uint i, uint16_t *ids, uint m)
 {
     double distance = 0;
     double sum_weights = 0;
@@ -52,7 +52,7 @@ static double proximity(Stats *stats, uint i, uint *ids, uint m)
     return distance / sum_weights;
 }
 
-uint *knn_movies(Stats *stats, uint *ids, uint m, uint k)
+uint *knn_movies(Stats *stats, uint16_t *ids, uint m, uint k)
 {
     double a = 0.5;
     double b = 0.5;

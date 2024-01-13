@@ -48,7 +48,9 @@ These data will be written in a binary file thanks to `fwrite` in C to optimize 
 
 ## The statistics
 
-Dans cette partie, et avant de commencer l'algorithme de recommandation, il est important d'analyser la taille et la répartition de nos données.
+In this part and before to begin the recommedaion algorithm, it is important to analyze the size and the repartition of our data.
+
+---
 
 Par exemple, jusque là on pouvait penser que la date était une information peu pertinente, cependant on peut observer que certains clients ont noté plusieurs fois le même film, ou ont notés plusieurs films le même jour, voire trop.
 
@@ -56,7 +58,9 @@ Il sera donc interessant de calculer la fréquence de notation de chaque client 
 
 ---
 
-To create the similarity matrix, we used a hashmap structure: we need to quickly kknow if a user who rated this movie also rated this other one. But it should be too long to sort all user identifiers for a movie. Thanks to the hashmap, we have a more or less direct access to the user.
+To create the similarity matrix, we used a hashmap structure: we need to quickly know if a user who rated this movie also rated this other one. But it should be too long to sort all user identifiers for a movie. Thanks to the hashmap, we have a more or less direct access to the user.
+
+After its creation, let's have a look on the similarity matrix. Its values are between 0 and 1: more the score is close to 1, more the movies are "similar". For example, movies with identifiers `11164` and `270` reach a score around 0.81. But they correspond to `Sex and the City: Season 3` and `Sex and the City: Season 4`: a high score is normal! In an other hand, we have `Mississippi Burning` (id `442`) and `The Game` (id `143`) which reached a score aroud 0.45: they have similarity, like their place (USA) or the fact they are realistic and intriguing, but don't have more links than that.
 
 ## L'algorithme de recommandation
 

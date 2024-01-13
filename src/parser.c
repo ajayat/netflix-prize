@@ -223,63 +223,66 @@ UserData *to_user_oriented(MovieData *data)
     return user_data;
 }
 
-uint16_t* parse_likes(char *filename, MovieData *movie_data)
+int dichotomic_search(char **movies, uint length, char *title)
+{
+    int s = -1;
+    int a = 0;
+    int b = length - 1;
+    uint m = 0;
+
+    while (a <= b) {
+        m = (a + b) / 2;
+        s = strcmp(movies[m], title);
+        if (s == 0)
+            return m;
+        if (s < 0)
+            a = m + 1;
+        else if (s > 0)
+            b = m - 1;
+    }
+    return -1;
+}
+
+uint* parse_likes(char *filename, MovieData *movie_data)
 {
     FILE* likes = fopen(filename, "r");
     uint length = 1;
     uint count = 0;
-    char** movies = calloc(length,sizeof(char*));
+    char** movies = calloc(length, sizeof(char*));
 
     // Get the titles list
     char* title = calloc(LENGTH_MAX_TITLE,sizeof(char));
-    size_t* size;
+    size_t size = 0;
     uint index;
-    while(getline(&title,size,likes) != -1)
+    while(getline(&title, &size, likes) != -1)
     {
         if (count+1 == length) {
             length *= 2;
-            movies = realloc(movies,length*sizeof(char*));
+            movies = realloc(movies, length*sizeof(char*));
         }
         index = 0;
-        while (movies[index] != NULL && strcmp(title,movies[index]) < 0)
+        while (movies[index] != NULL && strcmp(title, movies[index]) < 0)
             index++;
-        if (strcmp(title,movies[index]) == 0) // Title already exists in the list.
+        if (strcmp(title, movies[index]) == 0) // Title already exists in the list.
             continue;
         
-        strncpy(movies[index],title,(*size-1));
+        strncpy(movies[index], title, size - 1);
     }
     if (count == 0) // Empty file.
         return NULL;
     
     // Get the corresponding identifiers
-    uint16_t *ids = calloc(count, sizeof(uint));
-    int s,a,b,c;
-    c = count;
-    for (uint16_t m = 0; m < movie_data->nb_movies; m++)
+    uint *ids = calloc(count, sizeof(uint));
+    uint c = count;
+
+    for (uint m = 0; m < movie_data->nb_movies; m++)
     {
-        s = -1;
-        a = 0;
-        b = count-1;
+        int i = dichotomic_search(movies, count, movie_data->movies[m]->title);
+        if (i != -1)
+            ids[i] = movie_data->movies[m]->id;
 
-        while (a != b || s != 0) {
-            s = strcmp(movies[(a+b)/2], movie_data->movies[m]->title);
-            if (s < 0)
-                a = (a+b) / 2 + 1;
-            else if (s > 0)
-                b = (a+b) / 2 - 1;
-        }
-
-        if (s == 0) {
-            ids[(a+b)/2] = movie_data->movies[m]->id;
-            c--;
-        }
-        else if (strcmp(movies[a], movie_data->movies[m]->title) == 0) { // Case where a = b.
-            ids[a] = movie_data->movies[m]->id;
-            c--;
-        }
-        if (c == 0) // All titles have been found.
-            break;
+        if (--c == 0) // All titles have been found.
+            return ids;
     }
-
     return ids;
 }

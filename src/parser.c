@@ -243,30 +243,41 @@ uint16_t* parse_likes(char *filename, MovieData *movie_data)
         index = 0;
         while (movies[index] != NULL && strcmp(title,movies[index]) < 0)
             index++;
-        if (strcmp(title,movies[index]) == 0) // Titre déjà présent dans la liste
+        if (strcmp(title,movies[index]) == 0) // Title already exists in the list.
             continue;
         
         strncpy(movies[index],title,(*size-1));
     }
+    if (count == 0) // Empty file.
+        return NULL;
     
     // Get the corresponding identifiers
     uint16_t *ids = calloc(count, sizeof(uint));
-    int s;
+    int s,a,b,c;
+    c = count;
     for (uint16_t m = 0; m < movie_data->nb_movies; m++)
     {
         s = -1;
-        for (uint i = 0; i < count; i++)
-        {
-            s = strcmp(movies[i], movie_data->movies[m]->title);
-            if (s == 0) {
-                ids[i] = movie_data->movies[m]->id;
-                count--;
-                break;
-            }
-            if (s > 0)
-                break;
+        a = 0;
+        b = count-1;
+
+        while (a != b || s != 0) {
+            s = strcmp(movies[(a+b)/2], movie_data->movies[m]->title);
+            if (s < 0)
+                a = (a+b) / 2 + 1;
+            else if (s > 0)
+                b = (a+b) / 2 - 1;
         }
-        if (count == 0) // Tous les titres ont été trouvés
+
+        if (s == 0) {
+            ids[(a+b)/2] = movie_data->movies[m]->id;
+            c--;
+        }
+        else if (strcmp(movies[a], movie_data->movies[m]->title) == 0) { // Case where a = b.
+            ids[a] = movie_data->movies[m]->id;
+            c--;
+        }
+        if (c == 0) // All titles have been found.
             break;
     }
 

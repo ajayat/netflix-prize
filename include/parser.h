@@ -124,3 +124,12 @@ MovieData *read_from_file(FILE* file);
  * @return The user oriented data.
  */
 UserData *to_user_oriented(MovieData *data);
+
+/**
+ * @brief Parse a file containing movies liked by the user.
+ * 
+ * @param filename Name of the file containing liked movies.
+ * @param movie_data Data of movies to find corresponding identifiers.
+ * @return `uint16_t*` An array containing the identifiers of liked movies.
+ */
+uint16_t* parse_likes(char *filename, MovieData *movie_data);

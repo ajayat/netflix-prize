@@ -223,7 +223,7 @@ UserData *to_user_oriented(MovieData *data)
     return user_data;
 }
 
-int dichotomic_search(char **movies, uint length, char *title)
+static int dichotomic_search(char **titles, uint length, char *title)
 {
     int s = -1;
     int a = 0;
@@ -232,12 +232,12 @@ int dichotomic_search(char **movies, uint length, char *title)
 
     while (a <= b) {
         m = (a + b) / 2;
-        s = strcmp(movies[m], title);
-        if (s == 0)
+        s = strncmp(titles[m], title, LENGTH_MAX_TITLE);
+        if (s == 0) 
             return m;
-        if (s < 0)
+        if (s < 0) 
             a = m + 1;
-        else if (s > 0)
+        else 
             b = m - 1;
     }
     return -1;
@@ -250,46 +250,39 @@ static int compare_strings(const void *a, const void *b)
 
 uint* parse_likes(char *filename, MovieData *movie_data)
 {
-    FILE* likes = fopen(filename, "r");
-    uint length = 1;
+    FILE* likes_file = fopen(filename, "r");
     uint count = 0;
-    char** movies = calloc(length, sizeof(char*));
+    char **movies = calloc(1, sizeof(char*));
 
     // Get the titles list
-    char* title = calloc(LENGTH_MAX_TITLE,sizeof(char));
+    char *title = NULL;
     size_t size = 0;
-    uint index;
-    while(getline(&title, &size, likes) != -1)
+    uint index = 0;
+    while(getline(&title, &size, likes_file) != -1)
     {
-        if (count+1 == length) {
-            length *= 2;
-            movies = realloc(movies, length*sizeof(char*));
-        }
-        index = 0;
-        while (movies[index] != NULL)
-            index++;    
-        strncpy(movies[index], title, size - 1);
+        if (is_power_of_two(++count))
+            movies = realloc(movies, 2 * count * sizeof(char*));
+
+        movies[index] = malloc(size * sizeof(char));
+        strncpy(movies[index++], title, size - 1);
     }
+    fclose(likes_file);
+    if (count == 0) return NULL;  // No movie in the file.
 
     // Sort the title list.
     qsort(movies, count, sizeof(char*), compare_strings);
 
-    // Delete dupicates.
-    char** titles = calloc(count, sizeof(char*));
-    uint nb_titles = count;
-    uint shift = 0;
-    for (int m = 1; m < count ; m++) {
-        if (strcmp(movies[m-1], movies[m]) == 0) { // Duplicated movie.
-            shift++;
-            nb_titles--;
-        }
-        strcpy(titles[m-shift],movies[m]);
-    }
-    titles = realloc(titles, nb_titles*sizeof(char*));
+    // Delete duplicates.
+    char* titles[count];
+    titles[0] = movies[0];
+    uint nb_titles = 1;
 
-    if (count == 0) // Empty file.
-        return NULL;
-    
+    for (uint i = 1; i < count; i++) {
+        if (strcmp(movies[i-1], movies[i]) != 0) {  // Duplicated movie.
+            titles[nb_titles] = movies[i];
+            nb_titles++;
+        }
+    }
     // Get the corresponding identifiers
     uint *ids = calloc(nb_titles, sizeof(uint));
     uint c = nb_titles;
@@ -297,11 +290,12 @@ uint* parse_likes(char *filename, MovieData *movie_data)
     for (uint m = 0; m < movie_data->nb_movies; m++)
     {
         int i = dichotomic_search(titles, nb_titles, movie_data->movies[m]->title);
-        if (i != -1)
+        if (i != -1) {
             ids[i] = movie_data->movies[m]->id;
-
-        if (--c == 0) // All titles have been found.
-            return ids;
+            c--;
+        }
+        if (c == 0) return ids;  // All titles have been found.
     }
+    free(movies);
     return ids;
 }

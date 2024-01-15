@@ -3,6 +3,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <stdbool.h>
+#include <argp.h>
 
 #include "parser.h"
 #include "utils.h"
@@ -11,6 +12,67 @@
 #define MAX_NUMBER_MOVIES 17771
 #define MAX_NUMBER_RATINGS 250000
 #define MAX_USER_ID 2649430
+
+// ========== Functions to parse arguments==========
+
+void free_args(Arguments *args)
+{
+    // free(args->customer_ids);
+    // free(args->bad_reviewers);
+    free(args->likes_file);
+}
+
+static ulong* parse_ids(char *arg, Arguments *args)
+{
+    char* end = NULL;
+    ulong* ids = calloc(1, sizeof(ulong));
+    ulong id;
+    while ((id = strtoul(arg, &end, 10)) != 0) {
+        if (is_power_of_two(args->nb_customer_ids))
+            ids = realloc(ids, 2 * args->nb_customer_ids * sizeof(ulong));
+
+        ids[args->nb_customer_ids++] = id;
+        arg = end + 1;
+    }
+    return ids;
+}
+
+error_t parse_opt(int key, char *arg, struct argp_state *state)
+{
+    Arguments *args = state->input;
+    switch (key) {
+    case 'f':
+        args->folder = arg;
+        return 0;
+    case 'l':
+        args->limit = strtoul(arg, NULL, 10);
+        return 0;
+    case 's':
+        args->movie_id = strtoul(arg, NULL, 10);
+        return 0;
+    case 'c':
+        args->customer_ids = parse_ids(arg, args);
+        return 0;
+    case 'b':
+        args->bad_reviewers = parse_ids(arg, args);
+        return 0;
+    case 'e':
+        args->min = strtoul(arg, NULL, 10);
+        return 0;
+    case 't':
+        args->time = true;
+        return 0;
+    case 'r':
+        args->likes_file = strdup(arg);
+        return 0;
+    case ARGP_KEY_ARG:
+        return 0;
+    default:
+        return ARGP_ERR_UNKNOWN;
+    }
+}
+
+// ========== Functions to parse the data ==========
 
 ulong get_customer_id(MovieRating rating)
 {
@@ -248,27 +310,29 @@ static int compare_strings(const void *a, const void *b)
     return strcmp(a, b);
 }
 
-uint* parse_likes(char *filename, MovieData *movie_data)
+uint parse_likes(const char *filename, MovieData *movie_data, uint **ids)
 {
     FILE* likes_file = fopen(filename, "r");
+    if (likes_file == NULL) 
+        return 0;
     uint count = 0;
     char **movies = calloc(1, sizeof(char*));
 
     // Get the titles list
-    char *title = NULL;
-    size_t size = 0;
+    char title[LENGTH_MAX_TITLE];
     uint index = 0;
-    while(getline(&title, &size, likes_file) != -1)
-    {
+    while(fgets(title, LENGTH_MAX_TITLE, likes_file) != NULL) {
         if (is_power_of_two(++count))
             movies = realloc(movies, 2 * count * sizeof(char*));
 
-        movies[index] = malloc(size * sizeof(char));
-        strncpy(movies[index++], title, size - 1);
+        title[strcspn(title, "\r\n")] = '\0';  // Remove the trailing '\n'
+        movies[index++] = strdup(title);
     }
     fclose(likes_file);
-    if (count == 0) return NULL;  // No movie in the file.
-
+    if (count == 0) {
+        free(movies);
+        return 0;  // No movie in the file.
+    }
     // Sort the title list.
     qsort(movies, count, sizeof(char*), compare_strings);
 
@@ -279,23 +343,22 @@ uint* parse_likes(char *filename, MovieData *movie_data)
 
     for (uint i = 1; i < count; i++) {
         if (strcmp(movies[i-1], movies[i]) != 0) {  // Duplicated movie.
-            titles[nb_titles] = movies[i];
-            nb_titles++;
+            titles[nb_titles++] = movies[i];
         }
     }
     // Get the corresponding identifiers
-    uint *ids = calloc(nb_titles, sizeof(uint));
+    *ids = calloc(nb_titles, sizeof(uint));
     uint c = nb_titles;
 
     for (uint m = 0; m < movie_data->nb_movies; m++)
     {
         int i = dichotomic_search(titles, nb_titles, movie_data->movies[m]->title);
         if (i != -1) {
-            ids[i] = movie_data->movies[m]->id;
+            (*ids)[i] = movie_data->movies[m]->id;
             c--;
         }
-        if (c == 0) return ids;  // All titles have been found.
+        if (c == 0) break;  // All titles have been found.
     }
     free(movies);
-    return ids;
+    return nb_titles;
 }

@@ -1,10 +1,39 @@
 #pragma once
 
+#include <argp.h>
 #include <stdio.h>
 #include <stdint.h>
 
 typedef unsigned int uint;
 typedef unsigned long ulong;
+
+/** 
+ * @brief Contains all arguments given by the user, already parsed.
+ */
+typedef struct Arguments {
+    /*@{*/
+    const char* folder; /**< Directory where put file corresponding to results. */
+    uint16_t limit; /**< `-l` option: prohibits taking notes into account if their date is greater than Arguments::limit. */
+    uint16_t movie_id; /**< `-s` option: film than the user wants statistics for. */
+    uint nb_customer_ids; /**< Length of Arguments::customer_ids. */
+    ulong *customer_ids; /**< `-c` option: customers than the user wants to take into account. */
+    uint nb_bad_reviewers; /**< Length of Arguments::bad_reviewers. */
+    ulong *bad_reviewers; /**< `-b` option: customers than the user does not want to take into account. */
+    uint min; /**< `-e` option: to take into account only customers with Arguments::min ratings at least. */
+    bool time; /**< True to give the executive time of the algorithm. */
+    char* likes_file; /**< `-r` option: file where to get liked movies. */
+    /*@}*/
+} Arguments;
+
+/**
+ * @brief Parse an argument given by the user.
+*/
+error_t parse_opt(int key, char *arg, struct argp_state *state);
+
+/**
+ * @brief Free memory allocated for Arguments.
+*/
+void free_args(Arguments *args);
 
 /**
  * @brief Contains all information about a rating.
@@ -130,6 +159,9 @@ UserData *to_user_oriented(MovieData *data);
  * 
  * @param filename Name of the file containing liked movies.
  * @param movie_data Data of movies to find corresponding identifiers.
- * @return `uint16_t*` An array containing the identifiers of liked movies.
+ * @param ids Address to an array containing the identifiers of liked movies.
+ * @return The number of liked movies.
+ * 
+ * @note The array of identifiers must be freed by the caller.
  */
-uint* parse_likes(char *filename, MovieData *movie_data);
+uint parse_likes(const char *filename, MovieData *movie_data, uint **ids);

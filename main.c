@@ -1,7 +1,6 @@
 #include <stdio.h>
-#include <stdlib.h>
-#include <argp.h>
 #include <stdbool.h>
+#include <stdlib.h>
 
 #include "parser.h"
 #include "utils.h"
@@ -18,57 +17,9 @@ static struct argp_option options[] = {
     { "bad_reviewers", 'b', "BAD_REVIEWERS", 0, "List of customer ID.", 0 },
     { "min", 'e', "MIN", 0, "Restrict to customers who have seen >= MIN films", 0 },
     { "t", 't', 0, 0, "Display execution time.", 0 },
+    { "likes_file", 'r', "FILE", 0, "Gives recommandations.", 0 },
     { 0 }
 };
-
-static ulong* parse_ids(char *arg, Arguments *args)
-{
-    char* end = NULL;
-    ulong* ids = (ulong*) calloc(1,sizeof(ulong));
-    uint length = 1;
-    uint id;
-    while ((id = strtoul(arg, &end, 10)) != 0) {
-        if (args->nb_customer_ids+2 > length) {
-            length *= 2;
-            ids = realloc(ids, length*sizeof(ulong));
-        }
-        ids[args->nb_customer_ids++] = id;
-        arg = end + 1;
-    }
-    return ids;
-}
-
-static error_t parse_opt(int key, char *arg, struct argp_state *state)
-{
-    Arguments *args = state->input;
-    switch (key) {
-    case 'f':
-        args->folder = arg;
-        return 0;
-    case 'l':
-        args->limit = strtoul(arg, NULL, 10);
-        return 0;
-    case 's':
-        args->movie_id = strtoul(arg, NULL, 10);
-        return 0;
-    case 'c':
-        args->customer_ids = parse_ids(arg, args);
-        return 0;
-    case 'b':
-        args->bad_reviewers = parse_ids(arg, args);
-        return 0;
-    case 'e':
-        args->min = strtoul(arg, NULL, 10);
-        return 0;
-    case 't':
-        args->time = true;
-        return 0;
-    case ARGP_KEY_ARG:
-        return 0;
-    default:
-        return ARGP_ERR_UNKNOWN;
-    }
-}
 
 static struct argp argp = { options, parse_opt, args_doc, doc, 0, 0, 0 };
 
@@ -83,22 +34,35 @@ int main(int argc, char *argv[])
     args.time = false;
     args.nb_customer_ids = 0;
     args.nb_bad_reviewers = 0;
+    args.likes_file = NULL;
 
     argp_parse(&argp, argc, argv, 0, 0, &args);
 
-    // FILE *databin = fopen("data/fulldata.bin", "rb");
-    // if (databin == NULL) {
-    //     fprintf(stderr, "Error: cannot open file data/fulldata.bin\n");
-    //     exit(EXIT_FAILURE);
-    // }
-    // MovieData *movie_data = read_from_file(databin);
-    // fclose(databin);
-    MovieData *movie_data = parse();
+    // Parse data
+    MovieData *movie_data = NULL;
+    FILE *databin = fopen("data/fulldata.bin", "rb");
+    if (databin != NULL) {
+        movie_data = read_from_file(databin);
+        fclose(databin);
+    } else
+        movie_data = parse();
     UserData *user_data = to_user_oriented(movie_data);
     Stats *stats = read_stats_from_data(movie_data, user_data, &args);
 
     printf("nb_movies: %d\n", stats->nb_movies);
+
+    if (args.likes_file != NULL) {
+        uint *ids = NULL;
+        uint n = parse_likes(args.likes_file, movie_data, &ids);
+        if (n == 0) {
+            fprintf(stderr, "Could not parse titles in file %s\n", args.likes_file);
+            exit(EXIT_FAILURE);
+        }
+        for (uint i = 0; i < n; i++)
+            printf("%u: %s\n", i+1, movie_data->movies[ids[i]-1]->title);
+    }
     // Free memory
+    free_args(&args);
     free_stats(stats);
     free_movie_data(movie_data);
     free_user_data(user_data);

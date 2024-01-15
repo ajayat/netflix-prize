@@ -10,23 +10,6 @@
 typedef unsigned int uint;
 typedef unsigned long ulong;
 
-/** 
- * @brief Contains all arguments given by the user, already parsed.
- */
-typedef struct Arguments {
-    /*@{*/
-    const char* folder; /**< Directory where put file corresponding to results. */
-    uint16_t limit; /**< `-l` option: prohibits taking notes into account if their date is greater than Arguments::limit. */
-    uint16_t movie_id; /**< `-s` option: film than the user wants statistics for. */
-    uint nb_customer_ids; /**< Length of Arguments::customer_ids. */
-    ulong *customer_ids; /**< `-c` option: customers than the user wants to take into account. */
-    uint nb_bad_reviewers; /**< Length of Arguments::bad_reviewers. */
-    ulong *bad_reviewers; /**< `-b` option: customers than the user does not want to take into account. */
-    uint min; /**< `-e` option: to take into account only customers with Arguments::min ratings at least. */
-    bool time; /**< True to give the executive time of the algorithm. */
-    /*@}*/
-} Arguments;
-
 /**
  * @brief Contains all stats about a movie.
  */

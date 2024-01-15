@@ -181,7 +181,6 @@ MovieData *calculate_movies_stats(Stats* stats, Arguments* args, MovieData* movi
 
 void calculate_users_stats(Stats* stats, Arguments* args, UserData* user_data)
 {
-    uint count = 0;
     for (uint u = 0; u < MAX_USER_ID; u++) 
     {
         User* user = user_data->users[u];

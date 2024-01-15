@@ -5,6 +5,7 @@
 # dataset
 data/*
 !data/similarity.bin.zst
+likes.txt
 
 # build folder
 build/

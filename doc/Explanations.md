@@ -48,19 +48,35 @@ These data will be written in a binary file thanks to `fwrite` in C to optimize 
 
 ## The statistics
 
+### Statistics from the data
+
 In this part and before to begin the recommedaion algorithm, it is important to analyze the size and the repartition of our data.
+We calculate two kind of statistics : those which are based on movies (average rating, minimum, maximum, date) and those based on users (number of ratings, their average, number of ratings per day).
+For example, a user who rated more than 2 or 3 movies/series in one single day can't be taken seriously, because he certainly rated movies he did'nt watch. But it's also possible that he decided to rate movies he saw before opening his account. So his ratings will be taken in account, but with an impact more moderate than a "regular" user.
 
----
+In addition, we take into account the arguments of the command line. In fact, statistics are generated only from ratings which respect all given options. And we allow to create a file with the statistics of one movie especially, to answer to the use of the option `-s`. You can find the different options bellow:
 
-Par exemple, jusque là on pouvait penser que la date était une information peu pertinente, cependant on peut observer que certains clients ont noté plusieurs fois le même film, ou ont notés plusieurs films le même jour, voire trop.
+| flag |    content    |                                      description                                      |
+| :--: | :-----------: | :-----------------------------------------------------------------------------------: |
+| `-r` |   LIKES.TXT   |                           List of movies liked by the user.                           |
+| `-n` |    NUMBER     |              Length of the recommendation list the algorithm will give.              |
+| `-f` |    FOLDER     |      The path of the folder where files corresponding to results will be saved.       |
+| `-l` |     LIMIT     |        Forbidden to take in acount ratings with a date greater than the LIMIT.        |
+| `-s` |   MOVIE_ID    |             Give statistics about the movie with the identifier MOVIE_ID.             |
+| `-c` |     X, Y      | Allow to take into account only the ratings of the cusstomers with given identifiers. |
+| `-b` | BAD_REVIEWERS |  Allow to not take into account the ratings of the customers with given identifiers.  |
+| `-e` |      MIN      |       Allow to take into account only customers who rated at least MIN movies.        |
+| `-t` |       ∅       |                    Precise the executive time of the algorithme.                     |
 
-Il sera donc interessant de calculer la fréquence de notation de chaque client chaque jour, afin d'ajuster la pertinence d'une note donnée.
+Note that options `-r`, `-n` and `-t` are not used for statistics processing.
 
----
+### The similarity matrix
 
-To create the similarity matrix, we used a hashmap structure: we need to quickly know if a user who rated this movie also rated this other one. But it should be too long to sort all user identifiers for a movie. Thanks to the hashmap, we have a more or less direct access to the user.
+The similarity matrix is a matrix which show the proximity between two movies, based on their ratings, especially when they have been note by same users. It gives a coefficient between 0 and 1: more the score is close to 1, more the movies are "similar".
 
-After its creation, let's have a look on the similarity matrix. Its values are between 0 and 1: more the score is close to 1, more the movies are "similar". For example, movies with identifiers `11164` and `270` reach a score around 0.81. But they correspond to `Sex and the City: Season 3` and `Sex and the City: Season 4`: a high score is normal! In an other hand, we have `Mississippi Burning` (id `442`) and `The Game` (id `143`) which reached a score aroud 0.45: they have similarity, like their place (USA) or the fact they are realistic and intriguing, but don't have more links than that.
+For example, movies with identifiers `11164` and `270` reach a score around 0.81. But they correspond to `Sex and the City: Season 3` and `Sex and the City: Season 4`: a high score is normal! In an other hand, we have `Mississippi Burning` (id `442`) and `The Game` (id `143`) which reached a score aroud 0.45: they have similarity, like their place (USA) or the fact they are realistic and intriguing, but don't have more links than that.
+
+To create the similarity matrix, we use a hashmap structure: we need to quickly know if a user who rated this movie also rated this other one. But it should be too long to sort all user identifiers for a movie. Thanks to the hashmap, we have a more or less direct access to the user, using a quadratic probing to sort them in order to optimize the searching.
 
 ## L'algorithme de recommandation
 

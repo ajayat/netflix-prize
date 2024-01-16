@@ -17,8 +17,10 @@
 
 void free_args(Arguments *args)
 {
-    // free(args->customer_ids);
-    // free(args->bad_reviewers);
+    if (args->nb_customer_ids > 0)
+        free(args->customer_ids);
+    if (args->bad_reviewers > 0)
+        free(args->bad_reviewers);
     free(args->likes_file);
 }
 
@@ -187,7 +189,7 @@ MovieData *parse(void)
         if (fclose(mv_file) == EOF)
             perror("A movie file can't be closed.");
     }
-    puts("\nDone!");  // Information for the user
+    puts(" ✅");  // Information for the user
     return data;
 }
 

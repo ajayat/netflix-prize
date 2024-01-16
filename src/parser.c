@@ -320,18 +320,19 @@ uint parse_likes(const char *filename, MovieData *movie_data, uint **ids)
 
     // Get the titles list
     char title[LENGTH_MAX_TITLE];
-    uint index = 0;
+
     while(fscanf(likes_file, "%119[^\n]\n", title) != EOF) {
-        if (is_power_of_two(++count))
+        if (is_power_of_two(count))
             movies = realloc(movies, 2 * count * sizeof(char*));
-        
-        movies[index++] = strdup(title);
+        movies[count++] = strdup(title);
     }
+
     fclose(likes_file);
     if (count == 0) {
         free(movies);
         return 0;  // No movie in the file.
     }
+
     // Sort the title list.
     qsort(movies, count, sizeof(char*), compare_strings);
 
@@ -344,6 +345,7 @@ uint parse_likes(const char *filename, MovieData *movie_data, uint **ids)
         if (strcmp(movies[i-1], movies[i]) != 0)  // Duplicated movie.
             titles[nb_titles++] = movies[i];
     }
+
     // Get the corresponding identifiers
     *ids = calloc(nb_titles, sizeof(uint));
     uint c = nb_titles;
@@ -357,6 +359,7 @@ uint parse_likes(const char *filename, MovieData *movie_data, uint **ids)
         }
         if (c == 0) break;  // All titles have been found.
     }
+
     free(movies);
     return nb_titles;
 }

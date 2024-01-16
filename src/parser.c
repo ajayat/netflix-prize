@@ -307,7 +307,7 @@ static int dichotomic_search(char **titles, uint length, char *title)
 
 static int compare_strings(const void *a, const void *b)
 {
-    return strcmp(a, b);
+    return strncmp((char *)a, (char *)b, LENGTH_MAX_TITLE);
 }
 
 uint parse_likes(const char *filename, MovieData *movie_data, uint **ids)
@@ -321,11 +321,10 @@ uint parse_likes(const char *filename, MovieData *movie_data, uint **ids)
     // Get the titles list
     char title[LENGTH_MAX_TITLE];
     uint index = 0;
-    while(fgets(title, LENGTH_MAX_TITLE, likes_file) != NULL) {
+    while(fscanf(likes_file, "%119[^\n]\n", title) != EOF) {
         if (is_power_of_two(++count))
             movies = realloc(movies, 2 * count * sizeof(char*));
-
-        title[strcspn(title, "\r\n")] = '\0';  // Remove the trailing '\n'
+        
         movies[index++] = strdup(title);
     }
     fclose(likes_file);
@@ -342,9 +341,8 @@ uint parse_likes(const char *filename, MovieData *movie_data, uint **ids)
     uint nb_titles = 1;
 
     for (uint i = 1; i < count; i++) {
-        if (strcmp(movies[i-1], movies[i]) != 0) {  // Duplicated movie.
+        if (strcmp(movies[i-1], movies[i]) != 0)  // Duplicated movie.
             titles[nb_titles++] = movies[i];
-        }
     }
     // Get the corresponding identifiers
     *ids = calloc(nb_titles, sizeof(uint));

@@ -311,16 +311,16 @@ static int compare_strings(const void *a, const void *b)
     return strncmp(*(const char **)a, *(const char **)b, LENGTH_MAX_TITLE);
 }
 
-static uint remove_duplicates(char **titles, uint length)
+static uint remove_duplicates(char **titles, uint n)
 {
     uint nb_titles = 0;
-    for (uint i = 0; i < length-1; i++) {
+    for (uint i = 0; i < n-1; i++) {
         if (strncmp(titles[i], titles[i+1], LENGTH_MAX_TITLE) != 0)
             titles[nb_titles++] = titles[i];
         else    
             free(titles[i]);  // Delete duplicate
     }
-    titles[nb_titles++] = titles[length-1];
+    titles[nb_titles++] = titles[n-1];
     return nb_titles;
 }
 
@@ -329,34 +329,33 @@ uint parse_likes(const char *filename, MovieData *movie_data, uint **ids)
     FILE* likes_file = fopen(filename, "r");
     if (likes_file == NULL) 
         return 0;
-    uint count = 0;
+    uint n = 0;
     char **titles = calloc(1, sizeof(char*));
 
     // Get the titles list
     char title[LENGTH_MAX_TITLE];
 
     while(fgets(title, LENGTH_MAX_TITLE, likes_file) != NULL) {
-        if (count > 0 && is_power_of_two(count))
-            titles = realloc(titles, 2 * count * sizeof(char*));
+        if (n > 0 && is_power_of_two(n))
+            titles = realloc(titles, 2 * n * sizeof(char*));
 
         title[strcspn(title, "\n")] = '\0';  // Remove the trailing '\n'
-        titles[count++] = strdup(title);
+        titles[n++] = strdup(title);
     }
     fclose(likes_file);
-    if (count == 0) goto end; // No movie in the file.
+    if (n == 0) goto end; // No movie in the file.
 
     // Sort the title list.
-    qsort(titles, count, sizeof(char*), compare_strings);
-    // Delete duplicates in place.
-    count = remove_duplicates(titles, count);
+    qsort(titles, n, sizeof(char*), compare_strings);
+    n = remove_duplicates(titles, n);
 
     // Get the corresponding identifiers
-    *ids = calloc(count, sizeof(uint));
-    uint c = count;
+    *ids = calloc(n, sizeof(uint));
+    uint c = n;
 
     for (uint m = 0; m < 52 /*movie_data->nb_movies*/; m++)
     {
-        int i = dichotomic_search(titles, count, movie_data->movies[m]->title);
+        int i = dichotomic_search(titles, n, movie_data->movies[m]->title);
         if (i != -1) {
             (*ids)[i] = movie_data->movies[m]->id;
             c--;
@@ -364,6 +363,8 @@ uint parse_likes(const char *filename, MovieData *movie_data, uint **ids)
         if (c == 0) break;  // All titles have been found.
     }
 end:
+    for (uint i = 0; i < n; i++)
+        free(titles[i]);
     free(titles);
-    return count;
+    return n;
 }

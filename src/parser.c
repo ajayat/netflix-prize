@@ -19,9 +19,8 @@ void free_args(Arguments *args)
 {
     if (args->nb_customer_ids > 0)
         free(args->customer_ids);
-    if (args->bad_reviewers > 0)
+    if (args->nb_bad_reviewers > 0)
         free(args->bad_reviewers);
-    free(args->likes_file);
 }
 
 static ulong* parse_ids(char *arg, Arguments *args)
@@ -65,7 +64,7 @@ error_t parse_opt(int key, char *arg, struct argp_state *state)
         args->time = true;
         return 0;
     case 'r':
-        args->likes_file = strdup(arg);
+        args->likes_file = arg;
         return 0;
     case ARGP_KEY_ARG:
         return 0;
@@ -312,56 +311,59 @@ static int compare_strings(const void *a, const void *b)
     return strncmp(*(const char **)a, *(const char **)b, LENGTH_MAX_TITLE);
 }
 
+static uint remove_duplicates(char **titles, uint length)
+{
+    uint nb_titles = 0;
+    for (uint i = 0; i < length-1; i++) {
+        if (strncmp(titles[i], titles[i+1], LENGTH_MAX_TITLE) != 0)
+            titles[nb_titles++] = titles[i];
+        else    
+            free(titles[i]);  // Delete duplicate
+    }
+    titles[nb_titles++] = titles[length-1];
+    return nb_titles;
+}
+
 uint parse_likes(const char *filename, MovieData *movie_data, uint **ids)
 {
     FILE* likes_file = fopen(filename, "r");
     if (likes_file == NULL) 
         return 0;
     uint count = 0;
-    char **movies = calloc(1, sizeof(char*));
+    char **titles = calloc(1, sizeof(char*));
 
     // Get the titles list
     char title[LENGTH_MAX_TITLE];
 
-    while(fscanf(likes_file, "%119[^\n]\n", title) != EOF) {
-        if (is_power_of_two(count))
-            movies = realloc(movies, 2 * count * sizeof(char*));
-        movies[count++] = strdup(title);
-    }
+    while(fgets(title, LENGTH_MAX_TITLE, likes_file) != NULL) {
+        if (count > 0 && is_power_of_two(count))
+            titles = realloc(titles, 2 * count * sizeof(char*));
 
-    fclose(likes_file);
-    if (count == 0) {
-        free(movies);
-        return 0;  // No movie in the file.
+        title[strcspn(title, "\n")] = '\0';  // Remove the trailing '\n'
+        titles[count++] = strdup(title);
     }
+    fclose(likes_file);
+    if (count == 0) goto end; // No movie in the file.
 
     // Sort the title list.
-    qsort(movies, count, sizeof(char*), compare_strings);
-
-    // Delete duplicates.
-    char* titles[count];
-    titles[0] = movies[0];
-    uint nb_titles = 1;
-
-    for (uint i = 1; i < count; i++) {
-        if (strcmp(movies[i-1], movies[i]) != 0)  // Duplicated movie.
-            titles[nb_titles++] = movies[i];
-    }
+    qsort(titles, count, sizeof(char*), compare_strings);
+    // Delete duplicates in place.
+    count = remove_duplicates(titles, count);
 
     // Get the corresponding identifiers
-    *ids = calloc(nb_titles, sizeof(uint));
-    uint c = nb_titles;
+    *ids = calloc(count, sizeof(uint));
+    uint c = count;
 
     for (uint m = 0; m < 52 /*movie_data->nb_movies*/; m++)
     {
-        int i = dichotomic_search(titles, nb_titles, movie_data->movies[m]->title);
+        int i = dichotomic_search(titles, count, movie_data->movies[m]->title);
         if (i != -1) {
             (*ids)[i] = movie_data->movies[m]->id;
             c--;
         }
         if (c == 0) break;  // All titles have been found.
     }
-
-    free(movies);
-    return nb_titles;
+end:
+    free(titles);
+    return count;
 }

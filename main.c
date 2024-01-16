@@ -56,6 +56,7 @@ int main(int argc, char *argv[])
             fprintf(stderr, "Could not parse titles in file %s\n", args.likes_file);
             exit(EXIT_FAILURE);
         }
+        free(ids);
     }
     // Free memory
     free_args(&args);

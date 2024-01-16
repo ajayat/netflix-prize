@@ -108,6 +108,7 @@ void free_stats(Stats *stats)
         return;
     free(stats->similarity);
     free(stats->movies);
+    free(stats->users);
     free(stats);
 }
 

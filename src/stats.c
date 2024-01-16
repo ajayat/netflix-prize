@@ -225,8 +225,10 @@ Stats *read_stats_from_data(MovieData *movie_data, UserData *user_data, Argument
     stats->movies = calloc(movie_data->nb_movies, sizeof(MovieStats));
     stats->users = calloc(MAX_USER_ID, sizeof(UserStats));
 
-    puts("Reading statistics...");  // Information for the user
+    puts("Reading statistics:");  // Information for the user
+    puts("    ~ for movies");
     MovieData *data = calculate_movies_stats(stats, args, movie_data, user_data);
+    puts("    ~ for users");
     calculate_users_stats(stats, args, user_data);
 
     FILE *databin = fopen("data/data.bin", "wb");

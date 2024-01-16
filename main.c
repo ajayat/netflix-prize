@@ -49,8 +49,6 @@ int main(int argc, char *argv[])
     UserData *user_data = to_user_oriented(movie_data);
     Stats *stats = read_stats_from_data(movie_data, user_data, &args);
 
-    printf("nb_movies: %d\n", stats->nb_movies);
-
     if (args.likes_file != NULL) {
         uint *ids = NULL;
         uint n = parse_likes(args.likes_file, movie_data, &ids);
@@ -58,8 +56,6 @@ int main(int argc, char *argv[])
             fprintf(stderr, "Could not parse titles in file %s\n", args.likes_file);
             exit(EXIT_FAILURE);
         }
-        for (uint i = 0; i < n; i++)
-            printf("%u: %s\n", i+1, movie_data->movies[ids[i]-1]->title);
     }
     // Free memory
     free_args(&args);

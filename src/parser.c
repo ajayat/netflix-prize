@@ -281,7 +281,7 @@ UserData *to_user_oriented(MovieData *data)
             user->nb_ratings++;
         }
     }
-    puts("\nDone!");  // Information for the user
+    puts(" ✅");  // Information for the user
     return user_data;
 }
 
@@ -307,7 +307,7 @@ static int dichotomic_search(char **titles, uint length, char *title)
 
 static int compare_strings(const void *a, const void *b)
 {
-    return strncmp((char *)a, (char *)b, LENGTH_MAX_TITLE);
+    return strncmp(*(const char **)a, *(const char **)b, LENGTH_MAX_TITLE);
 }
 
 uint parse_likes(const char *filename, MovieData *movie_data, uint **ids)
@@ -350,7 +350,7 @@ uint parse_likes(const char *filename, MovieData *movie_data, uint **ids)
     *ids = calloc(nb_titles, sizeof(uint));
     uint c = nb_titles;
 
-    for (uint m = 0; m < movie_data->nb_movies; m++)
+    for (uint m = 0; m < 52 /*movie_data->nb_movies*/; m++)
     {
         int i = dichotomic_search(titles, nb_titles, movie_data->movies[m]->title);
         if (i != -1) {

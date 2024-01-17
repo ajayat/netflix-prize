@@ -5,6 +5,7 @@
 #include "parser.h"
 #include "utils.h"
 #include "stats.h"
+#include "predictors.h"
 
 static char doc[] = "Programming Project";
 static char args_doc[] = "";
@@ -18,6 +19,7 @@ static struct argp_option options[] = {
     { "min", 'e', "MIN", 0, "Restrict to customers who have seen >= MIN films", 0 },
     { "t", 't', 0, 0, "Display execution time.", 0 },
     { "likes_file", 'r', "FILE", 0, "Gives recommandations.", 0 },
+    { "number", 'n', "NUMBER", 0, "Number of recommandations.", 0 },
     { 0 }
 };
 
@@ -35,12 +37,13 @@ int main(int argc, char *argv[])
     args.nb_customer_ids = 0;
     args.nb_bad_reviewers = 0;
     args.likes_file = NULL;
+    args.nb_recommandations = 10;
 
     argp_parse(&argp, argc, argv, 0, 0, &args);
 
     // Parse data
     MovieData *movie_data = NULL;
-    FILE *databin = fopen("data/fulldata.bin", "rb");
+    FILE *databin = fopen("data/movie_data.bin", "rb");
     if (databin != NULL) {
         movie_data = read_from_file(databin);
         fclose(databin);
@@ -56,8 +59,12 @@ int main(int argc, char *argv[])
             fprintf(stderr, "Could not parse titles in file %s\n", args.likes_file);
             exit(EXIT_FAILURE);
         }
+        uint *recommandations = knn_movies(stats, ids, n, args.nb_recommandations);
+        for (uint i = 0; i < args.nb_recommandations; i++)
+            printf("%s\n", movie_data->movies[recommandations[i]]->title);
         free(ids);
     }
+    printf("sim: %f\n", get_similarity(stats->similarity, 5, 646));
     // Free memory
     free_args(&args);
     free_stats(stats);

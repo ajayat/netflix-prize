@@ -3,6 +3,7 @@
 #include <argp.h>
 #include <stdio.h>
 #include <stdint.h>
+#include <stdbool.h>
 
 typedef unsigned int uint;
 typedef unsigned long ulong;
@@ -22,6 +23,7 @@ typedef struct Arguments {
     uint min; /**< `-e` option: to take into account only customers with Arguments::min ratings at least. */
     bool time; /**< True to give the executive time of the algorithm. */
     char* likes_file; /**< `-r` option: file where to get liked movies. */
+    uint nb_recommandations; /**< `-n` option: number of recommandations to give. */
     /*@}*/
 } Arguments;
 
@@ -73,8 +75,8 @@ typedef struct MovieData {
 typedef struct UserRating {
     /*@{*/
     uint16_t movie_id; /**< Identifier of the movie. */
-    uint8_t score; /**< Rating given by the customer (integer from 1 to 5). */
     uint16_t date; /**< Date of the rating (stocked as number of days since Epoch). */
+    uint8_t score; /**< Rating given by the customer (integer from 1 to 5). */
     /*@}*/
 } UserRating;
 
@@ -83,9 +85,9 @@ typedef struct UserRating {
  */
 typedef struct User {
     /*@{*/
-    uint16_t id; /**< Identifier of the user. */
-    uint32_t nb_ratings; /**< Number of ratings given by the user. */
     UserRating *ratings; /**< Array of all ratings given by the user. */
+    uint32_t nb_ratings; /**< Number of ratings given by the user. */
+    uint32_t id; /**< Identifier of the user. */
     /*@}*/
 } User;
 

@@ -260,7 +260,7 @@ UserData *to_user_oriented(MovieData *data)
         printf("\n\033[A\033[2K");  // Clear the line
         printf("Extracting user data %u/%u", movie->id, data->nb_movies);
 
-        for (uint r = 0; r < movie->nb_ratings; r++) 
+        for (uint r = 0; r < movie->nb_ratings; r++)
         {
             MovieRating rating = movie->ratings[r];
             ulong id = get_customer_id(rating);
@@ -286,25 +286,50 @@ UserData *to_user_oriented(MovieData *data)
     return user_data;
 }
 
-static int dichotomic_search(char **titles, uint length, char *title)
+void write_user_data_to_file(FILE *file, UserData *data)
 {
-    int s = -1;
-    int a = 0;
-    int b = length - 1;
-    uint m = 0;
-
-    while (a <= b) {
-        m = (a + b) / 2;
-        s = strncmp(titles[m], title, LENGTH_MAX_TITLE);
-        if (s == 0) 
-            return m;
-        if (s < 0) 
-            a = m + 1;
-        else 
-            b = m - 1;
+    fwrite(&data->nb_users, sizeof(uint), 1, file);
+    for (uint i = 0; i < data->nb_users; i++)
+    {
+        User *user = data->users[i];
+        if (user == NULL)
+            continue;
+        fwrite(&user->id, sizeof(uint32_t), 1, file);
+        fwrite(&user->nb_ratings, sizeof(uint32_t), 1, file);
+        fwrite(user->ratings, sizeof(UserRating), user->nb_ratings, file);
     }
-    return -1;
 }
+
+UserData *read_user_data_from_file(FILE *file)
+{
+    UserData *data = malloc(sizeof(UserData));
+    if (!fread(&data->nb_users, sizeof(uint32_t), 1, file)) {
+        free(data);
+        return NULL;
+    }
+    data->users = calloc(MAX_USER_ID, sizeof(User*));
+    for (uint i = 0; i < data->nb_users; i++)
+    {
+        User *user = calloc(1, sizeof(User));
+        if (!fread(&user->id, sizeof(uint16_t), 1, file)) {
+            free(user);
+            goto read_error;
+        }
+        data->users[user->id-1] = user;
+        if (!fread(&user->nb_ratings, sizeof(uint32_t), 1, file))
+            goto read_error;
+        user->ratings = malloc(user->nb_ratings * sizeof(UserRating));
+        if (!fread(user->ratings, sizeof(UserRating), user->nb_ratings, file))
+            goto read_error;        
+    }
+    return data;
+
+read_error:
+    free_user_data(data);
+    return NULL;
+}
+
+// ================ Arguments ========================
 
 static int compare_strings(const void *a, const void *b)
 {
@@ -353,7 +378,7 @@ uint parse_likes(const char *filename, MovieData *movie_data, uint **ids)
     *ids = calloc(n, sizeof(uint));
     uint c = n;
 
-    for (uint m = 0; m < 52 /*movie_data->nb_movies*/; m++)
+    for (uint m = 0; m < movie_data->nb_movies; m++)
     {
         int i = dichotomic_search(titles, n, movie_data->movies[m]->title);
         if (i != -1) {

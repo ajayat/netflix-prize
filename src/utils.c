@@ -8,7 +8,6 @@ bool is_power_of_two(ulong x)
     return (x != 0) && ((x & (x - 1)) == 0);
 }
 
-
 uint get_size(FILE *file)
 {
     fseek(file, 0L, SEEK_END);
@@ -47,4 +46,24 @@ inline float get_similarity(float *sim, uint i, uint j)
         return sim[i * (i - 1) / 2 + j];
     else
         return sim[j * (j - 1) / 2 + i];
+}
+
+int dichotomic_search(char **array, uint length, char *string)
+{
+    int s = -1;
+    int a = 0;
+    int b = length - 1;
+    uint m = 0;
+
+    while (a <= b) {
+        m = (a + b) / 2;
+        s = strcmp(array[m], string);
+        if (s == 0) 
+            return m;
+        if (s < 0) 
+            a = m + 1;
+        else 
+            b = m - 1;
+    }
+    return -1;
 }

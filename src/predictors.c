@@ -80,7 +80,7 @@ static double proximity(Stats *stats, uint i, uint *ids, uint m)
     return distance / sum_weights;
 }
 
-uint *knn_movies(Stats *stats, uint *ids, uint m, uint k)
+uint *knn_movies(Stats *stats, uint *ids, uint n, uint k)
 {
     double a = 0.5;
     double b = 0.5;
@@ -88,7 +88,7 @@ uint *knn_movies(Stats *stats, uint *ids, uint m, uint k)
     uint *movies = calloc(k, sizeof(uint));
 
     for (uint i = 0; i < stats->nb_movies; i++) {
-        double distance = proximity(stats, i, ids, m);  // between 0 and 1
+        double distance = proximity(stats, i, ids, n);  // between 0 and 1
         double popularity = stats->movies[i].nb_ratings / stats->nb_users;
         scores[i].movie_id = i + 1;
         scores[i].score = a * stats->movies[i].average * popularity + b * distance;

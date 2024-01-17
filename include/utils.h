@@ -43,3 +43,12 @@ char *strdup(const char *str);
  * @brief Get the similarity between two movies.
 */
 float get_similarity(float *similarity_matrix, uint i, uint j);
+
+/**
+ * @brief Find the index of a given string in a sorted array.
+ * @param array The sorted array.
+ * @param length The length of the array.
+ * @param string The string to find.
+ * @return The index of the string in the array, -1 if it is not found.
+*/
+int dichotomic_search(char **array, uint length, char *string);

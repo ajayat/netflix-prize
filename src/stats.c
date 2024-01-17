@@ -227,12 +227,10 @@ Stats *read_stats_from_data(MovieData *movie_data, UserData *user_data, Argument
     stats->users = calloc(MAX_USER_ID, sizeof(UserStats));
 
     puts("Reading statistics:");  // Information for the user
-    printf("    ~ for movies");
+    puts("    ~ for movies");
     MovieData *data = calculate_movies_stats(stats, args, movie_data, user_data);
-    puts(" ✅");
-    printf("    ~ for users");
+    puts("    ~ for users");
     calculate_users_stats(stats, args, user_data);
-    puts(" ✅");
 
     FILE *databin = fopen("data/data.bin", "wb");
     write_to_file(databin, data);

@@ -140,14 +140,24 @@ MovieData *parse(void);
  * @param file The file where the data will be written.
  * @param data The data structure.
  */
-void write_to_file(FILE *file, MovieData *data);
+void write_movie_data_to_file(FILE *file, MovieData *data);
 
 /**
  * @brief Read data structure from a file.
  * @param file The file where the data will be read.
  * @return The data structure.
  */
-MovieData *read_from_file(FILE* file);
+MovieData *read_movie_data_from_file(FILE* file);
+
+/**
+ * @brief Write user data structure to a binary file.
+*/
+void write_user_data_to_file(FILE *file, UserData *data);
+
+/**
+ * @brief Read user data structure from a file.
+*/
+UserData *read_user_data_from_file(FILE *file);
 
 /**
  * @brief Convert a movie oriented data to a user oriented data.

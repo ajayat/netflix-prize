@@ -192,7 +192,7 @@ MovieData *parse(void)
     return data;
 }
 
-void write_to_file(FILE *file, MovieData *data)
+void write_movie_data_to_file(FILE *file, MovieData *data)
 {
     // Write the number of movies
     fwrite(&data->nb_movies, sizeof(uint32_t), 1, file);
@@ -211,7 +211,7 @@ void write_to_file(FILE *file, MovieData *data)
     }
 }
 
-MovieData *read_from_file(FILE* file)
+MovieData *read_movie_data_from_file(FILE* file)
 {
     // Allocate memory for data
     MovieData *data = malloc(sizeof(MovieData));
@@ -289,7 +289,7 @@ UserData *to_user_oriented(MovieData *data)
 void write_user_data_to_file(FILE *file, UserData *data)
 {
     fwrite(&data->nb_users, sizeof(uint), 1, file);
-    for (uint i = 0; i < data->nb_users; i++)
+    for (uint i = 0; i < MAX_USER_ID; i++)
     {
         User *user = data->users[i];
         if (user == NULL)
@@ -311,7 +311,7 @@ UserData *read_user_data_from_file(FILE *file)
     for (uint i = 0; i < data->nb_users; i++)
     {
         User *user = calloc(1, sizeof(User));
-        if (!fread(&user->id, sizeof(uint16_t), 1, file)) {
+        if (!fread(&user->id, sizeof(uint32_t), 1, file)) {
             free(user);
             goto read_error;
         }

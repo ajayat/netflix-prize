@@ -226,14 +226,13 @@ Stats *read_stats_from_data(MovieData *movie_data, UserData *user_data, Argument
     stats->movies = calloc(movie_data->nb_movies, sizeof(MovieStats));
     stats->users = calloc(MAX_USER_ID, sizeof(UserStats));
 
-    puts("Reading statistics:");  // Information for the user
-    puts("    ~ for movies");
+    puts("Compute statistics for movies...");  // Information for the user
     MovieData *data = calculate_movies_stats(stats, args, movie_data, user_data);
-    puts("    ~ for users");
+    puts("Compute statistics for users...");
     calculate_users_stats(stats, args, user_data);
 
     FILE *databin = fopen("data/data.bin", "wb");
-    write_to_file(databin, data);
+    write_movie_data_to_file(databin, data);
     if (fclose(databin) == EOF)
         perror("data.bin can't be closed.");
 

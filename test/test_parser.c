@@ -1,6 +1,7 @@
 #include <errno.h>
 #include <unistd.h>
 #include <string.h>
+#include <stdlib.h>
 
 #include "unity.h"
 #include "parser.h"
@@ -8,84 +9,65 @@
 void setUp(void) {}
 void tearDown(void) {}
 
+static char *get_filepath(char *filename)
+{
+    char *filepath = malloc(1024 * sizeof(char));
+    if (getcwd(filepath, 1024) == NULL)
+        perror("getcwd() error");
+    strncat(filepath, filename, strlen(filename) + 1);
+    return filepath;
+}
+
 /**
  * @brief Test about the ability to write correctly in the binary file.
  */
 void test_write_movie_data_to_file(void)
 {
-    char filepath[1024];
-    if (getcwd(filepath, 1024) == NULL)
-        perror("getcwd() error");
-    strncat(filepath, "/data/movie_data.bin", 21);
-
-    FILE *file = fopen(filepath, "wb");
-    TEST_ASSERT_EQUAL(0, errno);
-    TEST_ASSERT_NOT_EQUAL(NULL, file);
-
+    char *filepath = get_filepath("/data/movie_data.bin");
     MovieData *data = parse();
-    write_movie_data_to_file(file, data);
-    fclose(file);
+    write_movie_data_to_file(filepath, data);
+    free(filepath);
+    TEST_ASSERT_EQUAL(0, errno);
     free_movie_data(data); // Free memory
 }
 
 void test_read_movie_data_from_file(void)
 {
-    char filepath[1024];
-    if (getcwd(filepath, 1024) == NULL)
-        perror("getcwd() error");
-    strncat(filepath, "/data/movie_data.bin", 21);
-
-    FILE *file = fopen(filepath, "rb");
+    char *filepath = get_filepath("/data/movie_data.bin");
+    MovieData *data = read_movie_data_from_file(filepath);
+    free(filepath);
     TEST_ASSERT_EQUAL(0, errno);
-    TEST_ASSERT_NOT_EQUAL(NULL, file);
-
-    MovieData *data = read_movie_data_from_file(file);
     TEST_ASSERT_NOT_EQUAL(NULL, data);
     TEST_ASSERT_EQUAL(17770, data->nb_movies);
-    fclose(file);
     free_movie_data(data); // Free memory
 }
 
 void test_write_user_data_to_file(void)
 {
-    char user_filepath[1024];
-    char mv_filepath[1024];
-    if (getcwd(user_filepath, 1024) == NULL ||
-        getcwd(mv_filepath, 1024) == NULL)
-        perror("getcwd() error");
-    strncat(user_filepath, "/data/user_data.bin", 20);
-    strncat(mv_filepath, "/data/movie_data.bin", 21);
+    char *user_filepath = get_filepath("/data/user_data.bin");
+    char *mv_filepath = get_filepath("/data/movie_data.bin");
 
-    FILE *mv_file = fopen(mv_filepath, "rb");
-    MovieData *data = read_movie_data_from_file(mv_file);
-    fclose(mv_file);
-
-    FILE *user_file = fopen(user_filepath, "wb");
+    MovieData *data = read_movie_data_from_file(mv_filepath);
+    free(mv_filepath);
     TEST_ASSERT_EQUAL(0, errno);
-    TEST_ASSERT_NOT_EQUAL(NULL, user_file);
 
     UserData *user_data = to_user_oriented(data);
-    write_user_data_to_file(user_file, user_data);
-    fclose(user_file);
+    write_user_data_to_file(user_filepath, user_data);
+    free(user_filepath);
+    TEST_ASSERT_EQUAL(0, errno);
+
     free_user_data(user_data); // Free memory
     free_movie_data(data); // Free memory
 }
 
 void test_read_user_data_from_file(void)
 {
-    char filepath[1024];
-    if (getcwd(filepath, 1024) == NULL)
-        perror("getcwd() error");
-    strncat(filepath, "/data/user_data.bin", 20);
+    char *filepath = get_filepath("/data/user_data.bin");
 
-    FILE *file = fopen(filepath, "rb");
-    TEST_ASSERT_EQUAL(0, errno);
-    TEST_ASSERT_NOT_EQUAL(NULL, file);
-
-    UserData *data = read_user_data_from_file(file);
+    UserData *data = read_user_data_from_file(filepath);
+    free(filepath);
     TEST_ASSERT_NOT_EQUAL(NULL, data);
     TEST_ASSERT_EQUAL(480189, data->nb_users);
-    fclose(file);
     free_user_data(data); // Free memory
 }
 

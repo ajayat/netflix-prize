@@ -28,6 +28,11 @@ typedef struct Arguments {
 } Arguments;
 
 /**
+ * @brief Parse a string containing a list of ids.
+*/
+ulong* parse_ids(char *arg, uint *n);
+
+/**
  * @brief Parse an argument given by the user.
 */
 error_t parse_opt(int key, char *arg, struct argp_state *state);
@@ -68,7 +73,7 @@ typedef struct Movie {
 typedef struct MovieData {
     /*@{*/
     Movie **movies; /**< Array containing movies information sorted by movies identifiers. */
-    uint nb_movies; /**< Number of movies. (length of Data::movies)*/
+    uint16_t nb_movies; /**< Number of movies. (length of Data::movies)*/
     /*@}*/
 } MovieData;
 
@@ -137,27 +142,27 @@ int parse_ratings(Movie *movie, FILE *mv_file);
 MovieData *parse(void);
 /**
  * @brief Write data structure to a binary file.
- * @param file The file where the data will be written.
+ * @param filepath The file where the data will be written.
  * @param data The data structure.
  */
-void write_movie_data_to_file(FILE *file, MovieData *data);
+void write_movie_data_to_file(char *filepath, MovieData *data);
 
 /**
  * @brief Read data structure from a file.
- * @param file The file where the data will be read.
+ * @param filepath The file where the data will be read.
  * @return The data structure.
  */
-MovieData *read_movie_data_from_file(FILE* file);
+MovieData *read_movie_data_from_file(char *filepath);
 
 /**
  * @brief Write user data structure to a binary file.
 */
-void write_user_data_to_file(FILE *file, UserData *data);
+void write_user_data_to_file(char *filepath, UserData *data);
 
 /**
  * @brief Read user data structure from a file.
 */
-UserData *read_user_data_from_file(FILE *file);
+UserData *read_user_data_from_file(char *filepath);
 
 /**
  * @brief Convert a movie oriented data to a user oriented data.

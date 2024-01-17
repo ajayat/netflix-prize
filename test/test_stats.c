@@ -10,34 +10,21 @@
 void setUp(void) {}
 void tearDown(void) {}
 
-void test_stats(void) {
+void test_stats(void)
+{
      Arguments args;
     // defaults values
-    args.folder = "data/";
     args.limit = INT16_MAX;
-    args.movie_id = 0;
     args.min = 0;
     args.time = false;
     args.nb_customer_ids = 0;
     args.nb_bad_reviewers = 0;
-    args.likes_file = NULL;
 
-    FILE *mv_file = fopen("data/movie_data.bin", "rb");
-    MovieData *movie_data = read_movie_data_from_file(mv_file);
-    fclose(mv_file);
+    MovieData *movie_data = read_movie_data_from_file("data/movie_data.bin");
+    UserData *user_data = read_user_data_from_file("data/user_data.bin");
 
-    FILE *user_file = fopen("data/user_data.bin", "rb");
-    UserData *user_data = read_user_data_from_file(user_file);
-    fclose(user_file);
-
-    Stats *stats = malloc(sizeof(Stats));
-    stats->nb_movies = movie_data->nb_movies;
-    stats->nb_users = user_data->nb_users;
-    stats->movies = calloc(movie_data->nb_movies, sizeof(MovieStats));
-    stats->users = calloc(MAX_USER_ID, sizeof(UserStats));
-    stats->similarity = NULL;
-
-    MovieData *data = calculate_movies_stats(stats, &args, movie_data, user_data);
+    Stats *stats = read_stats_from_data(movie_data, user_data, &args);
+    MovieData *data = read_movie_data_from_file("data/data.bin");
 
     TEST_ASSERT_EQUAL(data->nb_movies, movie_data->nb_movies);
     for (uint m = 0; m < data->nb_movies; m++) 
@@ -57,28 +44,17 @@ void test_stats(void) {
             TEST_ASSERT_EQUAL(rating1.score, rating2.score);
         }
     }
-    uint test1 = stats->movies[8].average;
-
-    args.folder = "data/";
-    args.limit = days_from_epoch(2005, 6, 25); 
-    args.movie_id = 25;
-    args.min = 20;
-    args.nb_bad_reviewers = 2;
-    args.bad_reviewers = calloc(2, sizeof(ulong));
-    args.bad_reviewers[0] = 1329923;
-    args.bad_reviewers[1] = 2472537;
-
-    free_stats(stats);
-    stats = malloc(sizeof(Stats));
-    stats->nb_movies = movie_data->nb_movies;
-    stats->nb_users = user_data->nb_users;
-    stats->movies = calloc(movie_data->nb_movies, sizeof(MovieStats));
-    stats->users = calloc(MAX_USER_ID, sizeof(UserStats));
-    stats->similarity = NULL;
+    double test1 = stats->movies[8].average;
     free_movie_data(data);
-    data = calculate_movies_stats(stats, &args, movie_data, user_data);
+    free_stats(stats);
 
-    uint test2 = stats->movies[8].average;
+    // Test (2) with options
+    args.limit = days_from_epoch(2005, 6, 25); 
+    args.min = 20;
+    args.bad_reviewers = parse_ids("1329923 2472537", &args.nb_bad_reviewers);
+
+    stats = read_stats_from_data(movie_data, user_data, &args);
+    double test2 = stats->movies[8].average;
     TEST_ASSERT_NOT_EQUAL(test1, test2);
 
     free_stats(stats);

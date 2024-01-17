@@ -42,22 +42,12 @@ int main(int argc, char *argv[])
     argp_parse(&argp, argc, argv, 0, 0, &args);
 
     // Parse data
-    MovieData *movie_data = NULL;
-    FILE *mv_file = fopen("data/movie_data.bin", "rb");
-    if (mv_file != NULL) {
-        puts("Reading movie data...");
-        movie_data = read_movie_data_from_file(mv_file);
-        fclose(mv_file);
-    } else
+    MovieData *movie_data = read_movie_data_from_file("data/movie_data.bin");
+    if (movie_data == NULL)
         movie_data = parse();
     
-    UserData *user_data = NULL;
-    FILE *user_file = fopen("data/user_data.bin", "rb");
-    if (user_file != NULL) {
-        puts("Reading user data...");
-        user_data = read_user_data_from_file(user_file);
-        fclose(user_file);
-    } else
+    UserData *user_data = read_user_data_from_file("data/user_data.bin");
+    if (user_data == NULL)
         user_data = to_user_oriented(movie_data);
 
     Stats *stats = read_stats_from_data(movie_data, user_data, &args);

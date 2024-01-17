@@ -23,16 +23,16 @@ void free_args(Arguments *args)
         free(args->bad_reviewers);
 }
 
-static ulong* parse_ids(char *arg, Arguments *args)
+ulong* parse_ids(char *arg, uint *n)
 {
     char* end = NULL;
     ulong* ids = calloc(1, sizeof(ulong));
     ulong id;
     while ((id = strtoul(arg, &end, 10)) != 0) {
-        if (is_power_of_two(args->nb_customer_ids))
-            ids = realloc(ids, 2 * args->nb_customer_ids * sizeof(ulong));
+        if (is_power_of_two(*n))
+            ids = realloc(ids, 2 * (*n) * sizeof(ulong));
 
-        ids[args->nb_customer_ids++] = id;
+        ids[(*n)++] = id;
         arg = end + 1;
     }
     return ids;
@@ -52,10 +52,10 @@ error_t parse_opt(int key, char *arg, struct argp_state *state)
         args->movie_id = strtoul(arg, NULL, 10);
         return 0;
     case 'c':
-        args->customer_ids = parse_ids(arg, args);
+        args->customer_ids = parse_ids(arg, &args->nb_customer_ids);
         return 0;
     case 'b':
-        args->bad_reviewers = parse_ids(arg, args);
+        args->bad_reviewers = parse_ids(arg, &args->nb_bad_reviewers);
         return 0;
     case 'e':
         args->min = strtoul(arg, NULL, 10);
@@ -108,7 +108,7 @@ int parse_titles(MovieData *data, FILE *titles_file)
     unsigned short id;
     char year[5];
     char title[LENGTH_MAX_TITLE];
-    uint m = 0;
+    uint16_t m = 0;
 
     while (fscanf(titles_file, "%hu%*c%4c%*c%119[^\n]\n", &id, year, title) != EOF) {
         data->movies[m] = calloc(1, sizeof(Movie));
@@ -192,10 +192,15 @@ MovieData *parse(void)
     return data;
 }
 
-void write_movie_data_to_file(FILE *file, MovieData *data)
+void write_movie_data_to_file(char *filepath, MovieData *data)
 {
+    FILE *file = fopen(filepath, "wb");
+    if (file == NULL) {
+        fprintf(stderr, "Error: could not open file %s\n", filepath);
+        return;
+    }
     // Write the number of movies
-    fwrite(&data->nb_movies, sizeof(uint32_t), 1, file);
+    fwrite(&data->nb_movies, sizeof(uint16_t), 1, file);
 
     for (uint i = 0; i < data->nb_movies; i++)
     {
@@ -209,15 +214,21 @@ void write_movie_data_to_file(FILE *file, MovieData *data)
         fwrite(&movie->nb_ratings, sizeof(uint32_t), 1, file);
         fwrite(movie->ratings, sizeof(MovieRating), movie->nb_ratings, file);
     }
+    fclose(file);
 }
 
-MovieData *read_movie_data_from_file(FILE* file)
+MovieData *read_movie_data_from_file(char* filepath)
 {
+    FILE *file = fopen(filepath, "rb");
+    if (file == NULL) {
+        fprintf(stderr, "Error: could not open file %s\n", filepath);
+        return NULL;
+    }
     // Allocate memory for data
     MovieData *data = malloc(sizeof(MovieData));
-    data->nb_movies = 0;
-    uint nb_movies;
-    if (!fread(&nb_movies, sizeof(uint32_t), 1, file)) {
+    data->nb_movies = 0u;
+    uint16_t nb_movies;
+    if (!fread(&nb_movies, sizeof(uint16_t), 1, file)) {
         free(data);
         return NULL;
     }
@@ -241,6 +252,7 @@ MovieData *read_movie_data_from_file(FILE* file)
             goto read_error;
         data->nb_movies++;
     }
+    fclose(file);
     return data;
 
 read_error:
@@ -286,8 +298,13 @@ UserData *to_user_oriented(MovieData *data)
     return user_data;
 }
 
-void write_user_data_to_file(FILE *file, UserData *data)
+void write_user_data_to_file(char *filepath, UserData *data)
 {
+    FILE *file = fopen(filepath, "wb");
+    if (file == NULL) {
+        fprintf(stderr, "Error: could not open file %s\n", filepath);
+        return;
+    }
     fwrite(&data->nb_users, sizeof(uint), 1, file);
     for (uint i = 0; i < MAX_USER_ID; i++)
     {
@@ -298,10 +315,16 @@ void write_user_data_to_file(FILE *file, UserData *data)
         fwrite(&user->nb_ratings, sizeof(uint32_t), 1, file);
         fwrite(user->ratings, sizeof(UserRating), user->nb_ratings, file);
     }
+    fclose(file);
 }
 
-UserData *read_user_data_from_file(FILE *file)
+UserData *read_user_data_from_file(char *filepath)
 {
+    FILE *file = fopen(filepath, "rb");
+    if (file == NULL) {
+        fprintf(stderr, "Error: could not open file %s\n", filepath);
+        return NULL;
+    }
     UserData *data = malloc(sizeof(UserData));
     if (!fread(&data->nb_users, sizeof(uint32_t), 1, file)) {
         free(data);
@@ -322,6 +345,7 @@ UserData *read_user_data_from_file(FILE *file)
         if (!fread(user->ratings, sizeof(UserRating), user->nb_ratings, file))
             goto read_error;        
     }
+    fclose(file);
     return data;
 
 read_error:

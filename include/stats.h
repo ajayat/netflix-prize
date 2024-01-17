@@ -120,34 +120,6 @@ bool is_a_bad_reviewer(Arguments *args, ulong id);
 bool ignored_rating(Arguments* args, UserData* user_data, Movie* movie_src, ulong c_id, uint r);
 
 /**
- * @brief Calculate all statistics for all movies, respecting arguments.
- * 
- * @param stats 
- * @param args 
- * @param movie_data 
- * @param user_data 
- * @return The partial data
- */
-MovieData *calculate_movies_stats(Stats* stats, Arguments* args, MovieData* movie_data, UserData* user_data);
-
-/**
- * @brief Calculate all statistics for all requested user, respecting arguments.
- * 
- * @param stats 
- * @param args 
- * @param user_data 
- */
-void calculate_users_stats(Stats* stats, Arguments* args, UserData* user_data);
-
-/**
- * @brief Create a text file containing stats for the movie given by `-s` option.
- * 
- * @param stats Stats of all movies.
- * @param args Arguments to know which movie need to be convert.
- */
-void one_movie_stats(Stats* stats, Arguments* args);
-
-/**
  * @brief Main function to collect statistic from the binary file, respectings given arguments.
  * @note This function also make a new binary file with desired data.
  * 

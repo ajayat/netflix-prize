@@ -108,9 +108,9 @@ void free_stats(Stats *stats)
         return;
     free(stats->similarity);
     free(stats->movies);
-    for (uint i=0; i<MAX_USER_ID; i++) {
+    for (uint i=0; i<MAX_USER_ID; i++)
         hashmap_free(stats->users[i].frequency);
-    }
+
     free(stats->users);
     free(stats);
 }
@@ -143,7 +143,7 @@ bool ignored_rating(Arguments* args, UserData* user_data, Movie* movie_src, ulon
     return false;
 }
 
-MovieData *calculate_movies_stats(Stats* stats, Arguments* args, MovieData* movie_data, UserData* user_data)
+static MovieData *calculate_movies_stats(Stats* stats, Arguments* args, MovieData* movie_data, UserData* user_data)
 {
     // Allocate memory for partial data
     MovieData *data = malloc(sizeof(MovieData));
@@ -186,7 +186,7 @@ MovieData *calculate_movies_stats(Stats* stats, Arguments* args, MovieData* movi
     return data;
 }
 
-void calculate_users_stats(Stats* stats, Arguments* args, UserData* user_data)
+static void calculate_users_stats(Stats* stats, Arguments* args, UserData* user_data)
 {
     for (uint u = 0; u < MAX_USER_ID; u++) 
     {
@@ -210,7 +210,7 @@ void calculate_users_stats(Stats* stats, Arguments* args, UserData* user_data)
     }
 }
 
-void one_movie_stats(Stats* stats, Arguments* args)
+static void one_movie_stats(Stats* stats, Arguments* args)
 {
     char mv_filename[30];
     snprintf(mv_filename, 30, "data/stats_mv_%07u.csv", args->movie_id);
@@ -237,10 +237,7 @@ Stats *read_stats_from_data(MovieData *movie_data, UserData *user_data, Argument
     puts("Compute statistics for users...");
     calculate_users_stats(stats, args, user_data);
 
-    FILE *databin = fopen("data/data.bin", "wb");
-    write_movie_data_to_file(databin, data);
-    if (fclose(databin) == EOF)
-        perror("data.bin can't be closed.");
+    write_movie_data_to_file("data/data.bin", data);
 
     if (args->movie_id != 0) // opt -s
         one_movie_stats(stats, args);

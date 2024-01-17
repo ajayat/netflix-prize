@@ -108,6 +108,9 @@ void free_stats(Stats *stats)
         return;
     free(stats->similarity);
     free(stats->movies);
+    for (uint i=0; i<MAX_USER_ID; i++) {
+        hashmap_free(stats->users[i].frequency);
+    }
     free(stats->users);
     free(stats);
 }

@@ -27,7 +27,8 @@ Hashmap* hashmap_create(uint size)
 
 void hashmap_free(Hashmap* h)
 {
-    free(h->items);
+    if (h != NULL)
+        free(h->items);
     free(h);
 }
 

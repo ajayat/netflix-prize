@@ -10,7 +10,7 @@
 void setUp(void) {}
 void tearDown(void) {}
 
-void test_stats(void)
+void test_read_stats_from_data(void)
 {
     Arguments args;
     // defaults values
@@ -70,6 +70,6 @@ void test_stats(void)
 int main(void)
 {
     UNITY_BEGIN();
-    RUN_TEST(test_stats);
+    RUN_TEST(test_read_stats_from_data);
     return UNITY_END();
 }

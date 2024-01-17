@@ -43,7 +43,7 @@ double mse_correlation(Movie *movie1, Movie *movie2, Hashmap *ratings)
 
 float *create_similarity_matrix(MovieData *data)
 {
-    uint size = data->nb_movies * (data->nb_movies - 1) / 2;
+    ulong size = (ulong)data->nb_movies * (data->nb_movies - 1) / 2;
     float *sim = calloc(size, sizeof(float));
 
     for (uint i = 1; i < data->nb_movies; i++) 
@@ -57,7 +57,7 @@ float *create_similarity_matrix(MovieData *data)
             hashmap_insert(ratings, get_customer_id(movie1->ratings[r]), r);
 
         for (uint j = 0; j < i; j++) {
-            uint x = get_similarity(sim, i, j);
+            uint x = i * (i - 1) / 2 + j;
             sim[x] = (float)mse_correlation(movie1, data->movies[j], ratings);
         }
         hashmap_free(ratings);
@@ -72,8 +72,8 @@ void write_similarity_matrix(Stats *stats, char *filename)
     if (bin == NULL)
         return perror("The file for the similarity matrix can't be opened.");
     
-    uint size = stats->nb_movies * (stats->nb_movies - 1) / 2;
-    fwrite(&size, sizeof(uint), 1, bin);
+    ulong size = (ulong)stats->nb_movies * (stats->nb_movies - 1) / 2;
+    fwrite(&size, sizeof(ulong), 1, bin);
     fwrite(stats->similarity, sizeof(float), size, bin);
     fclose(bin);
 }
@@ -196,10 +196,12 @@ static void calculate_users_stats(Stats* stats, Arguments* args, UserData* user_
             continue;
         
         ulong c_id = (ulong)user->id;
-        if (is_a_bad_reviewer(args, c_id) || !is_requested(args, c_id) || user->nb_ratings < args->min)
+        if (is_a_bad_reviewer(args, c_id) 
+            || !is_requested(args, c_id) 
+            || user->nb_ratings < args->min)
             continue;
 
-        Hashmap *h = stats->users[c_id-1].frequency = hashmap_create(user->nb_ratings/10);
+        Hashmap *h = hashmap_create(user->nb_ratings / 10);
         for (uint r = 0; r < user->nb_ratings; r++) {
             if (user->ratings[r].date >= args->limit)
                 continue;
@@ -207,6 +209,7 @@ static void calculate_users_stats(Stats* stats, Arguments* args, UserData* user_
             stats->users[c_id-1].average += user->ratings[r].score;
             stats->users[c_id-1].nb_ratings++;
         }
+        stats->users[c_id-1].frequency = h;
         stats->users[c_id-1].average /= (double)stats->users[c_id-1].nb_ratings;
     }
 }

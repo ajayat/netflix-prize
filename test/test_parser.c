@@ -12,9 +12,9 @@ void tearDown(void) {}
 static char *get_filepath(char *filename)
 {
     char *filepath = malloc(1024 * sizeof(char));
-    if (getcwd(filepath, 1024) == NULL)
+    if (getcwd(filepath, 512) == NULL)
         perror("getcwd() error");
-    strncat(filepath, filename, strlen(filename) + 1);
+    strncat(filepath, filename, 512);
     return filepath;
 }
 

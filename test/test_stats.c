@@ -12,9 +12,11 @@ void tearDown(void) {}
 
 void test_stats(void)
 {
-     Arguments args;
+    Arguments args;
     // defaults values
+    args.folder = "data/";
     args.limit = INT16_MAX;
+    args.movie_id = 0;
     args.min = 0;
     args.time = false;
     args.nb_customer_ids = 0;
@@ -51,15 +53,17 @@ void test_stats(void)
     // Test (2) with options
     args.limit = days_from_epoch(2005, 6, 25); 
     args.min = 20;
-    args.bad_reviewers = parse_ids("1329923 2472537", &args.nb_bad_reviewers);
+    args.bad_reviewers = malloc(2 * sizeof(ulong));
+    args.bad_reviewers[0] = 1329923;
+    args.bad_reviewers[1] = 2472537;
 
     stats = read_stats_from_data(movie_data, user_data, &args);
     double test2 = stats->movies[8].average;
     TEST_ASSERT_NOT_EQUAL(test1, test2);
 
+    free(args.bad_reviewers);
     free_stats(stats);
     free_user_data(user_data);
-    free_movie_data(data);
     free_movie_data(movie_data);
 }
 

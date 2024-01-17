@@ -93,6 +93,7 @@ float *read_similarity_matrix(char *filename)
         free(sim);
         goto read_error;
     }
+    fclose(bin);
     return sim;
 
 read_error:

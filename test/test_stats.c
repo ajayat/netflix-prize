@@ -35,6 +35,7 @@ void test_stats(void) {
     stats->nb_users = user_data->nb_users;
     stats->movies = calloc(movie_data->nb_movies, sizeof(MovieStats));
     stats->users = calloc(MAX_USER_ID, sizeof(UserStats));
+    stats->similarity = NULL;
 
     MovieData *data = calculate_movies_stats(stats, &args, movie_data, user_data);
 
@@ -69,6 +70,11 @@ void test_stats(void) {
 
     free_stats(stats);
     stats = malloc(sizeof(Stats));
+    stats->nb_movies = movie_data->nb_movies;
+    stats->nb_users = user_data->nb_users;
+    stats->movies = calloc(movie_data->nb_movies, sizeof(MovieStats));
+    stats->users = calloc(MAX_USER_ID, sizeof(UserStats));
+    stats->similarity = NULL;
     free_movie_data(data);
     data = calculate_movies_stats(stats, &args, movie_data, user_data);
 

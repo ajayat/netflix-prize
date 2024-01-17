@@ -148,7 +148,7 @@ MovieData *calculate_movies_stats(Stats* stats, Arguments* args, MovieData* movi
     // Allocate memory for partial data
     MovieData *data = malloc(sizeof(MovieData));
     data->nb_movies = movie_data->nb_movies;
-    data->movies = malloc(data->nb_movies * sizeof(Movie*));
+    data->movies = calloc(data->nb_movies, sizeof(Movie*));
 
     for (uint m = 0; m < data->nb_movies; m++)
     {
@@ -162,6 +162,9 @@ MovieData *calculate_movies_stats(Stats* stats, Arguments* args, MovieData* movi
         movie_dst->nb_ratings = 0;
         ulong r_dst = 0;
         movie_dst->ratings = malloc(movie_src->nb_ratings * sizeof(MovieRating));
+        stats->movies[m].average = 0;
+        stats->movies[m].min = UINT8_MAX;
+        stats->movies[m].max = 0;
 
         for (uint r = 0; r < movie_src->nb_ratings; r++) 
         {
@@ -171,7 +174,7 @@ MovieData *calculate_movies_stats(Stats* stats, Arguments* args, MovieData* movi
             // Copy ratings
             movie_dst->ratings[r_dst++] = movie_src->ratings[r];
             // Update stats
-            stats->movies[m].average += (double)movie_src->ratings[r].score;
+            stats->movies[m].average += (double)(movie_src->ratings[r].score);
             if (movie_src->ratings[r].score > stats->movies[m].max)
                 stats->movies[m].max = movie_src->ratings[r].score;
             if (movie_src->ratings[r].score < stats->movies[m].min)

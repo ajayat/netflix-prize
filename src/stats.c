@@ -83,7 +83,7 @@ float *read_similarity_matrix(char *filename)
     FILE *bin = fopen(filename, "rb");
     if (bin == NULL) 
         return NULL;
-    puts("Reading similarity matrix...");  // Information for the user
+    // puts("Reading similarity matrix...");  // Information for the user
     ulong size = 0;
     if (!fread(&size, sizeof(size), 1, bin))
         goto read_error;

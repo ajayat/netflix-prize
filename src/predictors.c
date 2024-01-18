@@ -109,12 +109,15 @@ uint *knn_movies(Stats *stats, uint *ids, uint n, uint k)
 void parse_probe(char *filename, Stats *stats, MovieData *movie_data, UserData *user_data)
 {
     FILE* probe_file = fopen(filename, "r");
-    if (probe_file == NULL)
+    if (probe_file == NULL) {
+        perror("Could not open probe file");
         return;
-    FILE* probe_prediction = fopen("data/probe_prediction.txt", "w");
-    if (probe_prediction == NULL)
+    }
+    FILE* probe_prediction = fopen("data/probe_predictions.txt", "w");
+    if (probe_prediction == NULL) {
+        perror("Could not open probe prediction file");
         return;
-
+    }
     char c;
     ulong id;
     uint8_t score;
@@ -134,7 +137,7 @@ void parse_probe(char *filename, Stats *stats, MovieData *movie_data, UserData *
             }
         }
         // double predicted_score = knn_predictor(stats, user_data->users[id], movie->id);
-        fprintf(probe_prediction, "%lu,%u,%lf\n", id, score, 5.0/*predicted_score*/);
+        fprintf(probe_prediction, "%lu,%u,%lf\n", id, score, 5.0);
 
     }
     fclose(probe_prediction);

@@ -36,7 +36,7 @@ void test_parse_probe(void)
     parse_probe("data/probe.txt", stats, mv_data, user_data);
 
     FILE* probe_file = fopen("data/probe.txt", "r");
-    FILE* answers_file = fopen("data/probe_answers.txt", "r");
+    FILE* answers_file = fopen("data/probe_predictions.txt", "r");
     uint idm1, idm2, score1, score2;
     ulong idu1, idu2;
     if (fscanf(probe_file, "%u:\n%lu\n%lu", &idm1, &idu1, &idu2) == EOF)

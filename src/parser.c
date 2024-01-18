@@ -138,12 +138,12 @@ int parse_ratings(Movie *movie, FILE *mv_file)
         return 1;
 
     uint r = 0;  // Number of ratings
-    uint id;  // Customer id
+    ulong id;  // Customer id
     uint y, m, d;
     char *begin = NULL, *end = NULL;
     strtoul(buffer, &begin, 10);  // Skip the first line
 
-    while ((id = strtoull(begin + 1, &end, 10)) != 0) 
+    while ((id = strtoul(begin + 1, &end, 10)) != 0) 
     {
         ratings[r].customer_id_msb = (uint16_t)(id >> 8);
         ratings[r].customer_id_lsb = (uint8_t)(id & 255);

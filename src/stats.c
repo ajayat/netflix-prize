@@ -144,75 +144,52 @@ bool ignored_rating(Arguments* args, UserData* user_data, Movie* movie_src, ulon
     return false;
 }
 
-static MovieData *calculate_movies_stats(Stats* stats, Arguments* args, MovieData* movie_data, UserData* user_data)
+void compute_stats(Stats *stats, Arguments *args, MovieData* movie_data, UserData *user_data)
 {
-    // Allocate memory for partial data
-    MovieData *data = malloc(sizeof(MovieData));
-    data->nb_movies = movie_data->nb_movies;
-    data->movies = calloc(data->nb_movies, sizeof(Movie*));
-
-    for (uint m = 0; m < data->nb_movies; m++)
+    stats->nb_movies = movie_data->nb_movies;
+    for (uint m = 0; m < movie_data->nb_movies; m++)
     {
-        Movie *movie_src = movie_data->movies[m];
-        Movie *movie_dst = data->movies[m] = malloc(sizeof(Movie));
-        // Copy of unchanged caracteristics
-        movie_dst->id = movie_src->id;
-        movie_dst->date = movie_src->date;
-        movie_dst->title = strdup(movie_src->title);
-        // Ratings treatment
-        movie_dst->nb_ratings = 0;
-        ulong r_dst = 0;
-        movie_dst->ratings = malloc(movie_src->nb_ratings * sizeof(MovieRating));
-        stats->movies[m].average = 0;
+        printf("\n\033[A\033[2K");  // Clear the line
+        printf("Compute statistics: %.0f%%", (float)m / movie_data->nb_movies * 100);
+        Movie *movie = movie_data->movies[m];
+        // Initialize statistics for this movie
+        stats->movies[m].date = movie->date;
         stats->movies[m].min = UINT8_MAX;
-        stats->movies[m].max = 0;
 
-        for (uint r = 0; r < movie_src->nb_ratings; r++) 
+        for (uint r = 0; r < movie->nb_ratings; r++) 
         {
-            ulong c_id = get_customer_id(movie_src->ratings[r]);
-            if (ignored_rating(args, user_data, movie_src, c_id, r))
-                continue;
-            // Copy ratings
-            movie_dst->ratings[r_dst++] = movie_src->ratings[r];
-            // Update stats
-            stats->movies[m].average += (double)(movie_src->ratings[r].score);
-            if (movie_src->ratings[r].score > stats->movies[m].max)
-                stats->movies[m].max = movie_src->ratings[r].score;
-            if (movie_src->ratings[r].score < stats->movies[m].min)
-                stats->movies[m].min = movie_src->ratings[r].score;
-        }
-        stats->movies[m].average /= (double)(r_dst);
-        stats->movies[m].nb_ratings = r_dst;
-        movie_dst->nb_ratings = r_dst;
-    }
-    return data;
-}
+            ulong id = get_customer_id(movie->ratings[r]);
+            if (ignored_rating(args, user_data, movie, id, r))
+                continue; // Skip the undesired rating.
+            User *user = user_data->users[id-1];
 
-static void calculate_users_stats(Stats* stats, Arguments* args, UserData* user_data)
-{
-    for (uint u = 0; u < MAX_USER_ID; u++) 
-    {
-        User* user = user_data->users[u];
-        if (user == NULL)
-            continue;
+            // Update movie stats
+            stats->movies[m].nb_ratings++;
+            stats->movies[m].average += (double)(movie->ratings[r].score);
+            if (movie->ratings[r].score > stats->movies[m].max)
+                stats->movies[m].max = movie->ratings[r].score;
+            if (movie->ratings[r].score < stats->movies[m].min)
+                stats->movies[m].min = movie->ratings[r].score;
+
+            // Update user stats
+            if (stats->users[id-1].frequency == NULL)
+                stats->users[id-1].frequency = hashmap_create(user->nb_ratings / 10);
+            hashmap_increase(stats->users[id-1].frequency, movie->ratings[r].date, 1);
+
+            stats->users[id-1].average += user->ratings[r].score;
+            stats->users[id-1].nb_ratings++;
+        }
         
-        ulong c_id = (ulong)user->id;
-        if (is_a_bad_reviewer(args, c_id) 
-            || !is_requested(args, c_id) 
-            || user->nb_ratings < args->min)
-            continue;
-
-        Hashmap *h = hashmap_create(user->nb_ratings / 10);
-        for (uint r = 0; r < user->nb_ratings; r++) {
-            if (user->ratings[r].date >= args->limit)
-                continue;
-            hashmap_increase(h, user->ratings[r].date, 1);
-            stats->users[c_id-1].average += user->ratings[r].score;
-            stats->users[c_id-1].nb_ratings++;
-        }
-        stats->users[c_id-1].frequency = h;
-        stats->users[c_id-1].average /= (double)stats->users[c_id-1].nb_ratings;
+        stats->movies[m].average /= (double)(stats->movies[m].nb_ratings);
     }
+
+    for (ulong u = 0; u < MAX_USER_ID; u++) {
+        if (stats->users[u].nb_ratings > 0) {
+            stats->nb_users++;
+            stats->users[u].average /= (double)stats->users[u].nb_ratings;
+        }
+    }
+    puts(" ✅");  // Information for the user
 }
 
 static void one_movie_stats(Stats* stats, Arguments* args)
@@ -233,25 +210,20 @@ Stats *read_stats_from_data(MovieData *movie_data, UserData *user_data, Argument
     // Allocate memory for stats
     Stats *stats = malloc(sizeof(Stats));
     stats->nb_movies = movie_data->nb_movies;
-    stats->nb_users = user_data->nb_users;
+    stats->nb_users = 0;
     stats->movies = calloc(movie_data->nb_movies, sizeof(MovieStats));
     stats->users = calloc(MAX_USER_ID, sizeof(UserStats));
 
-    puts("Compute statistics for movies...");  // Information for the user
-    MovieData *data = calculate_movies_stats(stats, args, movie_data, user_data);
-    puts("Compute statistics for users...");
-    calculate_users_stats(stats, args, user_data);
-
-    write_movie_data_to_file("data/data.bin", data);
+    compute_stats(stats, args, movie_data, user_data);
 
     if (args->movie_id != 0) // opt -s
         one_movie_stats(stats, args);
     
     stats->similarity = read_similarity_matrix("data/similarity.bin");
     if (stats->similarity == NULL) {
-        stats->similarity = create_similarity_matrix(data);
+        stats->similarity = create_similarity_matrix(movie_data);
         write_similarity_matrix(stats, "data/similarity.bin");
     }
-    free_movie_data(data);
+
     return stats;
 }

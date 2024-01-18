@@ -52,8 +52,13 @@ int main(int argc, char *argv[])
         user_data = to_user_oriented(movie_data);
 
     Stats *stats = read_stats_from_data(movie_data, user_data, &args);
-
-    parse_probe("data/probe.txt", stats, movie_data, user_data);
+    
+    FILE* probe;
+    if ((probe = fopen("data/probe.text ", "r")) == NULL)
+        parse_probe("data/probe.txt", stats, movie_data, user_data);
+    else
+        fclose(probe);
+        
 
     if (args.likes_file != NULL) {
         uint *ids = NULL;

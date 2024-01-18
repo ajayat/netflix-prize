@@ -41,7 +41,7 @@ UserRating *knn_ratings(Stats *stats, User *u, uint i, uint k)
     return ratings;
 }
 
-double knn_predictor(Stats *stats, User *user, Movie *movie)
+double knn_predictor(Stats *stats, User *user, uint movie_id)
 {
     uint k = 80;
     double tau = 0.01;
@@ -52,14 +52,14 @@ double knn_predictor(Stats *stats, User *user, Movie *movie)
     double sum_weights = 0;
     UserRating *nearest_ratings;
     if (k > stats->nb_movies)
-        nearest_ratings = knn_ratings(stats, user, movie->id-1, k);
+        nearest_ratings = knn_ratings(stats, user, movie_id-1, k);
     else
         nearest_ratings = user->ratings;
 
     for (uint i = 0; i < k; i++) {
         UserRating rating = nearest_ratings[i];
-        double s = get_similarity(stats->similarity, movie->id-1, rating.movie_id-1);
-        uint delta = abs(rating.date - movie->date);
+        double s = get_similarity(stats->similarity, movie_id-1, rating.movie_id-1);
+        uint delta = abs(rating.date - stats->movies[movie_id].date);
         double time_factor = 1 / (1 + tau * delta);
         double weight = logistic(scale * s * time_factor + offset, 1, 0);
         score += weight * user->ratings[rating.movie_id-1].score;

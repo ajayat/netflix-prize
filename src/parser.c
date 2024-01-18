@@ -66,6 +66,9 @@ error_t parse_opt(int key, char *arg, struct argp_state *state)
     case 'r':
         args->likes_file = arg;
         return 0;
+    case 'n':
+        args->nb_recommandations = strtoul(arg, NULL, 10);
+        return 0;
     case ARGP_KEY_ARG:
         return 0;
     default:

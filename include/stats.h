@@ -14,10 +14,11 @@ typedef unsigned long ulong;
  * @brief Contains all stats about a movie.
  */
 typedef struct MovieStats {
-    double average; /**< Average of its ratings. */
+    uint32_t nb_ratings; /**< Number of ratings. */
+    uint16_t date; /**< Date in number of days. */
+    float average; /**< Average of its ratings. */
     uint8_t min; /** Minimum of its ratings. */
     uint8_t max; /**< Maximum of its ratings. */
-    uint32_t nb_ratings; /**< Number of ratings. */
 } MovieStats;
 
 /**

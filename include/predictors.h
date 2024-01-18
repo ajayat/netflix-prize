@@ -10,8 +10,11 @@ typedef struct Score {
 
 /**
  * @brief Predict the score of a movie for a given user.
+ * @param stats The stats.
+ * @param user The user.
+ * @param movie_id The movie id.
 */
-double knn_predictor(Stats *stats, User *user, Movie *movie);
+double knn_predictor(Stats *stats, User *user, uint movie_id);
 
 /** 
  * @brief Get recommandations from liked movies.

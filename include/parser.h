@@ -182,3 +182,11 @@ UserData *to_user_oriented(MovieData *data);
  * @note The array of identifiers must be freed by the caller.
  */
 uint parse_likes(const char *filename, MovieData *movie_data, uint **ids);
+
+/**
+ * @brief Parse the probe.txt file and return a file with the real ratings given by users in the training set.
+ * 
+ * @param filename Name of the proobe file.
+ * @param movie_data Data of all movies, to find ratings.
+ */
+void parse_probe(char *filename, MovieData* movie_data);

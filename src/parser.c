@@ -417,3 +417,44 @@ end:
     free(titles);
     return n;
 }
+
+// ================ Probe ========================
+
+void parse_probe(char *filename, MovieData* movie_data)
+{
+    FILE* probe_file = fopen(filename, "r");
+    if (probe_file == NULL)
+        return;
+    FILE* probe_answers = fopen("data/probe_answers.txt", "w");
+    if (probe_answers == NULL)
+        return;
+    
+    /*uint movie_id;
+    ulong user_id;*/
+    ulong id;
+    uint8_t score;
+    Movie *movie = movie_data->movies[0];
+    while  (fscanf(probe_file, "%lu", &id) != EOF)
+    {
+        char c;
+        if (fscanf(probe_file, "%c", &c) == EOF)
+            break;
+        if (c == ':')
+        {
+            fprintf(probe_answers, "%lu:\n", id);
+            movie = movie_data->movies[id-1];
+        }
+        else 
+        {
+            score = 0;
+            for (uint r = 0; r < movie->nb_ratings; r++) {
+                if (get_customer_id(movie->ratings[r]) == id) {
+                    score = movie->ratings[r].score;
+                    break;
+                }
+            }
+            fprintf(probe_answers, "%u\n", score);
+        }
+
+    }
+}

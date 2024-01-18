@@ -50,6 +50,8 @@ int main(int argc, char *argv[])
     if (user_data == NULL)
         user_data = to_user_oriented(movie_data);
 
+    parse_probe("data/probe.txt", movie_data);
+
     Stats *stats = read_stats_from_data(movie_data, user_data, &args);
 
     if (args.likes_file != NULL) {

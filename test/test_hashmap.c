@@ -4,7 +4,7 @@
 void setUp(void) {}
 void tearDown(void) {}
 
-void h_create(void)
+void test_hashmap_create(void)
 {
     Hashmap *h = hashmap_create(4);
     TEST_ASSERT_NOT_NULL(h);
@@ -12,7 +12,7 @@ void h_create(void)
     hashmap_free(h);
 }
 
-void h_insert(void)
+void test_hashmap_insert(void)
 {
     Hashmap *h = hashmap_create(4);
     TEST_ASSERT_EQUAL(0, h->items[1].key);
@@ -27,7 +27,7 @@ void h_insert(void)
     hashmap_free(h);
 }
 
-void h_find(void)
+void test_hashmap_find(void)
 {
     Hashmap *h = hashmap_create(4);
     TEST_ASSERT_EQUAL(-1, hashmap_find(h,5));
@@ -37,7 +37,7 @@ void h_find(void)
     hashmap_free(h);
 }
 
-void h_get(void)
+void test_hashmap_get(void)
 {
     Hashmap *h = hashmap_create(4);
     TEST_ASSERT_EQUAL(0, hashmap_get(h,1));
@@ -46,7 +46,7 @@ void h_get(void)
     hashmap_free(h);
 }
 
-void h_increase(void)
+void test_hashmap_increase(void)
 {
     Hashmap *h = hashmap_create(4);
     hashmap_insert(h,1,2);
@@ -57,7 +57,7 @@ void h_increase(void)
     hashmap_free(h);
 }
 
-void h_resize(void)
+void test_hashmap_resize(void)
 {
     Hashmap *h = hashmap_create(4);
     hashmap_insert(h,1,2);
@@ -70,7 +70,7 @@ void h_resize(void)
     hashmap_free(h);
 }
 
-void h_remove(void)
+void test_hashmap_remove(void)
 {
     Hashmap *h = hashmap_create(4);
     hashmap_insert(h,1,2);
@@ -87,12 +87,12 @@ void h_remove(void)
 int main(void)
 {
     UNITY_BEGIN();
-    RUN_TEST(h_create);
-    RUN_TEST(h_insert);
-    RUN_TEST(h_find);
-    RUN_TEST(h_get);
-    RUN_TEST(h_increase);
-    RUN_TEST(h_resize);
-    RUN_TEST(h_remove);
+    RUN_TEST(test_hashmap_create);
+    RUN_TEST(test_hashmap_insert);
+    RUN_TEST(test_hashmap_find);
+    RUN_TEST(test_hashmap_get);
+    RUN_TEST(test_hashmap_increase);
+    RUN_TEST(test_hashmap_resize);
+    RUN_TEST(test_hashmap_remove);
     return UNITY_END();
 }

@@ -46,7 +46,7 @@ char *strdup(const char *str)
 inline float get_similarity(float *sim, uint i, uint j)
 {
     if (i == j)
-        return 0.;
+        return 0.F;
     if (j < i)
         return sim[i * (i - 1) / 2 + j];
     else

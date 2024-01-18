@@ -55,15 +55,6 @@ double logistic(double x, double a, double b);
 double shrink(double value, uint n, double alpha);
 
 /**
- * @brief Compute the similarity between two movies.
- * @param data The data structure.
- * @param movie1 The first movie.
- * @param movie2 The second movie.
- * @return The similarity between the two movies.
- */
-double mse_correlation(Movie *movie1, Movie *movie2, Hashmap *ratings);
-
-/**
  * @brief Create a similarity matrix.
  * @param data The data structure.
  * @return The similarity matrix.

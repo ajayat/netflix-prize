@@ -22,7 +22,7 @@ double shrink(double value, uint n, double alpha)
     return value * (double)n / (n + alpha);
 }
 
-double mse_correlation(Movie *movie1, Movie *movie2, Hashmap *ratings)
+static double mse_correlation(Movie *movie1, Movie *movie2, Hashmap *ratings)
 {
     // Calculate MSE between score given by same user
     double sum = 0, diff;
@@ -87,6 +87,7 @@ float *read_similarity_matrix(char *filename)
     ulong size = 0;
     if (!fread(&size, sizeof(size), 1, bin))
         goto read_error;
+    printf("size vaut : %lu\n", size);
     // Read the matrix
     float *sim = malloc(size * sizeof(float));
     if (!fread(sim, sizeof(float), size, bin)) {

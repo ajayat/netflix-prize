@@ -73,7 +73,7 @@ void write_similarity_matrix(Stats *stats, char *filename)
         return perror("The file for the similarity matrix can't be opened.");
     
     ulong size = (ulong)stats->nb_movies * (stats->nb_movies - 1) / 2;
-    fwrite(&size, sizeof(ulong), 1, bin);
+    fwrite(&size, sizeof(size), 1, bin);
     fwrite(stats->similarity, sizeof(float), size, bin);
     fclose(bin);
 }
@@ -84,8 +84,8 @@ float *read_similarity_matrix(char *filename)
     if (bin == NULL) 
         return NULL;
     puts("Reading similarity matrix...");  // Information for the user
-    uint size;
-    if (!fread(&size, sizeof(uint), 1, bin))
+    ulong size;
+    if (!fread(&size, sizeof(size), 1, bin))
         goto read_error;
     // Read the matrix
     float *sim = malloc(size * sizeof(float));

@@ -29,7 +29,7 @@ int main(int argc, char *argv[])
 {
     Arguments args;
     // defaults values
-    args.folder = "data/";
+    args.folder = "stats/";
     args.limit = INT16_MAX;
     args.movie_id = 0;
     args.min = 0;
@@ -64,7 +64,7 @@ int main(int argc, char *argv[])
         puts("Recommandations:");
         uint *recommandations = knn_movies(stats, ids, n, args.nb_recommandations);
         for (uint i = 0; i < args.nb_recommandations; i++)
-            printf("%s\n", movie_data->movies[recommandations[i]]->title);
+            printf("%s\n", movie_data->movies[recommandations[i]-1]->title);
         free(ids);
     }
     // Free memory

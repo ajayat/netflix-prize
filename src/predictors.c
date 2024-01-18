@@ -23,7 +23,10 @@ static int compare_scores(const void *a, const void *b)
 {
     Score *d1 = (Score *)a;
     Score *d2 = (Score *)b;
-    return d2->score - d1->score;
+    double diff = d2->score - d1->score;
+    if (diff > 0) return 1;
+    else if (diff < 0) return -1;
+    else return 0;
 }
 
 UserRating *knn_ratings(Stats *stats, User *u, uint i, uint k)
@@ -73,7 +76,7 @@ static double proximity(Stats *stats, uint i, uint *ids, uint m)
     double sum_weights = 0;
     for (uint j = 0; j < m; j++) {
         double s = get_similarity(stats->similarity, i, ids[j]-1);
-        double weight = exp(2 * s);
+        double weight = exp(s);
         distance += weight * s;
         sum_weights += weight;
     }
@@ -82,18 +85,18 @@ static double proximity(Stats *stats, uint i, uint *ids, uint m)
 
 uint *knn_movies(Stats *stats, uint *ids, uint n, uint k)
 {
-    double a = 0.5;
-    double b = 0.5;
+    double W = 0.8;  // weight of personnalized recommandation
     Score scores[stats->nb_movies];
     uint *movies = calloc(k, sizeof(uint));
 
     for (uint i = 0; i < stats->nb_movies; i++) {
         double distance = proximity(stats, i, ids, n);  // between 0 and 1
-        double popularity = stats->movies[i].nb_ratings / stats->nb_users;
+        double popularity = (double)stats->movies[i].nb_ratings / stats->nb_users;
+        double quality = stats->movies[i].average / 5 * popularity;
         scores[i].movie_id = i + 1;
-        scores[i].score = a * stats->movies[i].average * popularity + b * distance;
+        scores[i].score = (1 - W) * quality + W * distance;
     }
-    qsort(scores, stats->nb_movies, sizeof(double), compare_scores);
+    qsort(scores, stats->nb_movies, sizeof(Score), compare_scores);
 
     for (uint i = 0; i < k; i++)
         movies[i] = scores[i].movie_id;

@@ -1,5 +1,6 @@
 #include <stdlib.h>
 #include <string.h>
+#include <unistd.h>
 
 #include "utils.h"
 
@@ -71,4 +72,13 @@ int dichotomic_search(char **array, uint length, char *string)
             b = m - 1;
     }
     return -1;
+}
+
+char *get_filepath(char *filename)
+{
+    char *filepath = malloc(1024 * sizeof(char));
+    if (getcwd(filepath, 512) == NULL)
+        perror("getcwd() error");
+    strncat(filepath, filename, 512);
+    return filepath;
 }

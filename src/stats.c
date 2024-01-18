@@ -87,7 +87,6 @@ float *read_similarity_matrix(char *filename)
     ulong size = 0;
     if (!fread(&size, sizeof(size), 1, bin))
         goto read_error;
-    printf("size vaut : %lu\n", size);
     // Read the matrix
     float *sim = malloc(size * sizeof(float));
     if (!fread(sim, sizeof(float), size, bin)) {

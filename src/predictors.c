@@ -133,7 +133,8 @@ void parse_probe(char *filename, Stats *stats, MovieData *movie_data, UserData *
                 break;
             }
         }
-        fprintf(probe_prediction, "%lu,%u,%lf\n", id, score, 5.0/*knn_predictor(stats, user_data->users[id], movie->id)*/);
+        // double predicted_score = knn_predictor(stats, user_data->users[id], movie->id);
+        fprintf(probe_prediction, "%lu,%u,%lf\n", id, score, 5.0/*predicted_score*/);
 
     }
     fclose(probe_prediction);

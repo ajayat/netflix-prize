@@ -27,18 +27,19 @@ static struct argp argp = { options, parse_opt, args_doc, doc, 0, 0, 0 };
 
 int main(int argc, char *argv[])
 {
-    Arguments args;
-    // defaults values
-    args.folder = "stats/";
-    args.limit = INT16_MAX;
-    args.movie_id = 0;
-    args.min = 0;
-    args.time = false;
-    args.nb_customer_ids = 0;
-    args.nb_bad_reviewers = 0;
-    args.likes_file = NULL;
-    args.nb_recommandations = 10;
-
+    Arguments args = {
+        .folder = "stats/",
+        .limit = INT16_MAX,
+        .movie_id = 0,
+        .nb_customer_ids = 0,
+        .customer_ids = NULL,
+        .nb_bad_reviewers = 0,
+        .bad_reviewers = NULL,
+        .min = 0,
+        .time = false,
+        .likes_file = NULL,
+        .nb_recommandations = 10
+    };
     argp_parse(&argp, argc, argv, 0, 0, &args);
 
     // Parse data

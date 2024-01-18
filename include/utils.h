@@ -61,3 +61,9 @@ float get_similarity(float *similarity_matrix, uint i, uint j);
  * @return The index of the string in the array, -1 if it is not found.
 */
 int dichotomic_search(char **array, uint length, char *string);
+
+/**
+ * @brief Get the filepath of a file in the current working directory.
+ * @param filename The name of the file.
+*/
+char *get_filepath(char *filename);

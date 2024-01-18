@@ -18,6 +18,15 @@ typedef unsigned long ulong;
 bool is_power_of_two(ulong x);
 
 /**
+ * @brief Return the minimal value between `a` and `b`.
+ * 
+ * @param a First value to compare.
+ * @param b Second value to compare.
+ * @return `int` The minimum of values.
+ */
+int min(int a, int b);
+
+/**
  * @brief Get the size in byte of a file.
  * @param file The file to get the size from.
  * @return The size of the file.

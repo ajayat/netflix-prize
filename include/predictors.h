@@ -25,3 +25,13 @@ double knn_predictor(Stats *stats, User *user, uint movie_id);
  * @return The ids of the k recommandations.
 */
 uint *knn_movies(Stats *stats, uint *ids, uint n, uint k);
+
+/**
+ * @brief Parse the probe.txt file and return a file with the real ratings given by users in the training set.
+ * 
+ * @param filename Name of the probe file.
+ * @param stats All statistics about all movies and all users.
+ * @param movie_data Data of all movies, to find ratings.
+ * @param user_data Data of all users, to use `knn_predictor`.
+ */
+void parse_probe(char *filename, Stats *stats, MovieData *movie_data, UserData *user_data);

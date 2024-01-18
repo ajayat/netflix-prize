@@ -8,6 +8,11 @@ bool is_power_of_two(ulong x)
     return (x != 0) && ((x & (x - 1)) == 0);
 }
 
+int min(int a, int b)
+{
+    return (a < b) ? a : b;
+}
+
 uint get_size(FILE *file)
 {
     fseek(file, 0L, SEEK_END);

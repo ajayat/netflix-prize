@@ -51,12 +51,13 @@ double knn_predictor(Stats *stats, User *user, uint movie_id)
     double score = 0;
     double sum_weights = 0;
     UserRating *nearest_ratings;
-    if (k > stats->nb_movies)
+    
+    if (k > user->nb_ratings)
         nearest_ratings = knn_ratings(stats, user, movie_id-1, k);
     else
         nearest_ratings = user->ratings;
-
-    for (uint i = 0; i < k; i++) {
+    
+    for (int i = 0; i < min(k, user->nb_ratings); i++) {
         UserRating rating = nearest_ratings[i];
         double s = get_similarity(stats->similarity, movie_id-1, rating.movie_id-1);
         uint delta = abs(rating.date - stats->movies[movie_id].date);
@@ -101,4 +102,47 @@ uint *knn_movies(Stats *stats, uint *ids, uint n, uint k)
     for (uint i = 0; i < k; i++)
         movies[i] = scores[i].movie_id;
     return movies;
+}
+
+// ====================== Probe prediction =====================
+
+void parse_probe(char *filename, Stats *stats, MovieData *movie_data, UserData *user_data)
+{
+    FILE* probe_file = fopen(filename, "r");
+    if (probe_file == NULL)
+        return;
+    FILE* probe_prediction = fopen("data/probe_prediction.txt", "w");
+    if (probe_prediction == NULL)
+        return;
+
+    char c;
+    ulong id;
+    uint8_t score;
+    Movie *movie = movie_data->movies[0];
+    while  (fscanf(probe_file, "%lu%c\n", &id, &c) != EOF)
+    {
+        if (c == ':') {
+            fprintf(probe_prediction, "%lu:\n", id);
+            movie = movie_data->movies[id-1];
+            continue;
+        }
+        score = 0;
+        for (uint r = 0; r < movie->nb_ratings; r++) {
+            if (get_customer_id(movie->ratings[r]) == id) {
+                score = movie->ratings[r].score;
+                break;
+            }
+        }
+        fprintf(probe_prediction, "%lu,%u,%lf\n", id, score, 5.0/*knn_predictor(stats, user_data->users[id], movie->id)*/);
+
+    }
+    fclose(probe_prediction);
+    fclose(probe_file);
+}
+
+double rmse_probe_calculation(char* filename)
+{
+    FILE* probe_file = fopen(filename, "r");
+    fclose(probe_file);
+    return 0;
 }

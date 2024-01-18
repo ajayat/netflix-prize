@@ -457,4 +457,6 @@ void parse_probe(char *filename, MovieData* movie_data)
         }
 
     }
+    fclose(probe_answers);
+    fclose(probe_file);
 }

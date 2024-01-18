@@ -182,6 +182,7 @@ static MovieData *calculate_movies_stats(Stats* stats, Arguments* args, MovieDat
                 stats->movies[m].min = movie_src->ratings[r].score;
         }
         stats->movies[m].average /= (double)(r_dst);
+        stats->movies[m].nb_ratings = r_dst;
         movie_dst->nb_ratings = r_dst;
     }
     return data;

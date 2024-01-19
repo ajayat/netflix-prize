@@ -108,6 +108,7 @@ uint *knn_movies(Stats *stats, uint *ids, uint n, uint k)
 
 void parse_probe(char *filename, Stats *stats, MovieData *movie_data)
 {
+    puts("Parsing the probe.txt file...");
     UserData *user_data = to_user_oriented(movie_data);
 
     FILE* probe_file = fopen(filename, "r");
@@ -149,6 +150,19 @@ void parse_probe(char *filename, Stats *stats, MovieData *movie_data)
 double rmse_probe_calculation(char* filename)
 {
     FILE* probe_file = fopen(filename, "r");
+    double s1, s2, diff;
+    double n = 0;
+    double rmse = 0;
+    float m = 0;
+    char line[7];
+    while (fgets(line, 7, probe_file) != NULL) {
+        m += 1.0;
+        while (fscanf(probe_file, "%*[0-9],%lf,%lf\n", &s1, &s2) == 2) {
+            diff = s1 - s2;
+            rmse += diff * diff;
+            n += 1.0;
+        }
+    }
     fclose(probe_file);
-    return 0;
+    return (n == 0) ? 0 : sqrt(rmse/n);
 }

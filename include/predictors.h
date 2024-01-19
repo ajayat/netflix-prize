@@ -34,3 +34,11 @@ uint *knn_movies(Stats *stats, uint *ids, uint n, uint k);
  * @param movie_data Data of all movies, to find ratings.
  */
 void parse_probe(char *filename, Stats *stats, MovieData *movie_data);
+
+/**
+ * @brief Calculate the RMSE of our algorithm to predict ratings, using the `probe_prediction.txt` file.
+ * 
+ * @param filename The file containing real scores and prediected scores.
+ * @return `double` The RMSE value.
+ */
+double rmse_probe_calculation(char* filename);

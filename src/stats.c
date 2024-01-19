@@ -118,7 +118,7 @@ void free_stats(Stats *stats)
     free(stats);
 }
 
-bool is_requested(Arguments *args, ulong id)
+static bool is_requested(Arguments *args, ulong id)
 {
     for (uint c = 0; c < args->nb_customer_ids; c++) {
         if (args->customer_ids[c] == id)
@@ -127,7 +127,7 @@ bool is_requested(Arguments *args, ulong id)
     return false;
 }
 
-bool is_a_bad_reviewer(Arguments *args, ulong id)
+static bool is_a_bad_reviewer(Arguments *args, ulong id)
 {
     for (uint b=0; b < args->nb_bad_reviewers; b++) {
         if (args->bad_reviewers[b] == id)
@@ -136,54 +136,70 @@ bool is_a_bad_reviewer(Arguments *args, ulong id)
     return false;
 }
 
-bool ignored_rating(Arguments* args, UserData* user_data, Movie* movie_src, ulong c_id, uint r)
+static uint *number_of_ratings(MovieData *data)
 {
-    if (movie_src->ratings[r].date >= args->limit // opt -l
-        || user_data->users[c_id-1]->nb_ratings < args->min // opt -e
+    uint *ratings_count = calloc(MAX_USER_ID, sizeof(uint));
+
+    for (uint m = 0; m < data->nb_movies; m++) {
+        Movie *movie = data->movies[m];
+        for (uint r = 0; r < movie->nb_ratings; r++)
+            ratings_count[get_customer_id(movie->ratings[r]) - 1]++;
+    }
+    return ratings_count;
+}
+
+bool ignored_rating(Arguments *args, MovieRating rating, ulong c_id, uint c_nb_ratings)
+{
+    if (rating.date >= args->limit // opt -l
+        || c_nb_ratings < args->min // opt -e
         || (args->nb_customer_ids && !is_requested(args, c_id)) // opt -c
         || (args->nb_bad_reviewers && is_a_bad_reviewer(args, c_id))) // opt -b
         return true;
     return false;
 }
 
-void compute_stats(Stats *stats, Arguments *args, MovieData* movie_data, UserData *user_data)
+void compute_stats(Stats *stats, MovieData *data, Arguments *args)
 {
-    stats->nb_movies = movie_data->nb_movies;
-    for (uint m = 0; m < movie_data->nb_movies; m++)
+    uint *ratings_count = number_of_ratings(data);
+
+    stats->nb_movies = data->nb_movies;
+    for (uint m = 0u; m < data->nb_movies; m++)
     {
         printf("\n\033[A\033[2K");  // Clear the line
-        printf("Compute statistics: %.0f%%", (float)m / movie_data->nb_movies * 100);
-        Movie *movie = movie_data->movies[m];
+        printf("Compute statistics: %.0f%%", (float)m / data->nb_movies * 100);
+        Movie *movie = data->movies[m];
         // Initialize statistics for this movie
         stats->movies[m].date = movie->date;
         stats->movies[m].min = UINT8_MAX;
 
-        for (uint r = 0; r < movie->nb_ratings; r++) 
+        for (uint r = 0u; r < movie->nb_ratings; r++) 
         {
-            ulong id = get_customer_id(movie->ratings[r]);
-            if (ignored_rating(args, user_data, movie, id, r))
+            MovieRating rating = movie->ratings[r];
+            ulong id = get_customer_id(rating);
+            if (ignored_rating(args, rating, id, ratings_count[id-1]))
                 continue; // Skip the undesired rating.
-            User *user = user_data->users[id-1];
 
             // Update movie stats
             stats->movies[m].nb_ratings++;
-            stats->movies[m].average += (double)(movie->ratings[r].score);
-            if (movie->ratings[r].score > stats->movies[m].max)
-                stats->movies[m].max = movie->ratings[r].score;
-            if (movie->ratings[r].score < stats->movies[m].min)
-                stats->movies[m].min = movie->ratings[r].score;
+            stats->movies[m].average += (double)(rating.score);
+            if (rating.score > stats->movies[m].max)
+                stats->movies[m].max = rating.score;
+            if (rating.score < stats->movies[m].min)
+                stats->movies[m].min = rating.score;
 
             // Update user stats
             if (stats->users[id-1].frequency == NULL)
-                stats->users[id-1].frequency = hashmap_create(user->nb_ratings / 10);
-            hashmap_increase(stats->users[id-1].frequency, movie->ratings[r].date, 1);
+                stats->users[id-1].frequency = hashmap_create(ratings_count[id-1] / 10);
+            hashmap_increase(stats->users[id-1].frequency, rating.date, 1);
 
-            stats->users[id-1].average += user->ratings[r].score;
+            stats->users[id-1].average += rating.score;
             stats->users[id-1].nb_ratings++;
         }
         stats->movies[m].average /= (double)(stats->movies[m].nb_ratings);
     }
-    for (ulong u = 0; u < MAX_USER_ID; u++) {
+    free(ratings_count);
+    // Compute average for users
+    for (ulong u = 0u; u < MAX_USER_ID; u++) {
         if (stats->users[u].nb_ratings > 0) {
             stats->nb_users++;
             stats->users[u].average /= (double)stats->users[u].nb_ratings;
@@ -205,23 +221,23 @@ static void one_movie_stats(Stats* stats, Arguments* args)
         perror("The file for one movie can't be closed.");
 }
 
-Stats *read_stats_from_data(MovieData *movie_data, UserData *user_data, Arguments *args)
+Stats *read_stats_from_data(MovieData *data, Arguments *args)
 {
     // Allocate memory for stats
     Stats *stats = malloc(sizeof(Stats));
-    stats->nb_movies = movie_data->nb_movies;
+    stats->nb_movies = data->nb_movies;
     stats->nb_users = 0;
-    stats->movies = calloc(movie_data->nb_movies, sizeof(MovieStats));
+    stats->movies = calloc(data->nb_movies, sizeof(MovieStats));
     stats->users = calloc(MAX_USER_ID, sizeof(UserStats));
-
-    compute_stats(stats, args, movie_data, user_data);
+    // Compute stats
+    compute_stats(stats, data, args);
 
     if (args->movie_id != 0) // opt -s
         one_movie_stats(stats, args);
     
     stats->similarity = read_similarity_matrix("data/similarity.bin");
     if (stats->similarity == NULL) {
-        stats->similarity = create_similarity_matrix(movie_data);
+        stats->similarity = create_similarity_matrix(data);
         write_similarity_matrix(stats, "data/similarity.bin");
     }
     return stats;

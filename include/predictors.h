@@ -32,6 +32,5 @@ uint *knn_movies(Stats *stats, uint *ids, uint n, uint k);
  * @param filename Name of the probe file.
  * @param stats All statistics about all movies and all users.
  * @param movie_data Data of all movies, to find ratings.
- * @param user_data Data of all users, to use `knn_predictor`.
  */
-void parse_probe(char *filename, Stats *stats, MovieData *movie_data, UserData *user_data);
+void parse_probe(char *filename, Stats *stats, MovieData *movie_data);

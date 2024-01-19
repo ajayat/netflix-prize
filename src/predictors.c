@@ -77,7 +77,7 @@ static double proximity(Stats *stats, uint i, uint *ids, uint m)
     double sum_weights = 0;
     for (uint j = 0; j < m; j++) {
         double s = get_similarity(stats->similarity, i, ids[j]-1);
-        double weight = exp(s);
+        double weight = exp(10 * s);
         distance += weight * s;
         sum_weights += weight;
     }
@@ -106,8 +106,10 @@ uint *knn_movies(Stats *stats, uint *ids, uint n, uint k)
 
 // ====================== Probe prediction =====================
 
-void parse_probe(char *filename, Stats *stats, MovieData *movie_data, UserData *user_data)
+void parse_probe(char *filename, Stats *stats, MovieData *movie_data)
 {
+    UserData *user_data = to_user_oriented(movie_data);
+
     FILE* probe_file = fopen(filename, "r");
     if (probe_file == NULL) {
         perror("Could not open probe file");

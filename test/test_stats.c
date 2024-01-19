@@ -22,17 +22,13 @@ void test_read_stats_from_data(void)
     args.nb_customer_ids = 0;
     args.nb_bad_reviewers = 0;
 
-    MovieData *movie_data = read_movie_data_from_file("data/movie_data.bin");
-    UserData *user_data = read_user_data_from_file("data/user_data.bin");
-
-    Stats *stats = read_stats_from_data(movie_data, user_data, &args);
+    MovieData *data = read_movie_data_from_file("data/data.bin");
+    Stats *stats1 = read_stats_from_data(data, &args);
   
-    double test1 = stats->movies[8].average;
-    TEST_ASSERT_EQUAL(movie_data->movies[10]->nb_ratings, stats->movies[10].nb_ratings);
-    TEST_ASSERT_EQUAL(movie_data->movies[20]->date, stats->movies[20].date);
-    TEST_ASSERT_EQUAL(1, stats->movies[8].min);
-    TEST_ASSERT_EQUAL(5, stats->movies[8].max);
-    free_stats(stats);
+    TEST_ASSERT_EQUAL(data->movies[10]->nb_ratings, stats1->movies[10].nb_ratings);
+    TEST_ASSERT_EQUAL(data->movies[20]->date, stats1->movies[20].date);
+    TEST_ASSERT_EQUAL(1, stats1->movies[8].min);
+    TEST_ASSERT_EQUAL(5, stats1->movies[8].max);
 
     // Test (2) with options
     args.limit = days_from_epoch(2005, 6, 25); 
@@ -41,15 +37,14 @@ void test_read_stats_from_data(void)
     args.bad_reviewers[0] = 1329923;
     args.bad_reviewers[1] = 2472537;
 
-    stats = read_stats_from_data(movie_data, user_data, &args);
-    double test2 = stats->movies[8].average;
-    TEST_ASSERT_NOT_EQUAL(test1, test2);
-    TEST_ASSERT_NOT_EQUAL(user_data->nb_users, stats->nb_users);
+    Stats *stats2 = read_stats_from_data(data, &args);
+    TEST_ASSERT_NOT_EQUAL(stats1->movies[8].average, stats2->movies[8].average);
+    TEST_ASSERT_NOT_EQUAL(stats1->nb_users, stats2->nb_users);
 
     free(args.bad_reviewers);
-    free_stats(stats);
-    free_user_data(user_data);
-    free_movie_data(movie_data);
+    free_movie_data(data);
+    free_stats(stats1);
+    free_stats(stats2);
 }
 
 int main(void)

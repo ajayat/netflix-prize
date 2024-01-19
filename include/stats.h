@@ -87,40 +87,24 @@ float *read_similarity_matrix(char *filename);
 void free_stats(Stats *stats);
 
 /**
- * @return `True` if the customer `id` must be taken into account.
- *         `False` otherwise.
- */
-bool is_requested(Arguments *args, ulong id);
-
-/**
- * @return `True` if the customer `id` must not be taken into account.
- *         `False` otherwise.
- */
-bool is_a_bad_reviewer(Arguments *args, ulong id);
-
-/**
  * @brief A succession of conditions to determinate if the given rating must be ignored or not.
  * 
  * @param args Arguments to determinate if the rating must be ignored.
- * @param user_data Data of all user. Quick access to the number of ratings per user.
- * @param movie_src Movie rated.
- * @param c_id id of the customer author of the rating.
- * @param r index of the rating in the `movie_src->ratings` array.
- * @return `True` if the rating must be ignored.
- * @return `False` otherwise.
+ * @param rating Rating to test.
+ * @param c_id Customer id of the rating.
+ * @param c_nb_ratings Number of ratings of the customer.
  */
-bool ignored_rating(Arguments* args, UserData* user_data, Movie* movie_src, ulong c_id, uint r);
+bool ignored_rating(Arguments *args, MovieRating rating, ulong c_id, uint c_nb_ratings);
 
 /**
  * @brief Main function to collect statistic from the binary file, respectings given arguments.
  * @note This function also make a new binary file with desired data.
  * 
- * @param movie_data Data extracted from the binary file
- * @param user_data User oriented data
+ * @param data Data extracted from the binary file
  * @param args Arguments given by the user.
  * @return A `Stats*` structure containing all requested statistics.
  */
-Stats *read_stats_from_data(MovieData *movie_data, UserData *user_data, Arguments *args);
+Stats *read_stats_from_data(MovieData *data, Arguments *args);
 
 /**
  * @brief Read the stats from a binary file.

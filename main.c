@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <stdbool.h>
 #include <stdlib.h>
+#include <unistd.h>
 
 #include "parser.h"
 #include "utils.h"
@@ -43,30 +44,22 @@ int main(int argc, char *argv[])
     argp_parse(&argp, argc, argv, 0, 0, &args);
 
     // Parse data
-    MovieData *movie_data = read_movie_data_from_file("data/movie_data.bin");
-    if (movie_data == NULL) {
-        movie_data = parse();
-        write_movie_data_to_file("data/movie_data.bin", movie_data);
-    }
-    UserData *user_data = read_user_data_from_file("data/user_data.bin");
-    if (user_data == NULL) {
-        user_data = to_user_oriented(movie_data);
-        write_user_data_to_file("data/user_data.bin", user_data);
+    MovieData *data = read_movie_data_from_file("data/data.bin");
+    if (data == NULL) {
+        data = parse();
+        write_movie_data_to_file("data/data.bin", data);
     }
     Stats *stats = read_stats_from_file("data/stats.bin");
     if (stats == NULL) {
-        stats = read_stats_from_data(movie_data, user_data, &args);
+        stats = read_stats_from_data(data, &args);
         write_stats_to_file(stats, "data/stats.bin");
     }
-    FILE* probe;
-    if ((probe = fopen("data/probe_predictions.txt", "r")) == NULL)
-        parse_probe("data/probe.txt", stats, movie_data, user_data);
-    else
-        fclose(probe);
-        
+    if ((access("data/probe_predictions.txt", F_OK) == -1))
+        parse_probe("data/probe.txt", stats, data);
+
     if (args.likes_file != NULL) {
         uint *ids = NULL;
-        uint n = parse_likes(args.likes_file, movie_data, &ids);
+        uint n = parse_likes(args.likes_file, data, &ids);
         if (n == 0) {
             fprintf(stderr, "Could not parse titles in file %s\n", args.likes_file);
             exit(EXIT_FAILURE);
@@ -74,14 +67,13 @@ int main(int argc, char *argv[])
         puts("============= Recommandations =============");
         uint *recommandations = knn_movies(stats, ids, n, args.nb_recommandations);
         for (uint i = 0; i < args.nb_recommandations; i++)
-            printf("%s\n", movie_data->movies[recommandations[i]-1]->title);
+            printf("%u. %s\n", i+1, data->movies[recommandations[i]-1]->title);
         free(ids);
     }
     // Free memory
     free_args(&args);
     free_stats(stats);
-    free_movie_data(movie_data);
-    free_user_data(user_data);
+    free_movie_data(data);
 
     return 0;
 }

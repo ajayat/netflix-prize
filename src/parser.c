@@ -223,10 +223,8 @@ void write_movie_data_to_file(char *filepath, MovieData *data)
 MovieData *read_movie_data_from_file(char* filepath)
 {
     FILE *file = fopen(filepath, "rb");
-    if (file == NULL) {
-        fprintf(stderr, "Error: could not open file %s\n", filepath);
+    if (file == NULL)
         return NULL;
-    }
     // Allocate memory for data
     MovieData *data = malloc(sizeof(MovieData));
     data->nb_movies = 0u;
@@ -376,7 +374,7 @@ static uint remove_duplicates(char **titles, uint n)
     return nb_titles;
 }
 
-uint parse_likes(const char *filename, MovieData *movie_data, uint **ids)
+uint parse_likes(const char *filename, MovieData *data, uint **ids)
 {
     FILE* likes_file = fopen(filename, "r");
     if (likes_file == NULL) 
@@ -405,11 +403,11 @@ uint parse_likes(const char *filename, MovieData *movie_data, uint **ids)
     *ids = calloc(n, sizeof(uint));
     uint c = n;
 
-    for (uint m = 0; m < movie_data->nb_movies; m++)
+    for (uint m = 0; m < data->nb_movies; m++)
     {
-        int i = dichotomic_search(titles, n, movie_data->movies[m]->title);
+        int i = dichotomic_search(titles, n, data->movies[m]->title);
         if (i != -1) {
-            (*ids)[i] = movie_data->movies[m]->id;
+            (*ids)[i] = data->movies[m]->id;
             c--;
         }
         if (c == 0) break;  // All titles have been found.

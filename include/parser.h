@@ -175,11 +175,11 @@ UserData *to_user_oriented(MovieData *data);
  * @brief Parse a file containing movies liked by the user.
  * 
  * @param filename Name of the file containing liked movies.
- * @param movie_data Data of movies to find corresponding identifiers.
+ * @param data Data of movies to find corresponding identifiers.
  * @param ids Address to an array containing the identifiers of liked movies.
  * @return The number of liked movies.
  * 
  * @note The array of identifiers must be freed by the caller.
  */
-uint parse_likes(const char *filename, MovieData *movie_data, uint **ids);
+uint parse_likes(const char *filename, MovieData *data, uint **ids);
 

@@ -59,6 +59,9 @@ int main(int argc, char *argv[])
     if ((access("data/probe_predictions.txt", F_OK) == -1))
         parse_probe("data/probe.txt", stats, data);
 
+    double rmse = rmse_probe_calculation("data/probe_predictions.txt");
+    printf("RMSE value: %.2lf\n", rmse);
+
     if (args.likes_file != NULL) {
         uint *ids = NULL;
         uint n = parse_likes(args.likes_file, data, &ids);

@@ -129,3 +129,28 @@ uint hashmap_remove(Hashmap* h, uint key)
 
     return value;
 }
+
+void write_hashmap_to_file(Hashmap *h, FILE *file)
+{
+    fwrite(&h->size, sizeof(h->size), 1, file);
+    fwrite(&h->count, sizeof(h->count), 1, file);
+    fwrite(h->items, sizeof(Item), h->size, file);
+}
+
+Hashmap *read_hashmap_from_file(FILE *file)
+{
+    Hashmap *h = (Hashmap*) malloc(sizeof(Hashmap));
+    if (!fread(&h->size, sizeof(h->size), 1, file)
+        || !fread(&h->count, sizeof(h->count), 1, file))
+        goto read_error;
+    h->items = (Item*)calloc(h->size, sizeof(Item));
+    if (!fread(h->items, sizeof(Item), h->size, file)) {
+        free(h->items);
+        goto read_error;
+    }
+    return h;
+
+read_error:
+    free(h);
+    return NULL;
+}

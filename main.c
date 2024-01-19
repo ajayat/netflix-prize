@@ -44,22 +44,26 @@ int main(int argc, char *argv[])
 
     // Parse data
     MovieData *movie_data = read_movie_data_from_file("data/movie_data.bin");
-    if (movie_data == NULL)
+    if (movie_data == NULL) {
         movie_data = parse();
-    
+        write_movie_data_to_file("data/movie_data.bin", movie_data);
+    }
     UserData *user_data = read_user_data_from_file("data/user_data.bin");
-    if (user_data == NULL)
+    if (user_data == NULL) {
         user_data = to_user_oriented(movie_data);
-
-    Stats *stats = read_stats_from_data(movie_data, user_data, &args);
-    
+        write_user_data_to_file("data/user_data.bin", user_data);
+    }
+    Stats *stats = read_stats_from_file("data/stats.bin");
+    if (stats == NULL) {
+        stats = read_stats_from_data(movie_data, user_data, &args);
+        write_stats_to_file(stats, "data/stats.bin");
+    }
     FILE* probe;
-    if ((probe = fopen("data/probe.text ", "r")) == NULL)
+    if ((probe = fopen("data/probe_predictions.txt", "r")) == NULL)
         parse_probe("data/probe.txt", stats, movie_data, user_data);
     else
         fclose(probe);
         
-
     if (args.likes_file != NULL) {
         uint *ids = NULL;
         uint n = parse_likes(args.likes_file, movie_data, &ids);
@@ -67,7 +71,7 @@ int main(int argc, char *argv[])
             fprintf(stderr, "Could not parse titles in file %s\n", args.likes_file);
             exit(EXIT_FAILURE);
         }
-        puts("Recommandations:");
+        puts("============= Recommandations =============");
         uint *recommandations = knn_movies(stats, ids, n, args.nb_recommandations);
         for (uint i = 0; i < args.nb_recommandations; i++)
             printf("%s\n", movie_data->movies[recommandations[i]-1]->title);

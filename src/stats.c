@@ -2,6 +2,8 @@
 #include <stdlib.h>
 #include <math.h>
 #include <assert.h>
+#include <stdio.h>
+#include <unistd.h>
 
 #include "hashmap.h"
 #include "stats.h"
@@ -49,7 +51,7 @@ float *create_similarity_matrix(MovieData *data)
     for (uint i = 1; i < data->nb_movies; i++) 
     {
         printf("\n\033[A\033[2K");  // Clear the line
-        printf("Compute similarity matrix %.2lf%c", i*(i+1) / (size*2.) * 100, '%');
+        printf("Compute similarity matrix %.2lf%%", i*(i+1) / (size*2.) * 100);
         Movie *movie1 = data->movies[i];
         Hashmap *ratings = hashmap_create(movie1->nb_ratings);
 
@@ -109,7 +111,7 @@ void free_stats(Stats *stats)
         return;
     free(stats->similarity);
     free(stats->movies);
-    for (uint i=0; i<MAX_USER_ID; i++)
+    for (uint i = 0; i < MAX_USER_ID; i++)
         hashmap_free(stats->users[i].frequency);
 
     free(stats->users);
@@ -179,10 +181,8 @@ void compute_stats(Stats *stats, Arguments *args, MovieData* movie_data, UserDat
             stats->users[id-1].average += user->ratings[r].score;
             stats->users[id-1].nb_ratings++;
         }
-        
         stats->movies[m].average /= (double)(stats->movies[m].nb_ratings);
     }
-
     for (ulong u = 0; u < MAX_USER_ID; u++) {
         if (stats->users[u].nb_ratings > 0) {
             stats->nb_users++;
@@ -224,6 +224,68 @@ Stats *read_stats_from_data(MovieData *movie_data, UserData *user_data, Argument
         stats->similarity = create_similarity_matrix(movie_data);
         write_similarity_matrix(stats, "data/similarity.bin");
     }
-
     return stats;
+}
+
+Stats *read_stats_from_file(char *filename)
+{
+    FILE *file = fopen(filename, "rb");
+    if (file == NULL)
+        return NULL;
+    // Read movies stats
+    Stats *stats = malloc(sizeof(Stats));
+    stats->movies = NULL;
+    stats->users = calloc(MAX_USER_ID, sizeof(UserStats));
+
+    if (!fread(&stats->nb_movies, sizeof(stats->nb_movies), 1, file)
+        || !fread(&stats->nb_users, sizeof(stats->nb_users), 1, file))
+        goto read_error;
+    stats->movies = malloc(stats->nb_movies * sizeof(MovieStats));
+    if (!fread(stats->movies, sizeof(MovieStats), stats->nb_movies, file))
+        goto read_error;
+
+    // Read users stats
+    for (uint i = 0; i < stats->nb_users; i++) {
+        uint64_t id;
+        if (!fread(&id, sizeof(id), 1, file))
+            goto read_error;
+        UserStats *user = &stats->users[id-1];
+        user->frequency = read_hashmap_from_file(file);
+        if (user->frequency == NULL
+            || !fread(&user->average, sizeof(user->average), 1, file)
+            || !fread(&user->nb_ratings, sizeof(user->nb_ratings), 1, file))
+            goto read_error;
+    }
+    stats->similarity = read_similarity_matrix("data/similarity.bin");
+    if (stats->similarity == NULL)
+        goto read_error;
+    fclose(file);
+    return stats;
+
+read_error:
+    fclose(file);
+    free_stats(stats);
+    return NULL;
+}
+
+void write_stats_to_file(Stats *stats, char *filename)
+{
+    FILE *file = fopen(filename, "wb");
+    if (file == NULL)
+        return perror("The file for the stats can't be opened.");
+    
+    fwrite(&stats->nb_movies, sizeof(stats->nb_movies), 1, file);
+    fwrite(&stats->nb_users, sizeof(stats->nb_users), 1, file);
+    fwrite(stats->movies, sizeof(MovieStats), stats->nb_movies, file);
+    for (uint i = 0; i < MAX_USER_ID; i++) {
+        UserStats *user = &stats->users[i];
+        if (stats->users[i].nb_ratings == 0)
+            continue;
+        uint64_t id = i + 1;
+        fwrite(&id, sizeof(id), 1, file);
+        write_hashmap_to_file(user->frequency, file);
+        fwrite(&user->average, sizeof(user->average), 1, file);
+        fwrite(&user->nb_ratings, sizeof(stats->users[i].nb_ratings), 1, file);
+    }
+    fclose(file);
 }

@@ -86,3 +86,13 @@ void hashmap_increase(Hashmap* h, uint key, uint incr);
  * @return uint The removed key.
  */
 uint hashmap_remove(Hashmap* h, uint key);
+
+/**
+ * @brief Write the given hashmap to a file.
+*/
+void write_hashmap_to_file(Hashmap *h, FILE *file);
+
+/**
+ * @brief Read a hashmap from a file.
+*/
+Hashmap* read_hashmap_from_file(FILE *file);

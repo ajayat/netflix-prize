@@ -23,7 +23,8 @@ typedef struct Arguments {
     uint min; /**< `-e` option: to take into account only customers with Arguments::min ratings at least. */
     bool time; /**< True to give the executive time of the algorithm. */
     char* likes_file; /**< `-r` option: file where to get liked movies. */
-    uint nb_recommandations; /**< `-n` option: number of recommandations to give. */
+    uint n; /**< `-n` option: number of recommandations to give. */
+    float percent; /**< `-p` option: percentage of personnalized recommandations */  
     /*@}*/
 } Arguments;
 

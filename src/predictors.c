@@ -76,17 +76,18 @@ static double proximity(Stats *stats, uint i, uint *ids, uint m)
     double distance = 0;
     double sum_weights = 0;
     for (uint j = 0; j < m; j++) {
+        if (i == ids[j]-1)
+            return 0.;  // This movie is already liked.
         double s = get_similarity(stats->similarity, i, ids[j]-1);
-        double weight = exp(10 * s);
+        double weight = exp(1.8 * s);
         distance += weight * s;
         sum_weights += weight;
     }
     return distance / sum_weights;
 }
 
-uint *knn_movies(Stats *stats, uint *ids, uint n, uint k)
+uint *knn_movies(Stats *stats, uint *ids, uint n, uint k, double p)
 {
-    double W = 0.8;  // weight of personnalized recommandation
     Score scores[stats->nb_movies];
     uint *movies = calloc(k, sizeof(uint));
 
@@ -95,7 +96,7 @@ uint *knn_movies(Stats *stats, uint *ids, uint n, uint k)
         double popularity = (double)stats->movies[i].nb_ratings / stats->nb_users;
         double quality = stats->movies[i].average / 5 * popularity;
         scores[i].movie_id = i + 1;
-        scores[i].score = (1 - W) * quality + W * distance;
+        scores[i].score = (1 - p) * quality + p * distance;
     }
     qsort(scores, stats->nb_movies, sizeof(Score), compare_scores);
 
@@ -106,10 +107,10 @@ uint *knn_movies(Stats *stats, uint *ids, uint n, uint k)
 
 // ====================== Probe prediction =====================
 
-void parse_probe(char *filename, Stats *stats, MovieData *movie_data)
+void parse_probe(char *filename, Stats *stats, MovieData *data)
 {
     puts("Parsing the probe.txt file...");
-    UserData *user_data = to_user_oriented(movie_data);
+    UserData *user_data = to_user_oriented(data);
 
     FILE* probe_file = fopen(filename, "r");
     if (probe_file == NULL) {
@@ -121,18 +122,17 @@ void parse_probe(char *filename, Stats *stats, MovieData *movie_data)
         perror("Could not open probe prediction file");
         return;
     }
+    Movie *movie = data->movies[0];
     char c;
     ulong id;
-    uint8_t score;
-    Movie *movie = movie_data->movies[0];
     while  (fscanf(probe_file, "%lu%c\n", &id, &c) != EOF)
     {
         if (c == ':') {
             fprintf(probe_prediction, "%lu:\n", id);
-            movie = movie_data->movies[id-1];
+            movie = data->movies[id-1];
             continue;
         }
-        score = 0;
+        uint8_t score = 0;
         for (uint r = 0; r < movie->nb_ratings; r++) {
             if (get_customer_id(movie->ratings[r]) == id) {
                 score = movie->ratings[r].score;

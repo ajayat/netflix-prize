@@ -22,7 +22,6 @@ void test_parse_probe(void)
         .min = 0,
         .time = false,
         .likes_file = NULL,
-        .nb_recommandations = 10
     };
     char *filepath = get_filepath("/data/data.bin");
     MovieData *data = read_movie_data_from_file(filepath);

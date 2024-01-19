@@ -21,6 +21,7 @@ static struct argp_option options[] = {
     { "t", 't', 0, 0, "Display execution time.", 0 },
     { "likes_file", 'r', "FILE", 0, "Gives recommandations.", 0 },
     { "number", 'n', "NUMBER", 0, "Number of recommandations.", 0 },
+    { "percent", 'p', "PERCENT", 0, "Percentage of personnalized recommandations.", 0 },
     { 0 }
 };
 
@@ -39,7 +40,8 @@ int main(int argc, char *argv[])
         .min = 0,
         .time = false,
         .likes_file = NULL,
-        .nb_recommandations = 10
+        .n = 10,
+        .percent = 0.85
     };
     argp_parse(&argp, argc, argv, 0, 0, &args);
 
@@ -65,8 +67,8 @@ int main(int argc, char *argv[])
             exit(EXIT_FAILURE);
         }
         puts("============= Recommandations =============");
-        uint *recommandations = knn_movies(stats, ids, n, args.nb_recommandations);
-        for (uint i = 0; i < args.nb_recommandations; i++)
+        uint *recommandations = knn_movies(stats, ids, n, args.n, args.percent);
+        for (uint i = 0; i < args.n; i++)
             printf("%u. %s\n", i+1, data->movies[recommandations[i]-1]->title);
         free(ids);
     }

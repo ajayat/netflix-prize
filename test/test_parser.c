@@ -8,11 +8,7 @@
 #include "utils.h"
 
 void setUp(void) {}
-
-void tearDown(void) 
-{
-    // remove("data/data.bin.test");
-}
+void tearDown(void) {}
 
 /**
  * @brief Test about the ability to write correctly in the binary file.
@@ -65,6 +61,7 @@ void test_read_user_data_from_file(void)
     TEST_ASSERT_NOT_EQUAL(NULL, data);
     TEST_ASSERT_EQUAL(480189, data->nb_users);
     free_user_data(data); // Free memory
+    remove("data/data.bin.test");
 }
 
 int main(void)

@@ -22,9 +22,10 @@ double knn_predictor(Stats *stats, User *user, uint movie_id);
  * @param ids The ids of the movies liked by the user.
  * @param n The number of movies liked by the user.
  * @param k The number of recommandations.
+ * @param p The percentage of personnalized recommandations.
  * @return The ids of the k recommandations.
 */
-uint *knn_movies(Stats *stats, uint *ids, uint n, uint k);
+uint *knn_movies(Stats *stats, uint *ids, uint n, uint k, double p);
 
 /**
  * @brief Parse the probe.txt file and return a file with the real ratings given by users in the training set.
@@ -33,7 +34,7 @@ uint *knn_movies(Stats *stats, uint *ids, uint n, uint k);
  * @param stats All statistics about all movies and all users.
  * @param movie_data Data of all movies, to find ratings.
  */
-void parse_probe(char *filename, Stats *stats, MovieData *movie_data);
+void parse_probe(char *filename, Stats *stats, MovieData *data);
 
 /**
  * @brief Calculate the RMSE of our algorithm to predict ratings, using the `probe_prediction.txt` file.

@@ -14,19 +14,26 @@ Read **[About Dataset](AboutDataset.md)**.
 
 ## The parser
 
-The parser will read the data of the 📁 **training_set** and stock them in the form of a structure in C. This one should contain all information without adding any in order to optimize memory and readding time.
+The parser will read the data of the 📁 **training_set** and stock them in the form of a structure in C. This one should contain all information without adding any in order to optimize memory and reading time.
 
-The idea is to stock an array of movies for which their index is their identifier. Each movie is represented by a structure containing:
+The idea is to store an array of movies for which their index is their identifier. Each movie is represented by a structure containing:
 
-- The movie title
+- The movie identifier
+- The title
+- The date*
 - The number of ratings
 - An array of customers who rated this movie
 
+**Note**: The date is stored in number of days since the Epoch date (defined as January 1st 1889).
+Fields of structures are stored in a specific order that takes into account structure padding, in order to minimize memory.
+
 Likewise, each rating will be represented by a structure containing:
 
-- The customer identifier
-- The given rating
-- The rating date, stocked in the form of an integral representing number of days since the Epoch date (defined as January 1st 1889).
+- The customer identifier*
+- The given score
+- The rating date
+
+**Note**: The customer identifier is stored in 3 bytes, divided into 2 bytes for the most significant bytes and 1 byte for the less significant byte. That allows us to reducing memory by ~100MB.
 
 These data will be written in a binary file thanks to `fwrite` in C to optimize date recovery, because unicode encoding and decoding is very time-consuming. Data are stocked in this order:
 
@@ -45,6 +52,10 @@ These data will be written in a binary file thanks to `fwrite` in C to optimize 
 | Number of movies | Movie identifier | Length of title | Title                   | Date    | Number of ratings | Customer identifier         | Score  | Date of rating |
 | :--------------: | :--------------: | :-------------: | :---------------------: | :-----: | :---------------: | :-------------------------: | :----: | :------------: |
 |     2 bytes      | 2 byte           | 1 byte          | Length of title × bytes | 2 bytes | 4 bytes           | msb: 2 bytes & lsb: 1 byte | 1 byte | 2 bytes        |
+
+A function `to_user_oriented` will allow us to convert this structure to a user-oriented structure, which will be more convenient for the recommendation algorithm.
+
+Functions `read_movie_data_from_file`, `write_movie_data_to_file`, `read_user_data_from_file` and `write_user_data_to_file` will allow us to read and write data from and to binary files, like the movie data above.
 
 ## The statistics
 
@@ -76,44 +87,55 @@ The similarity matrix is a matrix which show the proximity between two movies, b
 
 For example, movies with identifiers `11164` and `270` reach a score around 0.81. But they correspond to `Sex and the City: Season 3` and `Sex and the City: Season 4`: a high score is normal! In an other hand, we have `Mississippi Burning` (id `442`) and `The Game` (id `143`) which reached a score aroud 0.45: they have similarity, like their place (USA) or the fact they are realistic and intriguing, but don't have more links than that.
 
-To create the similarity matrix, we use a hashmap structure: we need to quickly know if a user who rated this movie also rated this other one. But it should be too long to sort all user identifiers for a movie. Thanks to the hashmap, we have a more or less direct access to the user, using a quadratic probing to sort them in order to optimize the searching.
+#### The Hashmap data structure
 
-## L'algorithme de recommandation
+To create the similarity matrix, we use a hashmap structure: we need to quickly know if a user who rated this movie also rated this other one. But it should be too long to sort all user identifiers for a movie. Thanks to the hashmap, we have an access to the corresponding identifier in O(1) amortized time.
 
-### Objectif
+This hashmap uses open addressic to resolve collisions, and uses quadratic probing in order to optimize the searching.
 
-Le but de l'algorithme de recommandation est de prédire la note qu'un client donnerait à un film, avec un certaine précision.
+The load factor (number of elements / capacity) is 0.5, which is a good value to optimize the searching time, according to this very useful benchmark[³][3].
 
-La précision est évaluée avec le RMSE, par rapport aux notes réelles.
-Notre algorithme devra donc **obtenir un RMSE le plus petit possible.**
+## The recommendation algorithm
 
-Cette note doit donc être necessairement à virgule flottante, pour qu'elle soit la plus précise possible du point de vu probabiliste.
+### Objective
 
-### Conception
+The aim of the recommendation algorithm is to predict the rating a customer would give a film, with a certain degree of accuracy.
 
-Pour concevoir un algorithme de recommandation, nous avons deux principales approches[²][2]:
+Accuracy is measured by the RMSE, in relation to actual ratings.
+Our algorithm must therefore **obtain the smallest possible RMSE**.
 
-- Un système orienté client
-- Un système orienté film
+This rating must therefore be floating-point, to be as accurate as possible from a probabilistic point of view.
 
-Ici, dû à l'important nombre de clients (plus de 480 000), la première option est inenvisageable, car elle nécessiterait de stocker une matrice de 480 000 x 480 000.
+### Algorithm
 
-Une première idée, serait de se baser sur une matrice film x film exprimant la similarité entre deux films par un coefficient (allant de 0 à 1 par exemple).
+To design a recommendation algorithm, we have two main approaches[²][2]:
 
-De cette manière, étant donnée une liste de films aimés par un client, on peut recommander une liste de k films, par ordre de priorité en utilisant l'agorithme des k plus proches voisins kNN.
+- A customer-oriented system
+- A film-oriented system
 
-Le coeur du problème est donc d'établir avec précision cette matrice, qu'on va appeler *matrice de corrélation des films*.
+Here, due to the large number of customers (over 480,000), the first option is unthinkable, as it would require storing a 480,000 x 480,000 matrix.
 
-Quelques fonctions de corrélation possibles:
+We therefore used a film x film matrix expressing the similarity between two films by a coefficient ranging from 0 to 1.
 
-- Loi de Pearson
-- Loi de Spearman
-- Corrélation d'ensemble
+In this way, given a list of films liked by a customer, we can recommend a list of k films, in order of priority using the k nearest neighbors agorithm kNN.
+
+The heart of the problem is therefore to establish this matrix precisely, which we'll call the *film correlation matrix*.
+
+Some possible correlation functions:
+
+- Pearson's law
+- Spearman's law
+- Ensemble correlation
+- MSE correlation
+
+We have chosen to use MSE correlation on ratings rated by the same users, as it is simple to implement and gives good results.
 
 ## References
 
-1. <https://www.cs.uic.edu/~liub/KDD-cup-2007/proceedings/The-Netflix-Prize-Bennett.pdf>
-2. <https://en.wikipedia.org/wiki/Recommender_system>
+1. [The Netflix Prize, Netflix researchers]([3])
+2. [Recommender System, Wikipedia]([2])
+3. [Hashtables, *thenumb.at*]([3])
 
 [1]: https://www.cs.uic.edu/~liub/KDD-cup-2007/proceedings/The-Netflix-Prize-Bennett.pdf
 [2]: https://en.wikipedia.org/wiki/Recommender_system
+[3]: https://thenumb.at/Hashtables/

@@ -52,7 +52,7 @@ double knn_predictor(Stats *stats, User *user, uint movie_id)
     double sum_weights = 0;
     UserRating *nearest_ratings;
     
-    if (k > user->nb_ratings)
+    if (user->nb_ratings > k)
         nearest_ratings = knn_ratings(stats, user, movie_id-1, k);
     else
         nearest_ratings = user->ratings;

@@ -20,22 +20,23 @@ The idea is to store an array of movies for which their index is their identifie
 
 - The movie identifier
 - The title
-- The date*
+- The date (see note below)
 - The number of ratings
 - An array of customers who rated this movie
 
-**Note**: The date is stored in number of days since the Epoch date (defined as January 1st 1889).
+> **Note**: The date is stored in number of days since the Epoch date (defined as `January 1st 1889`).
+
 Fields of structures are stored in a specific order that takes into account structure padding, in order to minimize memory.
 
 Likewise, each rating will be represented by a structure containing:
 
-- The customer identifier*
+- The customer identifier (see note below)
 - The given score
 - The rating date
 
-**Note**: The customer identifier is stored in 3 bytes, divided into 2 bytes for the most significant bytes and 1 byte for the less significant byte. That allows us to reducing memory by ~100MB.
+> **Note**: The customer identifier is stored in 3 bytes, divided into 2 bytes for the most significant bytes and 1 byte for the less significant byte. That allows us to reducing memory by ~100MB.
 
-These data will be written in a binary file thanks to `fwrite` in C to optimize date recovery, because unicode encoding and decoding is very time-consuming. Data are stocked in this order:
+These data will be written in a binary file thanks to `fwrite` in C to optimize date recovery, because unicode encoding and decoding is very time-consuming. Data are stored in this order:
 
 - Number of movies (2 bytes), and for each one:
   - Its identifier (2 bytes)
@@ -67,19 +68,22 @@ For example, a user who rated more than 2 or 3 movies/series in one single day c
 
 In addition, we take into account the arguments of the command line. In fact, statistics are generated only from ratings which respect all given options. And we allow to create a file with the statistics of one movie especially, to answer to the use of the option `-s`. You can find the different options bellow:
 
-| flag |    content    |                                      description                                      |
-| :--: | :-----------: | :-----------------------------------------------------------------------------------: |
-| `-r` |   LIKES.TXT   |                           List of movies liked by the user.                           |
-| `-n` |    NUMBER     |              Length of the recommendation list the algorithm will give.              |
-| `-f` |    FOLDER     |      The path of the folder where files corresponding to results will be saved.       |
-| `-l` |     LIMIT     |        Forbidden to take in acount ratings with a date greater than the LIMIT.        |
-| `-s` |   MOVIE_ID    |             Give statistics about the movie with the identifier MOVIE_ID.             |
-| `-c` |     X, Y      | Allow to take into account only the ratings of the cusstomers with given identifiers. |
-| `-b` | BAD_REVIEWERS |  Allow to not take into account the ratings of the customers with given identifiers.  |
-| `-e` |      MIN      |       Allow to take into account only customers who rated at least MIN movies.        |
-| `-t` |       ∅       |                    Precise the executive time of the algorithme.                     |
+| flag |     argument     |                                                     description                                                      |
+| :--: | :--------------: | :------------------------------------------------------------------------------------------------------------------- |
+| `-r` |    LIKES_FILE    |                                          List of movies liked by the user.                                           |
+| `-n` |        N         |                              Length of the recommendation list the algorithm will give.                              |
+| `-f` |      FOLDER      |                      The path of the folder where files corresponding to results will be saved.                      |
+| `-l` |      LIMIT       |                       Forbidden to take in acount ratings with a date greater than the LIMIT.                        |
+| `-s` |     MOVIE_ID     |                            Give statistics about the movie with the identifier MOVIE_ID.                             |
+| `-c` |   CUSTOMER_IDS   |                 Allow to take into account only the ratings of the customers with given identifiers.                 |
+|  ∅   | NB_CUSTOMER_IDS  |                                            Number of given customer ids.                                             |
+| `-b` |  BAD_REVIEWERS   |                 Allow to not take into account the ratings of the customers with given identifiers.                  |
+|  ∅   | NB_BAD_REVIEWERS |                                            Number of given bad reviewers.                                            |
+| `-e` |       MIN        |                       Allow to take into account only customers who rated at least MIN movies.                       |
+| `-t` |       TIME       |                                    Precise the executive time of the algorithme.                                     |
+| `-p` |     PERCENT      | Percentage (between 0 and 1) to quantify the importance of personnal recommendations versus popular recommendations. |
 
-Note that options `-r`, `-n` and `-t` are not used for statistics processing.
+Note that options `-r`, `-n`, `-t` and `-p` are not used for statistics processing.
 
 ### The similarity matrix
 
@@ -89,7 +93,7 @@ For example, movies with identifiers `11164` and `270` reach a score around 0.81
 
 #### The Hashmap data structure
 
-To create the similarity matrix, we use a hashmap structure: we need to quickly know if a user who rated this movie also rated this other one. But it should be too long to sort all user identifiers for a movie. Thanks to the hashmap, we have an access to the corresponding identifier in O(1) amortized time.
+To create the similarity matrix, we use a hashmap structure: we need to quickly know if a user who rated this movie also rated this other one. But it should be too long to sort all user identifiers for a movie. Thanks to the hashmap, we have an access to the corresponding identifier in *O*(1) amortized time.
 
 This hashmap uses open addressic to resolve collisions, and uses quadratic probing in order to optimize the searching.
 
@@ -99,7 +103,7 @@ The load factor (number of elements / capacity) is 0.5, which is a good value to
 
 ### Objective
 
-The aim of the recommendation algorithm is to predict the rating a customer would give a film, with a certain degree of accuracy.
+The aim of the recommendation algorithm is to predict the rating a customer would give a movie, with a certain degree of accuracy.
 
 Accuracy is measured by the RMSE, in relation to actual ratings.
 Our algorithm must therefore **obtain the smallest possible RMSE**.
@@ -111,15 +115,15 @@ This rating must therefore be floating-point, to be as accurate as possible from
 To design a recommendation algorithm, we have two main approaches[²][2]:
 
 - A customer-oriented system
-- A film-oriented system
+- A movie-oriented system
 
 Here, due to the large number of customers (over 480,000), the first option is unthinkable, as it would require storing a 480,000 x 480,000 matrix.
 
-We therefore used a film x film matrix expressing the similarity between two films by a coefficient ranging from 0 to 1.
+We therefore used a movie x movie matrix expressing the similarity between two movies by a coefficient ranging from 0 to 1.
 
-In this way, given a list of films liked by a customer, we can recommend a list of k films, in order of priority using the k nearest neighbors agorithm kNN.
+In this way, given a list of movies liked by a customer, we can recommend a list of `k` movies, in order of priority using the k nearest neighbors agorithm kNN.
 
-The heart of the problem is therefore to establish this matrix precisely, which we'll call the *film correlation matrix*.
+The heart of the problem is therefore to establish this matrix precisely, which we'll call the *movie correlation matrix*.
 
 Some possible correlation functions:
 

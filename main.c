@@ -57,10 +57,11 @@ int main(int argc, char *argv[])
         write_movie_data_to_file("data/data.bin", data);
     }
     
-    Stats *stats = read_stats_from_file(get_filepath("stats.bin"));
+    char *stats_file = get_filepath(args.folder, "stats.bin");
+    Stats *stats = read_stats_from_file(stats_file);
     if (stats == NULL) {
         stats = read_stats_from_data(data, &args);
-        write_stats_to_file(stats, "data/stats.bin");
+        write_stats_to_file(stats, stats_file);
     }
     if ((access("data/probe_predictions.txt", F_OK) == -1)) {
         UserData *user_data = to_user_oriented(data);

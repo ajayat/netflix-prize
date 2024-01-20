@@ -103,12 +103,19 @@ The load factor (number of elements / capacity) is 0.5, which is a good value to
 
 ### Objective
 
-The aim of the recommendation algorithm is to predict the rating a customer would give a movie, with a certain degree of accuracy.
+The aim of the recommendation algorithm is to predict the rating a customer would give a movie, with a certain degree of accuracy. This rating must therefore be floating-point, to be as accurate as possible from a probabilistic point of view.
 
 Accuracy is measured by the RMSE, in relation to actual ratings.
 Our algorithm must therefore **obtain the smallest possible RMSE**.
 
-This rating must therefore be floating-point, to be as accurate as possible from a probabilistic point of view.
+The formula to calculate user's theoretical ratings takes into account some variables that we influenced to find the best RMSE value:
+
+- `k`: the  number of nearest neighbors we want to take into account.
+- `tau`: a coefficient to represent the time decay (more a rating is distant in time from the movie, less it will count).
+- `scale`: a scale for the `logistic` function.
+- `offset`: a value to penalize low similarities with the movie.
+
+Currently, we got for best RMSE a score of **0.9712** thanks to these values: k = 2000, tau = 0, scale = 35 and offset = -19. This is really close to the RMSE of *Cinematch* (0.9514), the  reference algorithm from Netflix for the competition.
 
 ### Algorithm
 

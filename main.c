@@ -13,16 +13,16 @@ static char doc[] = "Programming Project";
 static char args_doc[] = "";
 
 static struct argp_option options[] = { 
-    { "folder", 'f', "FOLDER_PATH", 0, "Folder path of the binary file.", 0 },
-    { "limite", 'l', "LIMIT", 0, "Exclude ratings before the given date.", 0 },
-    { "movie", 's', "MOVIE_ID", 0, "Movie ID.", 0 },
-    { "customers", 'c', "CUSTOMER_IDS", 0, "List of customer ID.", 0 },
-    { "bad_reviewers", 'b', "BAD_REVIEWERS", 0, "List of customer ID.", 0 },
-    { "min", 'e', "MIN", 0, "Restrict to customers who have seen >= MIN films", 0 },
+    { "folder", 'f', "FOLDER_PATH", 0, "Name of the folder that should contain the generated statistics.", 0 },
+    { "limit", 'l', "LIMIT", 0, "Exclude ratings after the given date from statistics.", 0 },
+    { "movie", 's', "MOVIE_ID", 0, "Identifier of the movie whose statistics will be stored to a separate file.", 0 },
+    { "customers", 'c', "CUSTOMER_IDS", 0, "List of customer identifiers that must be taken into account in the statistics.", 0 },
+    { "bad_reviewers", 'b', "BAD_REVIEWERS", 0, "List of customer identifiers that must not be taken into account in the statistics.", 0 },
+    { "min", 'e', "MIN", 0, "Restrict statistics to customers who have seen at least MIN films", 0 },
     { "t", 't', 0, 0, "Display execution time.", 0 },
-    { "likes_file", 'r', "FILE", 0, "Gives recommandations.", 0 },
-    { "number", 'n', "NUMBER", 0, "Number of recommandations.", 0 },
-    { "percent", 'p', "PERCENT", 0, "Percentage of personnalized recommandations.", 0 },
+    { "likes_file", 'r', "FILE", 0, "Give recommendations from movies present in FILE.", 0 },
+    { "number", 'n', "NUMBER", 0, "Number of recommendations to display.", 0 },
+    { "percent", 'p', "PERCENT", 0, "Percentage of personnalized recommandations (vs. popular recommendations).", 0 },
     { 0 }
 };
 

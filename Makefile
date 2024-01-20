@@ -60,6 +60,9 @@ unzip:
 		echo -e "$(GREEN)Decompressing $(SIMILARITY_FILE).zst...$(DEFAULT)"; \
 		unzstd -kf -T0 $(SIMILARITY_FILE).zst; \
 	fi
+
+help:
+	@./$(TARGET) --help
 	
 # Rule for compiling a C source file
 $(PATH_OBJS)%.o: $(PATH_SRC)%.c

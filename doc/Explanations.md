@@ -134,6 +134,8 @@ Some possible correlation functions:
 
 We have chosen to use MSE correlation on ratings rated by the same users, as it is simple to implement and gives good results.
 
+The algorithm `knn_predictor` returns a RMSE of 0.971 on the probe set.
+
 ## References
 
 1. [The Netflix Prize, Netflix researchers]([3])

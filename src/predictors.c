@@ -45,13 +45,12 @@ UserRating *knn_ratings(Stats *stats, User *u, uint i, uint k)
 
 double knn_predictor(Stats *stats, User *user, uint movie_id)
 {
-    uint k = 80;
-    double tau = 0.01;
-    double scale = 4;
-    double offset = -5;
+    uint k = 2000;  // number of nearest neighbors
+    double tau = 0.0;  // time decay
+    double scale = 35.;  // scale of the logistic function
+    double offset = -19;  // penalize low similarities
 
-    double score = 0;
-    double sum_weights = 0;
+    double score = 0, sum_weights = 0;
     UserRating *nearest_ratings;
     
     if (user->nb_ratings > k)
@@ -59,16 +58,18 @@ double knn_predictor(Stats *stats, User *user, uint movie_id)
     else
         nearest_ratings = user->ratings;
 
-    for (int i = 0; i < min(k, user->nb_ratings); i++) {
+    double s, time_factor, weight;
+    for (int i = 0; i < min(k, user->nb_ratings); i++)
+    {
         UserRating rating = nearest_ratings[i];
-        double s = get_similarity(stats->similarity, movie_id-1, rating.movie_id-1);
-        uint delta = abs(rating.date - stats->movies[movie_id].date);
-        double time_factor = 1 / (1 + tau * delta);
-        double weight = logistic(scale * s * time_factor + offset, 1, 0);
+        s = get_similarity(stats->similarity, movie_id-1, rating.movie_id-1);
+        int delta = rating.date - stats->movies[movie_id].date;
+        time_factor = 1 / (1 + tau * abs(delta));
+        weight = logistic(scale * s * time_factor + offset, 1, 0);
         score += weight * nearest_ratings[i].score;
         sum_weights += weight;
     }
-    if (k > stats->nb_movies)
+    if (user->nb_ratings > k)
         free(nearest_ratings);
     return score / sum_weights;
 }

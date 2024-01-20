@@ -183,4 +183,3 @@ UserData *to_user_oriented(MovieData *data);
  * @note The array of identifiers must be freed by the caller.
  */
 uint parse_likes(const char *filename, MovieData *data, uint **ids);
-

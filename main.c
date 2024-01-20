@@ -62,7 +62,7 @@ int main(int argc, char *argv[])
     }
 
     double rmse = rmse_probe_calculation("data/probe_predictions.txt");
-    printf("RMSE value: %.2lf\n", rmse);
+    printf("RMSE value: %.3lf\n", rmse);
 
     if (args.likes_file != NULL) {
         uint *ids = NULL;

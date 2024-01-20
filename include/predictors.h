@@ -31,8 +31,11 @@ uint *knn_movies(Stats *stats, uint *ids, uint n, uint k, double p);
 
 /**
  * @brief Predict the score for users in the probe file.
+ * @param filename The file where predictions will be written.
+ * @param stats The stats.
+ * @param data The data.
 */
-void predict_probe(char *filename, Stats *stats, UserData *data);
+void write_probe_predictions(char *filename, Stats *stats, UserData *data);
 
 /**
  * @brief Calculate the RMSE of our algorithm to predict ratings, using the `probe_prediction.txt` file.

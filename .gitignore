@@ -5,7 +5,7 @@
 # dataset
 data/*
 !data/similarity.bin.zst
-likes.txt
+!data/probe_predictions.txt
 
 # build folder
 build/

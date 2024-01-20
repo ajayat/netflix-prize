@@ -67,4 +67,4 @@ int dichotomic_search(char **array, uint length, char *string);
  * @param folder The name of the folder containing the file.
  * @param filename The name of the file.
 */
-char *get_filepath(const char *folder, char *filename);
+char *get_filepath(const char *folder, const char *filename);

@@ -15,7 +15,7 @@ void tearDown(void) {}
  */
 void test_write_movie_data_to_file(void)
 {
-    char *filepath = get_filepath("/data/data.bin");
+    char *filepath = get_filepath("data", "data.bin");
     MovieData *data = parse();
     write_movie_data_to_file(filepath, data);
     free(filepath);
@@ -25,7 +25,7 @@ void test_write_movie_data_to_file(void)
 
 void test_read_movie_data_from_file(void)
 {
-    char *filepath = get_filepath("/data/data.bin");
+    char *filepath = get_filepath("data", "data.bin");
     MovieData *data = read_movie_data_from_file(filepath);
     free(filepath);
     TEST_ASSERT_EQUAL(0, errno);
@@ -36,8 +36,8 @@ void test_read_movie_data_from_file(void)
 
 void test_write_user_data_to_file(void)
 {
-    char *mv_filepath = get_filepath("/data/data.bin");
-    char *user_filepath = get_filepath("/data/data.bin.test");
+    char *mv_filepath = get_filepath("data", "data.bin");
+    char *user_filepath = get_filepath("data", "data.bin.test");
 
     MovieData *data = read_movie_data_from_file(mv_filepath);
     free(mv_filepath);
@@ -54,7 +54,7 @@ void test_write_user_data_to_file(void)
 
 void test_read_user_data_from_file(void)
 {
-    char *filepath = get_filepath("/data/data.bin.test");
+    char *filepath = get_filepath("data", "data.bin.test");
 
     UserData *data = read_user_data_from_file(filepath);
     free(filepath);

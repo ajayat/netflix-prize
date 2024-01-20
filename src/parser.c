@@ -43,7 +43,10 @@ error_t parse_opt(int key, char *arg, struct argp_state *state)
     Arguments *args = state->input;
     switch (key) {
     case 'f':
-        args->folder = arg;
+        args->force = true;
+        return 0;
+    case 'd':
+        args->directory = arg;
         return 0;
     case 'l':
         args->limit = strtoul(arg, NULL, 10);
@@ -116,7 +119,8 @@ int parse_titles(MovieData *data, FILE *titles_file)
     char title[LENGTH_MAX_TITLE];
     uint16_t m = 0;
 
-    while (fscanf(titles_file, "%hu%*c%4c%*c%119[^\n]\n", &id, year, title) != EOF) {
+    while (fscanf(titles_file, "%hu%*c%4c%*c%119[^\n]\n", &id, year, title) != EOF)
+    {
         data->movies[m] = calloc(1, sizeof(Movie));
         data->movies[m]->id = (uint16_t)id;
         data->movies[m]->title = strdup(title);
@@ -289,7 +293,7 @@ UserData *to_user_oriented(MovieData *data)
             }
             User *user = user_data->users[id-1];
             if (user->nb_ratings > 0 && is_power_of_two(user->nb_ratings))
-                user->ratings = (UserRating *)realloc(user->ratings, 
+                user->ratings = realloc(user->ratings, 
                                     2 * user->nb_ratings * sizeof(UserRating));
             // Add the rating to the user
             user->ratings[user->nb_ratings].movie_id = movie->id;

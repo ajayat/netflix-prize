@@ -10,6 +10,10 @@ data/*
 # stats
 stats/
 
+# stats
+stats/
+**/stats.bin
+
 # build folder
 build/
 doc/*/

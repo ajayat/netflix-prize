@@ -109,11 +109,11 @@ Stats *read_stats_from_data(MovieData *data, Arguments *args);
 /**
  * @brief Read the stats from a binary file.
 */
-Stats *read_stats_from_file(char *filename);
+Stats *read_stats_from_file(char *filepath);
 
 /**
  * @brief Write the stats in a binary file.
  * 
  * @note The similarity matrix is not written.
 */
-void write_stats_to_file(Stats *stats, char *filename);
+void write_stats_to_file(Stats *stats, char *filepath);

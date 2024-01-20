@@ -243,9 +243,9 @@ Stats *read_stats_from_data(MovieData *data, Arguments *args)
     return stats;
 }
 
-Stats *read_stats_from_file(char *filename)
+Stats *read_stats_from_file(char *filepath)
 {
-    FILE *file = fopen(filename, "rb");
+    FILE *file = fopen(filepath, "rb");
     if (file == NULL)
         return NULL;
     // Read movies stats
@@ -284,11 +284,11 @@ read_error:
     return NULL;
 }
 
-void write_stats_to_file(Stats *stats, char *filename)
+void write_stats_to_file(Stats *stats, char *filepath)
 {
-    FILE *file = fopen(filename, "wb");
+    FILE *file = fopen(filepath, "wb");
     if (file == NULL)
-        return perror("The file for the stats can't be opened.");
+        return perror("The stats.bin file can't be opened");
     
     fwrite(&stats->nb_movies, sizeof(stats->nb_movies), 1, file);
     fwrite(&stats->nb_users, sizeof(stats->nb_users), 1, file);

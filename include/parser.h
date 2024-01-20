@@ -13,7 +13,8 @@ typedef unsigned long ulong;
  */
 typedef struct Arguments {
     /*@{*/
-    const char* folder; /**< Directory where put file corresponding to results. */
+    bool force; /**< `--force` option: to force recompute stats. */
+    const char* directory; /**< Directory where put file corresponding to results. */
     uint16_t limit; /**< `-l` option: prohibits taking notes into account if their date is greater than Arguments::limit. */
     uint16_t movie_id; /**< `-s` option: film than the user wants statistics for. */
     uint nb_customer_ids; /**< Length of Arguments::customer_ids. */

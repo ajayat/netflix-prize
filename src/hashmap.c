@@ -143,6 +143,7 @@ Hashmap *read_hashmap_from_file(FILE *file)
     if (!fread(&h->size, sizeof(h->size), 1, file)
         || !fread(&h->count, sizeof(h->count), 1, file))
         goto read_error;
+        
     h->items = (Item*)calloc(h->size, sizeof(Item));
     if (!fread(h->items, sizeof(Item), h->size, file)) {
         free(h->items);

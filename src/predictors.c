@@ -121,11 +121,10 @@ static void parse_probe(FILE *out, char *buffer, Stats *stats, UserData *data)
         }
         User *user = data->users[id-1];
         for (uint r = 0; r < user->nb_ratings; r++) {
-            UserRating rating = user->ratings[r];
-            if (rating.movie_id != movie_id)
+            if (user->ratings[r].movie_id != movie_id)
                 continue;
             double predict_score = knn_predictor(stats, user, movie_id);
-            fprintf(out, "%lu,%u,%lf\n", id, rating.score, predict_score);
+            fprintf(out, "%lu,%u,%lf\n", id, user->ratings[r].score, predict_score);
             break;
         }
     }
@@ -163,6 +162,7 @@ double rmse_probe_calculation(char* filename)
     double s1, s2, diff;
     double n = 0;
     double rmse = 0;
+
     char line[7];
     while (fgets(line, 7, probe_file) != NULL) {
         while (fscanf(probe_file, "%*[0-9],%lf,%lf\n", &s1, &s2) == 2) {

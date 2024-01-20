@@ -54,7 +54,8 @@ clean:
 	@printf "$(GREEN)Cleaning...$(DEFAULT)\n"
 	$(RM) -r $(PATH_BUILD) $(PATH_EXE) $(PATH_OBJS) $(PATH_DEPS)
 	$(RM) -r $(PATH_DOC)*/
-	$(RM) $(TARGET)
+	$(RM) -r $(TARGET) stats/ data/data.bin data/probe_predictions.txt
+
 unzip:
 	@if [ -f $(SIMILARITY_FILE).zst ] && [ ! -f $(SIMILARITY_FILE) ]; then \
 		echo -e "$(GREEN)Decompressing $(SIMILARITY_FILE).zst...$(DEFAULT)"; \

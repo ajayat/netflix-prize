@@ -74,11 +74,18 @@ int dichotomic_search(char **array, uint length, char *string)
     return -1;
 }
 
-char *get_filepath(const char *folder, char *filename)
+char *get_filepath(const char *folder, const char *filename)
 {
     char *filepath = malloc(1024 * sizeof(char));
-    if (getcwd(filepath, 512) == NULL)
+    char cwd[512];
+    if (getcwd(cwd, 1024) == NULL)
         perror("getcwd() error");
-    strncat(filepath, filename, 512);
+        
+    // Create the folder if it does not exist
+    char command[512];
+    snprintf(command, 512, "mkdir -p %s", folder);
+    system(command);
+
+    snprintf(filepath, 1024, "%s/%s/%s", cwd, folder, filename);
     return filepath;
 }

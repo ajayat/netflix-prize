@@ -74,7 +74,7 @@ int dichotomic_search(char **array, uint length, char *string)
     return -1;
 }
 
-char *get_filepath(char *filename)
+char *get_filepath(char *folder, char *filename)
 {
     char *filepath = malloc(1024 * sizeof(char));
     if (getcwd(filepath, 512) == NULL)

@@ -4,10 +4,14 @@
 
 # dataset
 data/*
-!data/similarity.bin.zst
 !data/probe_predictions.txt
+!data/similarity.bin.zst
+
+# stats
+stats/
 
 # build folder
 build/
 doc/*/
 main
+likes.txt

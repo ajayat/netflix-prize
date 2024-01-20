@@ -2,6 +2,7 @@
 #include <stdbool.h>
 #include <stdlib.h>
 #include <unistd.h>
+#include <time.h>
 
 #include "parser.h"
 #include "utils.h"
@@ -45,13 +46,18 @@ int main(int argc, char *argv[])
     };
     argp_parse(&argp, argc, argv, 0, 0, &args);
 
+    time_t start = 0, end = 0;
+    if (args.time)
+        time(&start);
+
     // Parse data
     MovieData *data = read_movie_data_from_file("data/data.bin");
     if (data == NULL) {
         data = parse();
         write_movie_data_to_file("data/data.bin", data);
     }
-    Stats *stats = read_stats_from_file("data/stats.bin");
+    
+    Stats *stats = read_stats_from_file(get_filepath("stats.bin"));
     if (stats == NULL) {
         stats = read_stats_from_data(data, &args);
         write_stats_to_file(stats, "data/stats.bin");
@@ -81,6 +87,11 @@ int main(int argc, char *argv[])
     free_args(&args);
     free_stats(stats);
     free_movie_data(data);
+
+    if (args.time) {
+        time(&end);
+        printf( "Finished in %.2lf sec\n", difftime(end, start)); 
+    }
 
     return 0;
 }

@@ -64,6 +64,7 @@ int dichotomic_search(char **array, uint length, char *string);
 
 /**
  * @brief Get the filepath of a file in the current working directory.
+ * @param folder The name of the folder containing the file.
  * @param filename The name of the file.
 */
-char *get_filepath(char *filename);
+char *get_filepath(char *folder, char *filename);

@@ -30,13 +30,9 @@ double knn_predictor(Stats *stats, User *user, uint movie_id);
 uint *knn_movies(Stats *stats, uint *ids, uint n, uint k, double p);
 
 /**
- * @brief Parse the probe.txt file and return a file with the real ratings given by users in the training set.
- * 
- * @param filename Name of the probe file.
- * @param stats All statistics about all movies and all users.
- * @param movie_data Data of all movies, to find ratings.
- */
-void parse_probe(char *filename, Stats *stats, MovieData *data);
+ * @brief Predict the score for users in the probe file.
+*/
+void predict_probe(char *filename, Stats *stats, UserData *data);
 
 /**
  * @brief Calculate the RMSE of our algorithm to predict ratings, using the `probe_prediction.txt` file.

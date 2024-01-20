@@ -56,8 +56,10 @@ int main(int argc, char *argv[])
         stats = read_stats_from_data(data, &args);
         write_stats_to_file(stats, "data/stats.bin");
     }
-    if ((access("data/probe_predictions.txt", F_OK) == -1))
-        parse_probe("data/probe.txt", stats, data);
+    if ((access("data/probe_predictions.txt", F_OK) == -1)) {
+        UserData *user_data = to_user_oriented(data);
+        predict_probe("data/probe.txt", stats, user_data);
+    }
 
     double rmse = rmse_probe_calculation("data/probe_predictions.txt");
     printf("RMSE value: %.2lf\n", rmse);

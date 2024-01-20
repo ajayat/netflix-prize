@@ -9,7 +9,7 @@
 void setUp(void) {}
 void tearDown(void) {}
 
-void test_parse_probe(void)
+void test_predict_probe(void)
 {
     Arguments args = {
         .folder = "stats/",
@@ -27,12 +27,13 @@ void test_parse_probe(void)
     };
     char *filepath = get_filepath("/data/data.bin");
     MovieData *data = read_movie_data_from_file(filepath);
+    UserData *user_data = to_user_oriented(data);
     free(filepath);
 
     UserData *udata = to_user_oriented(data);
 
     Stats *stats = read_stats_from_data(data, &args);
-    parse_probe("data/probe.txt", stats, data);
+    predict_probe("data/probe.txt", stats, user_data);
 
     FILE* probe_file = fopen("data/probe.txt", "r");
     FILE* predictions_file = fopen("data/probe_predictions.txt", "r");
@@ -71,6 +72,6 @@ void test_parse_probe(void)
 int main(void)
 {
     UNITY_BEGIN();
-    RUN_TEST(test_parse_probe);
+    RUN_TEST(test_predict_probe);
     return UNITY_END();
 }

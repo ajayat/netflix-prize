@@ -14,8 +14,8 @@ static int compare_ratings(const void *a, const void *b)
 {
     UserRating *r1 = (UserRating *)a;
     UserRating *r2 = (UserRating *)b;
-    float s1 = get_similarity(similarity_matrix, movie_id, r1->movie_id-1);
-    float s2 = get_similarity(similarity_matrix, movie_id, r2->movie_id-1);
+    float s1 = get_similarity(similarity_matrix, movie_id-1, r1->movie_id-1);
+    float s2 = get_similarity(similarity_matrix, movie_id-1, r2->movie_id-1);
     return s2 - s1;
 }
 
@@ -53,17 +53,17 @@ double knn_predictor(Stats *stats, User *user, uint movie_id)
     UserRating *nearest_ratings;
     
     if (user->nb_ratings > k)
-        nearest_ratings = knn_ratings(stats, user, movie_id-1, k);
+        nearest_ratings = knn_ratings(stats, user, movie_id, k);
     else
         nearest_ratings = user->ratings;
-    
+
     for (int i = 0; i < min(k, user->nb_ratings); i++) {
         UserRating rating = nearest_ratings[i];
         double s = get_similarity(stats->similarity, movie_id-1, rating.movie_id-1);
         uint delta = abs(rating.date - stats->movies[movie_id].date);
         double time_factor = 1 / (1 + tau * delta);
         double weight = logistic(scale * s * time_factor + offset, 1, 0);
-        score += weight * user->ratings[rating.movie_id-1].score;
+        score += weight * nearest_ratings[i].score;
         sum_weights += weight;
     }
     if (k > stats->nb_movies)
@@ -109,25 +109,28 @@ uint *knn_movies(Stats *stats, uint *ids, uint n, uint k, double p)
 
 void parse_probe(char *filename, Stats *stats, MovieData *data)
 {
-    puts("Parsing the probe.txt file...");
     UserData *user_data = to_user_oriented(data);
 
     FILE* probe_file = fopen(filename, "r");
     if (probe_file == NULL) {
-        perror("Could not open probe file");
+        perror("Could not open probe file.");
         return;
     }
     FILE* probe_prediction = fopen("data/probe_predictions.txt", "w");
     if (probe_prediction == NULL) {
-        perror("Could not open probe prediction file");
+        perror("Could not open probe prediction file.");
         return;
     }
     Movie *movie = data->movies[0];
     char c;
     ulong id;
+    float m = 0;
     while  (fscanf(probe_file, "%lu%c\n", &id, &c) != EOF)
     {
         if (c == ':') {
+            m += 1.0;
+            printf("\n\033[A\033[2K");  // Clear the line
+            printf("Parsing probe file: %.0lf%%", m / PROBE_MOVIES_COUNT * 100);
             fprintf(probe_prediction, "%lu:\n", id);
             movie = data->movies[id-1];
             continue;
@@ -139,10 +142,11 @@ void parse_probe(char *filename, Stats *stats, MovieData *data)
                 break;
             }
         }
-        // double predicted_score = knn_predictor(stats, user_data->users[id], movie->id);
-        fprintf(probe_prediction, "%lu,%u,%lf\n", id, score, 5.0);
+        double predicted_score = knn_predictor(stats, user_data->users[id-1], movie->id);
+        fprintf(probe_prediction, "%lu,%u,%lf\n", id, score, predicted_score);
 
     }
+    puts(" ✅");  // Information for the user
     fclose(probe_prediction);
     fclose(probe_file);
 }
@@ -153,10 +157,8 @@ double rmse_probe_calculation(char* filename)
     double s1, s2, diff;
     double n = 0;
     double rmse = 0;
-    float m = 0;
     char line[7];
     while (fgets(line, 7, probe_file) != NULL) {
-        m += 1.0;
         while (fscanf(probe_file, "%*[0-9],%lf,%lf\n", &s1, &s2) == 2) {
             diff = s1 - s2;
             rmse += diff * diff;

@@ -3,6 +3,8 @@
 #include "stats.h"
 #include "parser.h"
 
+#define PROBE_MOVIES_COUNT 16938
+
 typedef struct Score {
     uint movie_id;
     double score;

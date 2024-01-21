@@ -21,7 +21,7 @@ static struct argp_option options[] = {
     { "bad_reviewers", 'b', "BAD_REVIEWERS", 0, "List of customer ID.", 0 },
     { "min", 'e', "MIN", 0, "Restrict to customers who have seen >= MIN films", 0 },
     { "t", 't', 0, 0, "Display execution time.", 0 },
-    { "likes_file", 'r', "FILE", 0, "Give recommendations from movies present in FILE.", 0 },
+    { "likes", 'r', "FILE|MOVIE_IDS", 0, "Give recommendations from movies present in FILE.", 0 },
     { "number", 'n', "NUMBER", 0, "Number of recommendations to display.", 0 },
     { "percent", 'p', "PERCENT", 0, "Percentage of personnalized recommandations (vs. popular recommendations).", 0 },
     { 0 }
@@ -31,6 +31,8 @@ static struct argp argp = { options, parse_opt, args_doc, doc, 0, 0, 0 };
 
 int main(int argc, char *argv[])
 {
+    clock_t t_start = clock();  // Start time
+
     Arguments args = {
         .force = false,
         .directory = "stats",
@@ -42,15 +44,11 @@ int main(int argc, char *argv[])
         .bad_reviewers = NULL,
         .min = 0,
         .time = false,
-        .likes_file = NULL,
+        .likes = NULL,
         .n = 10,
         .percent = 0.9
     };
     argp_parse(&argp, argc, argv, 0, 0, &args);
-
-    time_t start = 0, end = 0;
-    if (args.time)
-        time(&start);
 
     // Parse data
     MovieData *data = read_movie_data_from_file("data/data.bin");
@@ -75,19 +73,23 @@ int main(int argc, char *argv[])
     free(stats_fp);
 
     // Calculate predictions
-    if ((access("data/probe_predictions.txt", F_OK) == -1)) {
+    if ((access("data/probe_predictions.txt", F_OK) == -1)) 
+    {
         UserData *user_data = to_user_oriented(data);
         write_probe_predictions("data/probe_predictions.txt", stats, user_data);
+        // free_user_data(user_data);
+        // Calculate RMSE
+        double rmse = rmse_probe_calculation("data/probe_predictions.txt");
+        printf("RMSE value: %.3lf\n", rmse);
     }
-    double rmse = rmse_probe_calculation("data/probe_predictions.txt");
-    printf("RMSE value: %.3lf\n", rmse);
 
-    if (args.likes_file != NULL) {
-        uint *ids = NULL;
-        uint n = parse_likes(args.likes_file, data, &ids);
+    if (args.likes != NULL) 
+    {
+        ulong *ids = NULL;
+        uint n = parse_likes(args.likes, data, &ids);
         if (n == 0) {
-            fprintf(stderr, "Could not parse titles in file %s\n", args.likes_file);
-            exit(EXIT_FAILURE);
+            fprintf(stderr, "Could not parse liked movies.\n");
+            goto end;
         }
         puts("============= Recommandations =============");
         uint *recommandations = knn_movies(stats, ids, n, args.n, args.percent);
@@ -95,15 +97,15 @@ int main(int argc, char *argv[])
             printf("%u. %s\n", i+1, data->movies[recommandations[i]-1]->title);
         free(ids);
     }
+end: 
     // Free memory
     free_args(&args);
     free_stats(stats);
     free_movie_data(data);
 
     if (args.time) {
-        time(&end);
-        printf( "Finished in %.2lf sec\n", difftime(end, start)); 
+        double time_elapsed_ms = (double)(clock() - t_start) / CLOCKS_PER_SEC;
+        printf( "Finished in %.2lfs\n", time_elapsed_ms);
     }
-
     return 0;
 }

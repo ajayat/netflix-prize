@@ -27,7 +27,7 @@ double knn_predictor(Stats *stats, User *user, uint movie_id);
  * @param p The percentage of personnalized recommandations.
  * @return The ids of the k recommandations.
 */
-uint *knn_movies(Stats *stats, uint *ids, uint n, uint k, double p);
+uint *knn_movies(Stats *stats, ulong *ids, uint n, uint k, double p);
 
 /**
  * @brief Predict the score for users in the probe file.

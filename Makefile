@@ -36,7 +36,7 @@ all: $(TARGET) unzip
 
 run: $(TARGET)
 	@printf "$(GREEN)Running $(TARGET):$(DEFAULT)\n"
-	@./$(TARGET)
+	@./$(TARGET) -f
 
 tests: $(TESTS)
 	@printf "$(GREEN)Running tests...$(DEFAULT)\n"

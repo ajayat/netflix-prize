@@ -211,8 +211,11 @@ void compute_stats(Stats *stats, MovieData *data, Arguments *args)
 static void one_movie_stats(Stats* stats, Arguments* args)
 {
     char mv_filename[30];
-    snprintf(mv_filename, 30, "data/stats_mv_%07u.csv", args->movie_id);
-    FILE *one_movie = fopen(mv_filename, "w");
+    snprintf(mv_filename, 30, "stats_mv_%07u.csv", args->movie_id);
+    char *filepath = get_filepath(args->directory, mv_filename);
+    FILE *one_movie = fopen(filepath, "w");
+    free(filepath);
+    
     MovieStats mv_stats = stats->movies[args->movie_id - 1];
     fprintf(one_movie, "average; min; max\n");
     fprintf(one_movie, "%lf; %u; %u\n", 

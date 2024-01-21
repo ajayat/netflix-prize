@@ -23,13 +23,13 @@ void free_args(Arguments *args)
         free(args->bad_reviewers);
 }
 
-ulong* parse_ids(char *arg, uint *n)
+ulong* parse_ids(const char *arg, uint *n)
 {
     char* end = NULL;
     ulong* ids = calloc(1, sizeof(ulong));
     ulong id;
     while ((id = strtoul(arg, &end, 10)) != 0) {
-        if (is_power_of_two(*n))
+        if (*n > 0 && is_power_of_two(*n))
             ids = realloc(ids, 2 * (*n) * sizeof(ulong));
 
         ids[(*n)++] = id;
@@ -67,7 +67,7 @@ error_t parse_opt(int key, char *arg, struct argp_state *state)
         args->time = true;
         return 0;
     case 'r':
-        args->likes_file = arg;
+        args->likes = arg;
         return 0;
     case 'n':
         args->n = strtoul(arg, NULL, 10);
@@ -381,15 +381,16 @@ static uint remove_duplicates(char **titles, uint n)
     return nb_titles;
 }
 
-uint parse_likes(const char *filename, MovieData *data, uint **ids)
+uint parse_likes(const char *arg, MovieData *data, ulong **ids)
 {
-    FILE* likes_file = fopen(filename, "r");
-    if (likes_file == NULL) 
-        return 0;
     uint n = 0;
-    char **titles = calloc(1, sizeof(char*));
-
+    FILE* likes_file = fopen(arg, "r");
+    if (likes_file == NULL) {
+        *ids = parse_ids(arg, &n);
+        return n;
+    }
     // Get the titles list
+    char **titles = calloc(1, sizeof(char*));
     char title[LENGTH_MAX_TITLE];
 
     while(fgets(title, LENGTH_MAX_TITLE, likes_file) != NULL) {
@@ -407,7 +408,7 @@ uint parse_likes(const char *filename, MovieData *data, uint **ids)
     n = remove_duplicates(titles, n);
 
     // Get the corresponding identifiers
-    *ids = calloc(n, sizeof(uint));
+    *ids = calloc(n, sizeof(ulong));
     uint c = n;
 
     for (uint m = 0; m < data->nb_movies; m++)

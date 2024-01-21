@@ -72,7 +72,7 @@ double knn_predictor(Stats *stats, User *user, uint movie_id)
     return score / sum_weights;
 }
 
-static double proximity(Stats *stats, uint i, uint *ids, uint m)
+static double proximity(Stats *stats, uint i, ulong *ids, uint m)
 {
     double distance = 0;
     double sum_weights = 0;
@@ -87,7 +87,7 @@ static double proximity(Stats *stats, uint i, uint *ids, uint m)
     return distance / sum_weights;
 }
 
-uint *knn_movies(Stats *stats, uint *ids, uint n, uint k, double p)
+uint *knn_movies(Stats *stats, ulong *ids, uint n, uint k, double p)
 {
     Score scores[stats->nb_movies];
     uint *movies = calloc(k, sizeof(uint));
@@ -112,7 +112,8 @@ static void parse_probe(FILE *out, char *buffer, Stats *stats, UserData *data)
 {
     char *begin = buffer, *end = NULL;
     ulong movie_id = 0, id = 0;
-    while ((id = strtoul(begin, &end, 10)) != 0) {
+    while ((id = strtoul(begin, &end, 10)) != 0)
+    {
         begin = end + 1;
         if (end[0] == ':') {
             fprintf(out, "%lu:\n", id);
@@ -120,11 +121,12 @@ static void parse_probe(FILE *out, char *buffer, Stats *stats, UserData *data)
             continue;
         }
         User *user = data->users[id-1];
-        for (uint r = 0; r < user->nb_ratings; r++) {
+        for (uint r = 0; r < user->nb_ratings; r++)
+        {
             if (user->ratings[r].movie_id != movie_id)
                 continue;
-            double predict_score = knn_predictor(stats, user, movie_id);
-            fprintf(out, "%lu,%u,%lf\n", id, user->ratings[r].score, predict_score);
+            double predicted = knn_predictor(stats, user, movie_id);
+            fprintf(out, "%lu,%u,%lf\n", id, user->ratings[r].score, predicted);
             break;
         }
     }

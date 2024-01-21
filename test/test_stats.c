@@ -14,7 +14,7 @@ void test_read_stats_from_data(void)
 {
     Arguments args;
     // defaults values
-    args.folder = "data/";
+    args.directory = "stats";
     args.limit = INT16_MAX;
     args.movie_id = 0;
     args.min = 0;

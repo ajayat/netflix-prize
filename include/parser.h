@@ -23,7 +23,7 @@ typedef struct Arguments {
     ulong *bad_reviewers; /**< `-b` option: customers than the user does not want to take into account. */
     uint min; /**< `-e` option: to take into account only customers with Arguments::min ratings at least. */
     bool time; /**< True to give the executive time of the algorithm. */
-    char* likes_file; /**< `-r` option: file where to get liked movies. */
+    char* likes; /**< `-r` option: file with movies titles or movies ids of liked movies. */
     uint n; /**< `-n` option: number of recommandations to give. */
     float percent; /**< `-p` option: percentage of personnalized recommandations */  
     /*@}*/
@@ -32,7 +32,7 @@ typedef struct Arguments {
 /**
  * @brief Parse a string containing a list of ids.
 */
-ulong* parse_ids(char *arg, uint *n);
+ulong* parse_ids(const char *arg, uint *n);
 
 /**
  * @brief Parse an argument given by the user.
@@ -183,4 +183,4 @@ UserData *to_user_oriented(MovieData *data);
  * 
  * @note The array of identifiers must be freed by the caller.
  */
-uint parse_likes(const char *filename, MovieData *data, uint **ids);
+uint parse_likes(const char *filename, MovieData *data, ulong **ids);

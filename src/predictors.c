@@ -61,7 +61,7 @@ double knn_predictor(Stats *stats, User *user, uint movie_id)
     {
         UserRating rating = nearest_ratings[i];
         s = get_similarity(stats->similarity, movie_id-1, rating.movie_id-1);
-        int delta = rating.date - stats->movies[movie_id].date;
+        int delta = rating.date - stats->movies[movie_id-1].date;
         time_factor = 1 / (1 + tau * abs(delta));
         weight = logistic(scale * s * time_factor + offset, 1, 0);
         score += weight * nearest_ratings[i].score;

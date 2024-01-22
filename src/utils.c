@@ -78,13 +78,14 @@ char *get_filepath(const char *folder, const char *filename)
 {
     char *filepath = malloc(1024 * sizeof(char));
     char cwd[512];
-    if (getcwd(cwd, 1024) == NULL)
+    if (getcwd(cwd, 512) == NULL)
         perror("getcwd() error");
         
     // Create the folder if it does not exist
     char command[512];
     snprintf(command, 512, "mkdir -p %s", folder);
-    system(command);
+    if (system(command) != 0)
+        perror("Could not create the directory");
 
     snprintf(filepath, 1024, "%s/%s/%s", cwd, folder, filename);
     return filepath;

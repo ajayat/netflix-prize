@@ -37,11 +37,10 @@ void test_write_probe_predictions(void)
     double predicted;
     ulong idu_1, idu_2;
 
-    if (fscanf(probe_file, "%u:", &idm_1) == EOF)
+    if (fscanf(probe_file, "%u:\n", &idm_1) == EOF)
         TEST_FAIL();
     if (fscanf(predictions_file, "%u:\n", &idm_2) == EOF)
         TEST_FAIL();
-
     TEST_ASSERT_EQUAL(idm_1, idm_2);
 
     Movie* movie = data->movies[idm_1-1];
@@ -51,6 +50,7 @@ void test_write_probe_predictions(void)
             TEST_FAIL();
         if (fscanf(predictions_file, "%lu,%u,%lf\n", &idu_2, &score, &predicted) == EOF)
             TEST_FAIL();
+        TEST_ASSERT_EQUAL(idu_1, idu_2);
         for (uint r = 0; r < movie->nb_ratings; r++) 
         {
             if (get_customer_id(movie->ratings[r]) != idu_2)

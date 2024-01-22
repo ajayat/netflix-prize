@@ -55,7 +55,6 @@ void test_write_probe_predictions(void)
         {
             if (get_customer_id(movie->ratings[r]) != idu_2)
                 continue;
-            
             TEST_ASSERT_EQUAL(movie->ratings[r].score, score);
             double predicted2 = knn_predictor(stats, user_data->users[idu_1-1], idm_1);
             TEST_ASSERT_EQUAL(predicted, predicted2);

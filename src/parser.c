@@ -234,7 +234,7 @@ MovieData *read_movie_data_from_file(char* filepath)
         return NULL;
     // Allocate memory for data
     MovieData *data = malloc(sizeof(MovieData));
-    data->nb_movies = 0u;
+    data->nb_movies = 0;
     uint16_t nb_movies;
     if (!fread(&nb_movies, sizeof(uint16_t), 1, file)) {
         free(data);

@@ -148,14 +148,13 @@ void write_probe_predictions(char *filename, Stats *stats, UserData *data)
         return;
     }
     uint size = get_size(probe_file);
-    char *buffer = malloc(size * sizeof(char));
+    char *buffer = calloc((size + 1), sizeof(char));
     if (fread(buffer, 1, size, probe_file) != 0)
         parse_probe(probe_prediction, buffer, stats, data);
     
     fclose(probe_prediction);
     fclose(probe_file);
     free(buffer);
-    free_user_data(data);
 }
 
 double rmse_probe_calculation(char* filename)

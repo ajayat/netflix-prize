@@ -2,17 +2,16 @@
 
 This project was realised by Adrien JAYAT and Ysée JACQUET.
 
-It consists of a recommendation system for films based on the Netflix Prize dataset published by Netflix in 2006.
+It consists of a recommendation system for movies based on the Netflix Prize dataset published by Netflix in 2006.
 
 Our algorithm gives a RMSE of **0.971** on the test set.
-In comparison, the RMSE of the Cinematch, the Netflix algorithm, was 0.9525.
+In comparison, the RMSE of the [Cinematch](https://en.wikipedia.org/wiki/Netflix_Prize#Prizes), the Netflix algorithm, was 0.9525.
 
 ## Get Started
 
 This project is using two submodules:
 
-- the [Unity](https://www.throwtheswitch.org/unity)
-framework for testing.
+- the [Unity](https://www.throwtheswitch.org/unity) framework for testing.
 
 - the [Doxygen](https://www.doxygen.nl/download.html) tool for documentation generation, with the [Doxygen Awesome](https://jothepro.github.io/doxygen-awesome-css/) theme.
 
@@ -54,12 +53,13 @@ make clean && make tests
 
 ## How to use
 
-After building the project, you can run the `./main` executable to start the program.
+After building the project, you can run the `./main` executable to start the program. Use the option `-h` to get the following options list in your terminal.
 
 ### Options
 
 | Flag |     Argument     | Description                       |
 | :--: | :--------------: | :-------------------------------- |
+| `-f` |      FORCE       | Force to recompute all stats. |
 | `-r` |    LIKES_FILE    | List of movies liked by the user. |
 | `-n` |        N         | Length of the recommendation list the algorithm will give. |
 | `-d` |    DIRECTORY     | The path of the folder where files corresponding to results will be saved. |

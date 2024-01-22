@@ -13,7 +13,7 @@ static char doc[] = "Programming Project";
 static char args_doc[] = "";
 
 static struct argp_option options[] = {
-    { "force", 'f', 0, 0, "Force recompute all stats.", 0 },
+    { "force", 'f', 0, 0, "Force to recompute all stats.", 0 },
     { "directory", 'd', "PATH", 0, "Path of the binary file.", 0 },
     { "limite", 'l', "LIMIT", 0, "Exclude ratings before the given date.", 0 },
     { "movie", 's', "MOVIE_ID", 0, "Movie ID.", 0 },

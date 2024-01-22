@@ -867,6 +867,7 @@ WARN_LOGFILE           =
 INPUT                  = README.md \
                          include/ \
                          src/ \
+                         test/ \
                          doc/Subject.md \
                          doc/Explanations.md \
                          doc/AboutDataset.md
@@ -2026,7 +2027,7 @@ COMPACT_RTF            = NO
 # The default value is: NO.
 # This tag requires that the tag GENERATE_RTF is set to YES.
 
-RTF_HYPERLINKS         = NO
+RTF_HYPERLINKS         = NOrc
 
 # Load stylesheet definitions from file. Syntax is similar to doxygen's
 # configuration file, i.e. a series of assignments. You only have to provide

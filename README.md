@@ -1,6 +1,11 @@
 # Programming Project
 
-This project is a recommendation system for movies. It uses the Netflix Prize dataset published by Netflix in 2006.
+This project was realised by Adrien JAYAT and Ysée JACQUET.
+
+It consists of a recommendation system for films based on the Netflix Prize dataset published by Netflix in 2006.
+
+Our algorithm gives a RMSE of **0.971** on the test set.
+In comparison, the RMSE of the Cinematch, the Netflix algorithm, was 0.9525.
 
 ## Get Started
 
@@ -94,13 +99,3 @@ Add the `-p` option to give a percentage to quantify the importance of personali
 ```
 
 It will create a file named `stats_mv_000042.csv` in the `stats` folder, containing the min, max and average score of the movie 42.
-
-## Results
-
-Our algorithm gives a RMSE of **0.971** on the test set.
-
-In comparison, the RMSE of the Cinematch, the Netflix algorithm in 2006, was 0.9525.
-
-## About
-
-This project was realized by Adrien JAYAT and Ysée JACQUET.

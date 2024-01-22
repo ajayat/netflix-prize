@@ -62,28 +62,12 @@ Functions `read_movie_data_from_file`, `write_movie_data_to_file`, `read_user_da
 
 ### Statistics from the data
 
-In this part and before to begin the recommedaion algorithm, it is important to analyze the size and the repartition of our data.
-We calculate two kind of statistics : those which are based on movies (average rating, minimum, maximum, date) and those based on users (number of ratings, their average, number of ratings per day).
-For example, a user who rated more than 2 or 3 movies/series in one single day can't be taken seriously, because he certainly rated movies he did'nt watch. But it's also possible that he decided to rate movies he saw before opening his account. So his ratings will be taken in account, but with an impact more moderate than a "regular" user.
+In this part and before to begin the recommendation algorithm, it is important to analyze the size and the repartition of our data.
+We calculate two kind of statistics: those which are based on movies (average rating, minimum, maximum, date) and those based on users (number of ratings, their average, number of ratings per day).
 
-In addition, we take into account the arguments of the command line. In fact, statistics are generated only from ratings which respect all given options. And we allow to create a file with the statistics of one movie especially, to answer to the use of the option `-s`. You can find the different options bellow:
+For example, a user who rated more than 2 or 3 movies in one single day can't be taken seriously, because he certainly rated movies he did'nt watch. But it's also possible that he decided to rate movies he saw before opening his account. So his ratings will be taken in account, but with an impact more moderate than a "regular" user.
 
-| flag |     argument     |                                                     description                                                      |
-| :--: | :--------------: | :------------------------------------------------------------------------------------------------------------------- |
-| `-r` |    LIKES_FILE    |                                          List of movies liked by the user.                                           |
-| `-n` |        N         |                              Length of the recommendation list the algorithm will give.                              |
-| `-f` |      FOLDER      |                      The path of the folder where files corresponding to results will be saved.                      |
-| `-l` |      LIMIT       |                       Forbidden to take in acount ratings with a date greater than the LIMIT.                        |
-| `-s` |     MOVIE_ID     |                            Give statistics about the movie with the identifier MOVIE_ID.                             |
-| `-c` |   CUSTOMER_IDS   |                 Allow to take into account only the ratings of the customers with given identifiers.                 |
-|  ∅   | NB_CUSTOMER_IDS  |                                            Number of given customer ids.                                             |
-| `-b` |  BAD_REVIEWERS   |                 Allow to not take into account the ratings of the customers with given identifiers.                  |
-|  ∅   | NB_BAD_REVIEWERS |                                            Number of given bad reviewers.                                            |
-| `-e` |       MIN        |                       Allow to take into account only customers who rated at least MIN movies.                       |
-| `-t` |       TIME       |                                    Precise the executive time of the algorithme.                                     |
-| `-p` |     PERCENT      | Percentage (between 0 and 1) to quantify the importance of personnal recommendations versus popular recommendations. |
-
-Note that options `-r`, `-n`, `-t` and `-p` are not used for statistics processing.
+In addition, we take into account the arguments of the command line. In fact, statistics are generated only from ratings which respect all given options. And we allow to create a file with the statistics of one movie especially, to answer to the use of the option `-s`.
 
 ### The similarity matrix
 

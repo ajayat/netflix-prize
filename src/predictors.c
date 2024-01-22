@@ -10,6 +10,11 @@
 static float *similarity_matrix = NULL;
 static uint movie_id = 0;
 
+typedef struct Score {
+    uint movie_id;
+    double score;
+} Score;
+
 static int compare_ratings(const void *a, const void *b)
 {
     UserRating *r1 = (UserRating *)a;
